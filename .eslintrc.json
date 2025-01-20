@@ -12,8 +12,17 @@
     "plugin:import/electron",
     "plugin:import/typescript",
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
+    "prettier"
   ],
-  "plugins": ["react", "react-hooks"],
-  "parser": "@typescript-eslint/parser"
+  "plugins": [
+    "react",
+    "react-hooks",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "no-console": 1,       // Means warning
+    "prettier/prettier": 2 // Means error
+  }
 }
