@@ -13,6 +13,15 @@ rules.push({
   use: [{ loader: "style-loader" }, { loader: "css-loader" }],
 });
 
+rules.push({
+  test: /\.(png|jpe?g|gif|svg)$/i,
+  use: [
+    {
+      loader: "file-loader",
+    },
+  ],
+});
+
 export const rendererConfig: Configuration = {
   module: {
     rules,
@@ -21,4 +30,5 @@ export const rendererConfig: Configuration = {
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".scss"],
   },
+  devtool: "source-map",
 };

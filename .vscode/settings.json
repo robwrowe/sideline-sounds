@@ -1,6 +1,22 @@
 {
+    "cssVariables.lookupFiles": [
+        "**/*.css",
+        "**/*.scss",
+        "**/*.sass",
+        "**/*.less",
+        "node_modules/@mantine/core/styles.css"
+    ],
     "material-icon-theme.folders.associations": {
         "renderer": "client",
-        "styles": "sass"
-    }
+        "styles": "sass",
+        "features": "redux-reducer",
+        "components": "react-components"
+    },
+    "material-icon-theme.files.associations": {
+        "*.slice.ts": "redux-reducer"
+    },
+    "cSpell.words": [
+        "mantine",
+        "tabler"
+    ]
 }

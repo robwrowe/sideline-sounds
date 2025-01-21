@@ -2,6 +2,9 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router";
 import { createTheme, MantineProvider, Button } from "@mantine/core";
+import { store } from "./store";
+import { Provider } from "react-redux";
+import App from "./App";
 
 // core styles are required for all packages
 import "@mantine/core/styles.css";
@@ -27,10 +30,11 @@ const theme = createTheme({
 const root = createRoot(document.body);
 
 root.render(
-  <MemoryRouter>
-    <MantineProvider theme={theme}>
-      <h2>Hello from React!</h2>
-      <Button>Hello, World!</Button>
-    </MantineProvider>
-  </MemoryRouter>
+  <Provider store={store}>
+    <MemoryRouter>
+      <MantineProvider theme={theme} defaultColorScheme="dark">
+        <App />
+      </MantineProvider>
+    </MemoryRouter>
+  </Provider>
 );
