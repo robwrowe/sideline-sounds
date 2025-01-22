@@ -1,16 +1,8 @@
-import React from "react";
-import {
-  Box,
-  Burger,
-  Group,
-  Image,
-  Progress,
-  Stack,
-  Text,
-} from "@mantine/core";
+import React, { useState } from "react";
+import { Burger } from "@mantine/core";
 import styles from "./index.module.scss";
 
-import anAlbumCover from "../../assets/sample-album-cover.png";
+import AudioControls from "./AudioControls";
 import SongStatus from "./SongStatus";
 
 export type HeaderProps = {
@@ -29,6 +21,7 @@ export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
       />
       <div className={styles.parent}>
         {/* Audio Controls */}
+        <AudioControls />
         {/* Audio Status */}
         <SongStatus />
       </div>

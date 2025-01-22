@@ -11,8 +11,8 @@ export default function SongStatus() {
 
   return (
     <div className={classNames(styles.parent, darkModeStyles)}>
-      <Box>
-        <Image src={anAlbumCover} alt="album cover" h={68} radius="sm" />
+      <Box p="2px">
+        <Image src={anAlbumCover} alt="album cover" h={64} radius="sm" />
       </Box>
       <Box w={300} h={68}>
         <div className={styles.songInfoContainer}>
@@ -22,15 +22,13 @@ export default function SongStatus() {
             </Text>
             <Text fz="0.75rem">Quincy Jones</Text>
           </div>
-          {/* TODO: move these to <div/> with own styles */}
-          <Stack gap="0" w="100%" p="0" m="0">
-            <Group gap="0" justify="space-between">
-              {/* TODO: monospace these numbers */}
-              <Text fz="0.75rem">4:20</Text>
-              <Text fz="0.75rem">1:09</Text>
-            </Group>
+          <div className={styles.songProgressContainer}>
+            <div className={styles.songTime}>
+              <Text fz="0.75rem">04:20</Text>
+              <Text fz="0.75rem">01:09</Text>
+            </div>
             <Progress value={40} color="highlight" p="0" m="0" />
-          </Stack>
+          </div>
         </div>
       </Box>
     </div>

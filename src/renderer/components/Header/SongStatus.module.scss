@@ -41,3 +41,24 @@
   align-items: center;
   gap: 0;
 }
+
+.songProgressContainer {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  gap: 0;
+}
+
+.songTime {
+  display: flex;
+  flex-flow: row nowrap;
+
+  justify-content: space-between;
+
+  // monospace numbers
+  font-variant-numeric: tabular-nums;
+}
