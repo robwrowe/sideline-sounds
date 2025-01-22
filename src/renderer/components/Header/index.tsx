@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { Burger } from "@mantine/core";
 import styles from "./index.module.scss";
 
 import AudioControls from "./AudioControls";
 import SongStatus from "./SongStatus";
+import VolumeControls from "./VolumeControl";
 
 export type HeaderProps = {
   burgerOpened: boolean;
@@ -24,6 +25,8 @@ export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
         <AudioControls />
         {/* Audio Status */}
         <SongStatus />
+        {/* Audio Volume */}
+        <VolumeControls />
       </div>
     </>
   );

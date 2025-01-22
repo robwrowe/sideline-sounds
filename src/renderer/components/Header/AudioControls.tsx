@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ActionIcon, ActionIconGroup } from "@mantine/core";
+import { ActionIcon, ActionIconGroup, ActionIconProps } from "@mantine/core";
 import {
   IconPlayerPlayFilled,
   IconPlayerPauseFilled,
@@ -7,35 +7,52 @@ import {
   IconPlayerSkipBackFilled,
 } from "@tabler/icons-react";
 
-export default function Header() {
+const ACTION_ICON_SIZE: ActionIconProps["size"] = "xl";
+const ACTION_ICON_VARIANT: ActionIconProps["variant"] = "subtle";
+const ACTION_ICON_COLOR: ActionIconProps["color"] = "gray";
+const ICON_SIZE = 24;
+
+export default function AudioControls() {
   const [isPaused, setIsPaused] = useState(false);
 
   return (
     <ActionIconGroup>
-      <ActionIcon variant="subtle" color="gray" aria-label="Re-rack sound byte">
-        <IconPlayerSkipBackFilled size={20} />
+      <ActionIcon
+        size={ACTION_ICON_SIZE}
+        variant={ACTION_ICON_VARIANT}
+        color={ACTION_ICON_COLOR}
+        aria-label="Re-rack sound byte"
+      >
+        <IconPlayerSkipBackFilled size={ICON_SIZE} />
       </ActionIcon>
       {isPaused ? (
         <ActionIcon
-          variant="subtle"
-          color="gray"
+          size={ACTION_ICON_SIZE}
+          variant={ACTION_ICON_VARIANT}
+          color={ACTION_ICON_COLOR}
           aria-label="Play sound"
           onClick={() => setIsPaused(false)}
         >
-          <IconPlayerPlayFilled size={20} />
+          <IconPlayerPlayFilled size={ICON_SIZE} />
         </ActionIcon>
       ) : (
         <ActionIcon
-          variant="subtle"
-          color="gray"
+          size={ACTION_ICON_SIZE}
+          variant={ACTION_ICON_VARIANT}
+          color={ACTION_ICON_COLOR}
           aria-label="Pause sound"
           onClick={() => setIsPaused(true)}
         >
-          <IconPlayerPauseFilled size={20} />
+          <IconPlayerPauseFilled size={ICON_SIZE} />
         </ActionIcon>
       )}
-      <ActionIcon variant="subtle" color="gray" aria-label="Stop sound byte">
-        <IconPlayerStopFilled size={20} />
+      <ActionIcon
+        size={ACTION_ICON_SIZE}
+        variant={ACTION_ICON_VARIANT}
+        color={ACTION_ICON_COLOR}
+        aria-label="Stop sound byte"
+      >
+        <IconPlayerStopFilled size={ICON_SIZE} />
       </ActionIcon>
     </ActionIconGroup>
   );
