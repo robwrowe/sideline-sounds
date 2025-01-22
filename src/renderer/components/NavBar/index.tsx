@@ -89,8 +89,7 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
           <Title order={4} className={styles.title}>
             {active}
           </Title>
-
-          {links}
+          <div className={styles.linksContainer}>{links}</div>
         </div>
       </div>
     </nav>

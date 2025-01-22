@@ -41,8 +41,8 @@
   &[data-active] {
     &,
     &:hover {
-      background-color: var(--mantine-color-blue-light);
-      color: var(--mantine-color-blue-light-color);
+      background-color: var(--mantine-primary-color-light);
+      color: var(--mantine-primary-color-light-color);
     }
   }
 }
@@ -51,7 +51,7 @@
   font-family:
     Greycliff CF,
     var(--mantine-font-family);
-  margin-bottom: var(--mantine-spacing-xl);
+  margin-bottom: var(--mantine-spacing-md);
   background-color: var(--mantine-color-body);
   padding: var(--mantine-spacing-md);
   padding-top: 18px;
@@ -66,7 +66,7 @@
   height: 60px;
   padding-top: var(--mantine-spacing-md);
   border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-7));
-  margin-bottom: var(--mantine-spacing-xl);
+  margin-bottom: var(--mantine-spacing-md);
 }
 
 .link {
@@ -90,9 +90,13 @@
   &[data-active] {
     &,
     &:hover {
-      border-left-color: var(--mantine-color-blue-filled);
-      background-color: var(--mantine-color-blue-filled);
+      border-left-color: var(--mantine-primary-color-filled);
+      background-color: var(--mantine-primary-color-filled);
       color: var(--mantine-color-white);
     }
   }
+}
+
+.linksContainer {
+  margin-top: var(--mantine-spacing-md);
 }

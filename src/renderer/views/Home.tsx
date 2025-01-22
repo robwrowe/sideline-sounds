@@ -10,13 +10,13 @@ export default function Home() {
   return (
     <AppShell
       layout="alt"
-      header={{ height: 80 }}
+      header={{ height: 88 }}
       footer={{ height: 48 }}
       navbar={{ width: 300, breakpoint: "md", collapsed: { mobile: !opened } }}
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
+        <Group h="100%" px="xs">
           <Header burgerOpened={opened} onBurgerClick={toggle} />
         </Group>
       </AppShell.Header>

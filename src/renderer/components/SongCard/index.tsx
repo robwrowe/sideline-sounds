@@ -57,9 +57,11 @@ export default function SongCard({
           />
         </div>
         <div className={styles.infoContainer}>
-          <Text fw="bold">&quot;Soul Bossa Nova&quot;</Text>
-          <Text>Quincy Jones</Text>
-          <Text>3:34</Text>
+          <Text fz="0.8rem" fw="bold">
+            Soul Bossa Nova
+          </Text>
+          <Text fz="0.8rem">Quincy Jones</Text>
+          <Text fz="0.8rem">3:34</Text>
         </div>
       </div>
     </Card>

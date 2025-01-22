@@ -1,0 +1,43 @@
+.parent {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: var(--mantine-spacing-xs);
+
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    var(--mantine-color-dark-6)
+  );
+
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--mantine-radius-sm);
+
+  &.dark {
+    border-color: var(--mantine-color-dark-4);
+  }
+
+  &.light {
+    border-color: var(--mantine-color-gray-3);
+  }
+}
+
+.songInfoContainer {
+  width: 100%;
+  height: calc(100% - 0.25rem - 0.125rem);
+  padding: 0.125rem var(--mantine-spacing-xs) 0.25rem 0;
+  margin: 0;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0;
+}
+
+.songMetaData {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0;
+}

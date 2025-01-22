@@ -23,6 +23,18 @@ const theme = createTheme({
       "#428e93",
       "#2d7b80",
     ],
+    highlight: [
+      "#fff3e3",
+      "#ffe6cd",
+      "#ffcc9c",
+      "#feb066",
+      "#fe9839",
+      "#fe891d",
+      "#fe810d",
+      "#e36f00",
+      "#cb6100",
+      "#b05200",
+    ],
   },
   primaryColor: "app",
 });
