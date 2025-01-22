@@ -18,5 +18,10 @@
     "cSpell.words": [
         "mantine",
         "tabler"
-    ]
+    ],
+    "explorer.fileNesting.patterns": {
+        "index.tsx": "${dirname}.tsx",
+        "index.module.scss": "${dirname}.scss",
+        "index.ts": "${dirname}.ts"
+    }
 }

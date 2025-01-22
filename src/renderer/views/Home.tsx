@@ -1,37 +1,29 @@
 import React from "react";
-import { AppShell, Burger, Group, Skeleton, Text } from "@mantine/core";
+import { AppShell, Burger, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconVinyl } from "@tabler/icons-react";
 import styles from "./Home.module.scss";
-import { SongCard } from "../components";
+import { SongCard, NavBar, Header } from "../components";
 
 export default function Home() {
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle }] = useDisclosure(true);
 
   return (
     <AppShell
-      layout="default"
-      header={{ height: 60 }}
-      footer={{ height: 60 }}
-      navbar={{ width: 416, breakpoint: "md", collapsed: { mobile: !opened } }}
+      layout="alt"
+      header={{ height: 80 }}
+      footer={{ height: 48 }}
+      navbar={{ width: 300, breakpoint: "md", collapsed: { mobile: !opened } }}
       padding="md"
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="md" size="sm" />
-          <IconVinyl size={30} />
+          <Header burgerOpened={opened} onBurgerClick={toggle} />
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar>
         <Group>
-          <Burger opened={opened} onClick={toggle} hiddenFrom="md" size="sm" />
-          <Text>Navbar</Text>
+          <NavBar burgerOpened={opened} onBurgerClick={toggle} />
         </Group>
-        {Array(15)
-          .fill(0)
-          .map((_, index) => (
-            <Skeleton key={index} h={28} mt="sm" animate={false} />
-          ))}
       </AppShell.Navbar>
       <AppShell.Main>
         <div className={styles.grid}>
