@@ -1,10 +1,11 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router";
-import { createTheme, MantineProvider, Button } from "@mantine/core";
+import { createTheme, MantineProvider } from "@mantine/core";
 import { store } from "./store";
 import { Provider } from "react-redux";
 import App from "./App";
+import { AudioReactContextProvider } from "./context";
 
 // core styles are required for all packages
 import "@mantine/core/styles.css";
@@ -45,7 +46,9 @@ root.render(
   <Provider store={store}>
     <MemoryRouter>
       <MantineProvider theme={theme} defaultColorScheme="dark">
-        <App />
+        <AudioReactContextProvider>
+          <App />
+        </AudioReactContextProvider>
       </MantineProvider>
     </MemoryRouter>
   </Provider>
