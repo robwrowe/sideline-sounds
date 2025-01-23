@@ -1,18 +1,8 @@
-import React from "react";
+import React, { useCallback } from "react";
 import classNames from "classnames";
-import {
-  Box,
-  Card,
-  Image,
-  Group,
-  Stack,
-  Text,
-  ImageProps,
-} from "@mantine/core";
+import { IconMusic } from "@tabler/icons-react";
+import { Box, Card, Image, Text, ImageProps } from "@mantine/core";
 import styles from "./index.module.scss";
-
-import { useDarkModeClassNames } from "../../hooks";
-import anAlbumCover from "../../assets/sample-album-cover.png";
 
 export type SongCardProps = {
   /**
@@ -35,6 +25,21 @@ export type SongCardProps = {
    * Typically the album cover
    */
   image?: ImageProps["src"];
+
+  /**
+   * Function to call when the card is clicked once
+   */
+  onClick?: () => void;
+
+  /**
+   * Function to call when the card is clicked twice
+   */
+  onDoubleClick?: () => void;
+
+  /**
+   * Function to call when the card is right clicked
+   */
+  onRightClick?: () => void;
 };
 
 export default function SongCard({
@@ -42,26 +47,44 @@ export default function SongCard({
   artist,
   duration,
   image,
+  onClick,
+  onDoubleClick,
+  onRightClick,
 }: SongCardProps) {
-  const darkModeStyles = useDarkModeClassNames(styles);
   return (
-    <Card withBorder radius="md" padding="xs">
-      <div className={classNames(styles.container)}>
+    <Card
+      withBorder
+      radius="md"
+      padding="xs"
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onContextMenu={onRightClick}
+      className={classNames(styles.parent, {
+        [styles.clickHandler]: onClick || onDoubleClick || onRightClick,
+      })}
+    >
+      <div className={styles.container}>
         <div className={styles.imgContainer}>
-          <Image
-            src={anAlbumCover}
-            alt="album cover"
-            radius="sm"
-            h={80}
-            w={80}
-          />
+          {image ? (
+            <Image
+              src={image}
+              alt={`${title} album cover`}
+              radius="sm"
+              h={80}
+              w={80}
+            />
+          ) : (
+            <Box className={styles.imagePlaceholder} h={80} w={80}>
+              <IconMusic size={40} color="gray" />
+            </Box>
+          )}
         </div>
         <div className={styles.infoContainer}>
           <Text fz="0.8rem" fw="bold">
-            Soul Bossa Nova
+            {title}
           </Text>
-          <Text fz="0.8rem">Quincy Jones</Text>
-          <Text fz="0.8rem">3:34</Text>
+          {artist && <Text fz="0.8rem">{artist}</Text>}
+          {duration && <Text fz="0.8rem">{duration}</Text>}
         </div>
       </div>
     </Card>

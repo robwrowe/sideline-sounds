@@ -1,5 +1,3 @@
-import AudioReactContextProvider, {
-  AudioReactContext,
-} from "./AudioReactContext";
+import AudioEngineProvider, { AudioEngineContext } from "./AudioEngine";
 
-export { AudioReactContextProvider, AudioReactContext };
+export { AudioEngineProvider, AudioEngineContext };

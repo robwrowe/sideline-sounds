@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import {
   installExtension,
   REDUX_DEVTOOLS,
@@ -24,13 +24,14 @@ const createWindow = (): void => {
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
+    show: !app.isPackaged,
   });
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools()a;
 
   // add the devtools extension
   installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
@@ -44,6 +45,10 @@ const createWindow = (): void => {
       }, 1000);
     })
     .catch((err) => console.log("An error occurred adding extensions: ", err));
+
+  mainWindow.on("ready-to-show", () => {
+    if (app.isPackaged) mainWindow.show();
+  });
 };
 
 // This method will be called when Electron has finished
@@ -70,3 +75,12 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+import fs from "fs/promises";
+import path from "path";
+
+ipcMain.handle("get-audio-file", async (_, relativePath) => {
+  // const filePath = path.resolve(__dirname, relativePath);
+  const filePath = path.resolve(relativePath);
+
+  return fs.readFile(filePath);
+});

@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { AudioReactContext } from "../context";
+import { AudioEngineContext } from "../context";
 
-export default function useAudioReactContext() {
-  const ctx = useContext(AudioReactContext);
+export default function useAudioEngineContext() {
+  const ctx = useContext(AudioEngineContext);
 
   if (!ctx)
     throw new Error(

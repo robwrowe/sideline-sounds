@@ -1,5 +1,6 @@
 import SongCard from "./SongCard";
 import NavBar from "./NavBar";
 import Header from "./Header";
+import DataSongCard from "./DataSongCard";
 
-export { SongCard, NavBar, Header };
+export { DataSongCard, SongCard, NavBar, Header };

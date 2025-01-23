@@ -1,4 +1,5 @@
 import type { Configuration } from "webpack";
+import NodePolyfillPlugin from "node-polyfill-webpack-plugin";
 
 import { rules } from "./webpack.rules";
 import { plugins } from "./webpack.plugins";
@@ -26,7 +27,7 @@ export const rendererConfig: Configuration = {
   module: {
     rules,
   },
-  plugins,
+  plugins: [...plugins, new NodePolyfillPlugin()],
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".scss"],
   },

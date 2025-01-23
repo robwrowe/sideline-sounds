@@ -15,14 +15,10 @@
     "plugin:react-hooks/recommended",
     "prettier"
   ],
-  "plugins": [
-    "react",
-    "react-hooks",
-    "prettier"
-  ],
+  "plugins": ["react", "react-hooks", "prettier"],
   "parser": "@typescript-eslint/parser",
   "rules": {
-    "no-console": 1,       // Means warning
+    // "no-console": 1,       // Means warning - TODO add electron logger
     "prettier/prettier": 2 // Means error
   }
 }

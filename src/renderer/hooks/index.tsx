@@ -1,4 +1,4 @@
 import useDarkModeClassNames from "./useDarkModeClassNames.hook";
-import useAudioReactContext from "./useAudioReactContext";
+import useAudioEngineContext from "./useAudioEngineContext";
 
-export { useDarkModeClassNames, useAudioReactContext };
+export { useDarkModeClassNames, useAudioEngineContext };

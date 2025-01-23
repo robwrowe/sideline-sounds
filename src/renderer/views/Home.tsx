@@ -1,11 +1,11 @@
 import React from "react";
-import { AppShell, Burger, Group } from "@mantine/core";
+import { AppShell, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import styles from "./Home.module.scss";
-import { SongCard, NavBar, Header } from "../components";
+import { DataSongCard, SongCard, NavBar, Header } from "../components";
 
 export default function Home() {
-  const [opened, { toggle }] = useDisclosure(true);
+  const [opened, { toggle }] = useDisclosure(false);
 
   return (
     <AppShell
@@ -27,8 +27,14 @@ export default function Home() {
       </AppShell.Navbar>
       <AppShell.Main>
         <div className={styles.grid}>
-          <SongCard />
-          <SongCard />
+          <DataSongCard
+            title="03 Open w Vamp"
+            filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 01/03 Open w Vamp.wav"
+          />
+          <DataSongCard
+            title="18 60 ElectroRock Bump"
+            filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/18 60 ElectroRock Bump.wav"
+          />
           <SongCard />
           <SongCard />
           <SongCard />
