@@ -1,27 +1,24 @@
 {
-    "cssVariables.lookupFiles": [
-        "**/*.css",
-        "**/*.scss",
-        "**/*.sass",
-        "**/*.less",
-        "node_modules/@mantine/core/styles.css"
-    ],
-    "material-icon-theme.folders.associations": {
-        "renderer": "client",
-        "styles": "sass",
-        "features": "redux-reducer",
-        "components": "react-components"
-    },
-    "material-icon-theme.files.associations": {
-        "*.slice.ts": "redux-reducer"
-    },
-    "cSpell.words": [
-        "mantine",
-        "tabler"
-    ],
-    "explorer.fileNesting.patterns": {
-        "index.tsx": "${dirname}.tsx",
-        "index.module.scss": "${dirname}.scss",
-        "index.ts": "${dirname}.ts"
-    }
+  "cssVariables.lookupFiles": [
+    "**/*.css",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.less",
+    "node_modules/@mantine/core/styles.css"
+  ],
+  "material-icon-theme.folders.associations": {
+    "renderer": "client",
+    "styles": "sass",
+    "features": "redux-reducer",
+    "components": "react-components"
+  },
+  "material-icon-theme.files.associations": {
+    "*.slice.ts": "redux-reducer"
+  },
+  "cSpell.words": ["crossfade", "mantine", "tabler"],
+  "explorer.fileNesting.patterns": {
+    "index.tsx": "${dirname}.tsx",
+    "index.module.scss": "${dirname}.scss",
+    "index.ts": "${dirname}.ts"
+  }
 }

@@ -16,6 +16,7 @@ export default class AudioEngine {
   private _nextGain: GainNode | null = null;
 
   private _crossfadeDuration = 0.5;
+  private _crossfadeActive = false;
 
   private _currentMetadata: AudioFileMetadata | null = null;
   private _currentStartTime: number | null = null;
@@ -23,9 +24,16 @@ export default class AudioEngine {
   private _currentElapsed: number | null = null;
   private _currentRemaining: number | null = null;
 
-  private _rafId: number | null = null;
+  private _nextMetadata: AudioFileMetadata | null = null;
+  private _nextStartTime: number | null = null;
+  private _nextDuration: number | null = null;
+  private _nextElapsed: number | null = null;
+  private _nextRemaining: number | null = null;
+
+  private _rafId: NodeJS.Timeout | null = null;
   private _hasMedia = false;
   private _isPlaying = false;
+
   // TODO: set based on last known value
   private _volume = 1;
 
@@ -51,7 +59,6 @@ export default class AudioEngine {
   }
 
   private set audioContextCreationTime(value: number) {
-    console.log("setting audio-context-creation-time", value);
     this._audioContextCreationTime = value;
   }
 
@@ -116,20 +123,40 @@ export default class AudioEngine {
     this._masterGain = value;
   }
 
-  private get crossfadeDuration() {
+  public get crossfadeDuration() {
     return this._crossfadeDuration;
   }
 
-  private set crossfadeDuration(value: number) {
+  public set crossfadeDuration(value: number) {
+    if (value < 0) {
+      throw new Error("Crossfade duration must be greater than 0.");
+    }
+
     this._crossfadeDuration = value;
+
+    if (this.onRAFUpdate) {
+      this.onRAFUpdate();
+    }
   }
 
+  public get crossfadeActive() {
+    return this._crossfadeActive;
+  }
+
+  private set crossfadeActive(value) {
+    this._crossfadeActive = value;
+
+    if (this.onRAFUpdate) {
+      this.onRAFUpdate();
+    }
+  }
+
+  // metadata / state
   public get currentMetadata() {
     return this._currentMetadata;
   }
 
   private set currentMetadata(value) {
-    console.log("setting current metadata", value);
     this._currentMetadata = value;
 
     if (this.onMetadataChange) {
@@ -185,6 +212,67 @@ export default class AudioEngine {
     }
   }
 
+  public get nextMetadata() {
+    return this._nextMetadata;
+  }
+
+  private set nextMetadata(value) {
+    this._nextMetadata = value;
+
+    if (this.onMetadataChange) {
+      this.onMetadataChange();
+    }
+  }
+
+  public get nextStartTime() {
+    return this._nextStartTime;
+  }
+
+  private set nextStartTime(value) {
+    this._nextStartTime = value;
+
+    if (this.onMetadataChange) {
+      this.onMetadataChange();
+    }
+  }
+
+  public get nextDuration() {
+    return this._nextDuration;
+  }
+
+  private set nextDuration(value) {
+    this._nextDuration = value;
+
+    if (this.onMetadataChange) {
+      this.onMetadataChange();
+    }
+  }
+
+  public get nextElapsed() {
+    return this._nextElapsed;
+  }
+
+  private set nextElapsed(value) {
+    this._nextElapsed = value;
+
+    if (this.onRAFUpdate) {
+      this.onRAFUpdate();
+    }
+  }
+
+  public get nextRemaining() {
+    return this._nextRemaining;
+  }
+
+  private set nextRemaining(value) {
+    this._nextRemaining = value;
+
+    if (this.onRAFUpdate) {
+      this.onRAFUpdate();
+    }
+  }
+
+  // global status
   private get rafId() {
     return this._rafId;
   }
@@ -226,10 +314,7 @@ export default class AudioEngine {
       throw new Error("Volume must be between 0 and 1.");
     }
 
-    this.masterGain.gain.linearRampToValueAtTime(
-      value,
-      this.audioContext.currentTime + this.crossfadeDuration
-    );
+    this.masterGain.gain.setValueAtTime(value, 0);
   }
 
   public isRunning(): boolean {
@@ -238,28 +323,57 @@ export default class AudioEngine {
 
   private startRAFUpdate() {
     const update = () => {
-      if (this.isRunning() && this.currentStartTime !== null) {
-        const currentTime = new Date().getTime();
-        const timeItStarted =
-          this.currentStartTime * 1000 + this.audioContextCreationTime;
-        const elapsed = (currentTime - timeItStarted) / 1000;
+      if (this.isRunning()) {
+        const t = new Date().getTime();
 
-        this.currentElapsed = elapsed;
+        if (this.currentStartTime !== null && this.currentDuration !== null) {
+          // if this is running, calculate
+          const timeItStarted =
+            this.currentStartTime * 1000 + this.audioContextCreationTime;
+          const elapsed = (t - timeItStarted) / 1000;
 
-        if (this.currentDuration !== null) {
-          this.currentRemaining = this.currentDuration - elapsed;
+          // if elapsed is past the duration, assume it has ended
+          if (elapsed >= this.currentDuration) {
+            this.currentElapsed = this.currentDuration;
+            this.currentRemaining = 0;
+          } else {
+            this.currentElapsed = elapsed;
+
+            if (this.currentDuration !== null) {
+              this.currentRemaining = this.currentDuration - elapsed;
+            }
+          }
+        }
+
+        if (this.nextStartTime !== null && this.nextDuration !== null) {
+          // if this is running, calculate
+          const timeItStarted =
+            this.nextStartTime * 1000 + this.audioContextCreationTime;
+          const elapsed = (t - timeItStarted) / 1000;
+
+          // if elapsed is past the duration, assume it has ended
+          if (elapsed >= this.nextDuration) {
+            this.nextElapsed = this.nextDuration;
+            this.nextRemaining = 0;
+          } else {
+            this.nextElapsed = elapsed;
+
+            if (this.nextDuration !== null) {
+              this.nextRemaining = this.nextDuration - elapsed;
+            }
+          }
         }
       }
 
-      this.rafId = requestAnimationFrame(update);
+      this.rafId = setTimeout(update, 100);
     };
 
-    this.rafId = requestAnimationFrame(update);
+    this.rafId = setTimeout(update, 100);
   }
 
   private stopRAFUpdate() {
     if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
+      clearTimeout(this.rafId);
       this.rafId = null;
     }
   }
@@ -298,37 +412,75 @@ export default class AudioEngine {
     return source;
   }
 
-  private crossfade(nextBuffer: AudioBuffer) {
-    // set up the next source
-    this.nextSource = this.createSource(nextBuffer, this.nextGain);
-    this.nextSource.start();
+  private crossfade(nextBuffer: AudioBuffer, nextMetadata?: AudioFileMetadata) {
+    let cleanupTimeout: NodeJS.Timeout | null = null;
 
-    // crossfade the volumes
-    const currentTime = this.audioContext.currentTime;
-    const crossFadeTime = currentTime + this.crossfadeDuration;
+    try {
+      this.crossfadeActive = true;
 
-    this.currentGain.gain.setValueAtTime(1, currentTime);
-    this.currentGain.gain.linearRampToValueAtTime(0, crossFadeTime);
+      // set up the next source
+      this.nextSource = this.createSource(nextBuffer, this.nextGain);
+      this.nextSource.start();
+      this.nextBuffer = nextBuffer;
 
-    this.nextGain.gain.setValueAtTime(0, currentTime);
-    this.nextGain.gain.linearRampToValueAtTime(1, crossFadeTime);
+      this.nextMetadata = nextMetadata || null;
+      this.nextDuration = nextBuffer.duration;
+      this.nextStartTime = this.audioContext.currentTime;
+      this.nextElapsed = 0; // Reset elapsed time
 
-    // clean up after the crossfade
-    setTimeout(() => {
-      if (this.currentSource) this.currentSource.stop();
+      // crossfade the volumes
+      const currentTime = this.audioContext.currentTime;
+      const crossFadeTime = currentTime + this.crossfadeDuration;
 
-      this.currentSource = this.nextSource;
-      this.currentGain = this.nextGain;
+      this.currentGain.gain.setValueAtTime(1, currentTime);
+      this.currentGain.gain.linearRampToValueAtTime(0, crossFadeTime);
 
-      this.nextSource = null;
-      this.nextGain = this.audioContext.createGain();
-      this.nextGain.connect(this.masterGain);
-    }, this.crossfadeDuration * 1000);
+      this.nextGain.gain.setValueAtTime(0, currentTime);
+      this.nextGain.gain.linearRampToValueAtTime(1, crossFadeTime);
+
+      this.startRAFUpdate(); // Start RAF updates
+
+      // clean up after the crossfade
+      cleanupTimeout = setTimeout(() => {
+        if (this.currentSource) this.currentSource.stop();
+
+        this.currentSource = this.nextSource;
+        this.currentGain = this.nextGain;
+
+        // state
+        this.currentBuffer = this.nextBuffer;
+        this.currentMetadata = this.nextMetadata;
+        this.currentDuration = this.nextDuration;
+        this.currentStartTime = this.nextStartTime;
+        this.currentElapsed = this.nextElapsed;
+
+        // reset next
+        this.nextSource = null;
+        this.nextGain = this.audioContext.createGain();
+        this.nextGain.connect(this.masterGain);
+
+        this.nextBuffer = null;
+        this.nextMetadata = null;
+        this.nextDuration = null;
+        this.nextStartTime = null;
+        this.nextElapsed = null;
+
+        // clear timeout
+        cleanupTimeout = null;
+        this.crossfadeActive = false;
+      }, this.crossfadeDuration * 1000);
+    } catch (err) {
+      console.error("Error performing crossfade", err);
+      if (cleanupTimeout) {
+        clearTimeout(cleanupTimeout);
+        this.crossfadeActive = false;
+      }
+    }
   }
 
   play(buffer: AudioBuffer, metadata?: AudioFileMetadata) {
     if (this.currentSource) {
-      this.crossfade(buffer);
+      this.crossfade(buffer, metadata);
     } else {
       this.currentSource = this.createSource(buffer, this.currentGain);
       this.currentSource.start();
@@ -346,7 +498,7 @@ export default class AudioEngine {
   }
 
   public pause() {
-    if (this.isRunning() && this.currentSource) {
+    if (!this.crossfadeActive && this.isRunning() && this.currentSource) {
       // stop updates
       this.stopRAFUpdate();
 
@@ -366,6 +518,7 @@ export default class AudioEngine {
 
   public resume() {
     if (
+      !this.crossfadeActive &&
       this.currentBuffer &&
       this.currentElapsed !== null &&
       this.currentDuration !== null
@@ -389,7 +542,12 @@ export default class AudioEngine {
   }
 
   public reRack(startPoint = 0) {
-    if (this.isRunning() && this.currentSource && this.currentBuffer) {
+    if (
+      !this.crossfadeActive &&
+      this.isRunning() &&
+      this.currentSource &&
+      this.currentBuffer
+    ) {
       // re-rack while it's on air
       // stop updates
       this.stopRAFUpdate();
@@ -435,10 +593,17 @@ export default class AudioEngine {
     if (this.nextSource) {
       this.nextSource.stop();
       this.nextSource = null;
+      this.nextBuffer = null;
+      this.nextMetadata = null;
+      this.nextDuration = null;
+      this.nextStartTime = null;
+      this.nextElapsed = null;
+      this.nextRemaining = null;
     }
 
     this.isPlaying = false;
     this.hasMedia = false;
+    this.crossfadeActive = false;
 
     this.stopRAFUpdate(); // Stop RAF updates
   }

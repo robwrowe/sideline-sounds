@@ -12,11 +12,21 @@ type AudioEngineContextType = {
   hasMedia: boolean;
   isPlaying: boolean;
   volume: number;
+
+  crossfadeDuration: AudioEngine["crossfadeDuration"];
+  crossfadeActive: AudioEngine["crossfadeActive"];
+
   currentMetadata: AudioEngine["currentMetadata"];
   currentStartTime: AudioEngine["currentStartTime"];
   currentDuration: AudioEngine["currentDuration"];
   currentElapsed: AudioEngine["currentElapsed"];
   currentRemaining: AudioEngine["currentRemaining"];
+
+  nextMetadata: AudioEngine["nextMetadata"];
+  nextStartTime: AudioEngine["nextStartTime"];
+  nextDuration: AudioEngine["nextDuration"];
+  nextElapsed: AudioEngine["nextElapsed"];
+  nextRemaining: AudioEngine["nextRemaining"];
 };
 
 export const AudioEngineContext = createContext<null | AudioEngineContextType>(
@@ -45,9 +55,32 @@ export default function AudioEngineProvider({
   const [currentRemaining, setCurrentRemaining] = useState<
     AudioEngine["currentRemaining"]
   >(audioEngine.currentRemaining);
+
+  const [nextMetadata, setNextMetadata] = useState<AudioEngine["nextMetadata"]>(
+    audioEngine.nextMetadata
+  );
+  const [nextStartTime, setNextStartTime] = useState<
+    AudioEngine["nextStartTime"]
+  >(audioEngine.nextStartTime);
+  const [nextDuration, setNextDuration] = useState<AudioEngine["nextDuration"]>(
+    audioEngine.nextDuration
+  );
+  const [nextElapsed, setNextElapsed] = useState<AudioEngine["nextElapsed"]>(
+    audioEngine.nextElapsed
+  );
+  const [nextRemaining, setNextRemaining] = useState<
+    AudioEngine["nextRemaining"]
+  >(audioEngine.nextRemaining);
+
   const [isPlaying, setIsPlaying] = useState<boolean>(audioEngine.isPlaying);
   const [hasMedia, setHasMedia] = useState<boolean>(audioEngine.hasMedia);
   const [volume, setVolume] = useState<number>(audioEngine.volume);
+  const [crossfadeDuration, setCrossfadeDuration] = useState<number>(
+    audioEngine.crossfadeDuration
+  );
+  const [crossfadeActive, setCrossfadeActive] = useState<boolean>(
+    audioEngine.crossfadeActive
+  );
 
   useEffect(() => {
     // subscribe to metadata changes (or manually when data updates in AudioEngine)
@@ -55,6 +88,10 @@ export default function AudioEngineProvider({
       setCurrentMetadata(audioEngine.currentMetadata);
       setCurrentStartTime(audioEngine.currentStartTime);
       setCurrentDuration(audioEngine.currentDuration);
+
+      setNextMetadata(audioEngine.nextMetadata);
+      setNextStartTime(audioEngine.nextStartTime);
+      setNextDuration(audioEngine.nextDuration);
     };
 
     // optionally, listen to certain events or updates
@@ -71,8 +108,14 @@ export default function AudioEngineProvider({
     const updateRAF = () => {
       setCurrentElapsed(audioEngine.currentElapsed);
       setCurrentRemaining(audioEngine.currentRemaining);
+
+      setNextElapsed(audioEngine.nextElapsed);
+      setNextRemaining(audioEngine.nextRemaining);
+
       setIsPlaying(audioEngine.isPlaying);
       setHasMedia(audioEngine.hasMedia);
+      setCrossfadeDuration(audioEngine.crossfadeDuration);
+      setCrossfadeActive(audioEngine.crossfadeActive);
     };
 
     audioEngine.onRAFUpdate = updateRAF;
@@ -98,14 +141,24 @@ export default function AudioEngineProvider({
     <AudioEngineContext.Provider
       value={{
         audioEngine,
+        isPlaying,
+        hasMedia,
+        volume,
+
+        crossfadeDuration,
+        crossfadeActive,
+
         currentMetadata,
         currentStartTime,
         currentDuration,
         currentElapsed,
         currentRemaining,
-        isPlaying,
-        hasMedia,
-        volume,
+
+        nextMetadata,
+        nextStartTime,
+        nextDuration,
+        nextElapsed,
+        nextRemaining,
       }}
     >
       {children}

@@ -39,7 +39,10 @@ export default function Home() {
             title="27 45 Inspirational Orchestral Bump"
             filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/27 45 Inspirational Orchestral Bump.wav"
           />
-          <SongCard />
+          <DataSongCard
+            title="17 05-07 Groovy Hip Hop Sting"
+            filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/17 05-07 Groovy Hip Hop Sting.wav"
+          />
           <SongCard />
           <SongCard />
           <SongCard />

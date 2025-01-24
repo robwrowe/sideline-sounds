@@ -15,7 +15,8 @@ const ACTION_ICON_COLOR: ActionIconProps["color"] = "gray";
 const ICON_SIZE = 24;
 
 export default function AudioControls() {
-  const { audioEngine, isPlaying, hasMedia } = useAudioEngineContext();
+  const { audioEngine, isPlaying, hasMedia, crossfadeActive } =
+    useAudioEngineContext();
 
   const handleClickReRack = useCallback(() => {
     try {
@@ -58,7 +59,7 @@ export default function AudioControls() {
         color={ACTION_ICON_COLOR}
         aria-label="Re-rack sound byte"
         onClick={handleClickReRack}
-        disabled={!hasMedia}
+        disabled={!hasMedia || crossfadeActive}
       >
         <IconPlayerSkipBackFilled size={ICON_SIZE} />
       </ActionIcon>
@@ -69,7 +70,7 @@ export default function AudioControls() {
           color={ACTION_ICON_COLOR}
           aria-label="Pause sound"
           onClick={handleClickPause}
-          disabled={!hasMedia}
+          disabled={!hasMedia || crossfadeActive}
         >
           <IconPlayerPauseFilled size={ICON_SIZE} />
         </ActionIcon>
@@ -80,7 +81,7 @@ export default function AudioControls() {
           color={ACTION_ICON_COLOR}
           aria-label="Play sound"
           onClick={handleClickPlay}
-          disabled={!hasMedia}
+          disabled={!hasMedia || crossfadeActive}
         >
           <IconPlayerPlayFilled size={ICON_SIZE} />
         </ActionIcon>
