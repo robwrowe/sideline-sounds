@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import { ActionIcon, ActionIconGroup, ActionIconProps } from "@mantine/core";
 import {
   IconPlayerPlayFilled,
@@ -16,6 +16,14 @@ const ICON_SIZE = 24;
 
 export default function AudioControls() {
   const { audioEngine, isPlaying, hasMedia } = useAudioEngineContext();
+
+  const handleClickReRack = useCallback(() => {
+    try {
+      audioEngine.reRack();
+    } catch (err) {
+      console.error("Error restarting file", err);
+    }
+  }, [audioEngine]);
 
   // start playing the song in the context
   const handleClickPlay = useCallback(async () => {
@@ -49,6 +57,7 @@ export default function AudioControls() {
         variant={ACTION_ICON_VARIANT}
         color={ACTION_ICON_COLOR}
         aria-label="Re-rack sound byte"
+        onClick={handleClickReRack}
         disabled={!hasMedia}
       >
         <IconPlayerSkipBackFilled size={ICON_SIZE} />

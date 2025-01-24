@@ -11,6 +11,7 @@ type AudioEngineContextType = {
   audioEngine: AudioEngine;
   hasMedia: boolean;
   isPlaying: boolean;
+  volume: number;
   currentMetadata: AudioEngine["currentMetadata"];
   currentStartTime: AudioEngine["currentStartTime"];
   currentDuration: AudioEngine["currentDuration"];
@@ -46,6 +47,7 @@ export default function AudioEngineProvider({
   >(audioEngine.currentRemaining);
   const [isPlaying, setIsPlaying] = useState<boolean>(audioEngine.isPlaying);
   const [hasMedia, setHasMedia] = useState<boolean>(audioEngine.hasMedia);
+  const [volume, setVolume] = useState<number>(audioEngine.volume);
 
   useEffect(() => {
     // subscribe to metadata changes (or manually when data updates in AudioEngine)
@@ -80,6 +82,18 @@ export default function AudioEngineProvider({
     };
   }, [audioEngine]);
 
+  useEffect(() => {
+    const updateVolume = () => {
+      setVolume(audioEngine.volume);
+    };
+
+    audioEngine.onVolumeUpdate = updateVolume;
+
+    return () => {
+      audioEngine.onVolumeUpdate = null;
+    };
+  }, [audioEngine]);
+
   return (
     <AudioEngineContext.Provider
       value={{
@@ -91,6 +105,7 @@ export default function AudioEngineProvider({
         currentRemaining,
         isPlaying,
         hasMedia,
+        volume,
       }}
     >
       {children}

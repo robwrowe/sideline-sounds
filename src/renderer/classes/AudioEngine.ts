@@ -26,9 +26,12 @@ export default class AudioEngine {
   private _rafId: number | null = null;
   private _hasMedia = false;
   private _isPlaying = false;
+  // TODO: set based on last known value
+  private _volume = 1;
 
   public onMetadataChange?: (() => void) | null;
   public onRAFUpdate?: (() => void) | null;
+  public onVolumeUpdate?: (() => void) | null;
 
   private get audioContext(): AudioContext {
     if (!this._audioContext) throw new Error("Audio context not initialized");
@@ -214,6 +217,21 @@ export default class AudioEngine {
     }
   }
 
+  public get volume() {
+    return this._volume;
+  }
+
+  public set volume(value) {
+    if (value < 0 || value > 1) {
+      throw new Error("Volume must be between 0 and 1.");
+    }
+
+    this.masterGain.gain.linearRampToValueAtTime(
+      value,
+      this.audioContext.currentTime + this.crossfadeDuration
+    );
+  }
+
   public isRunning(): boolean {
     return !!this.currentSource && this.audioContext.state === "running";
   }
@@ -362,13 +380,47 @@ export default class AudioEngine {
       this.currentSource = newSource;
       this.isPlaying = true;
       this.hasMedia = true;
+      this.currentStartTime =
+        this.audioContext.currentTime - this.currentElapsed;
 
       // resume updated
       this.startRAFUpdate();
     }
   }
 
-  stop() {
+  public reRack(startPoint = 0) {
+    if (this.isRunning() && this.currentSource && this.currentBuffer) {
+      // re-rack while it's on air
+      // stop updates
+      this.stopRAFUpdate();
+
+      // pause the source
+      this.currentSource.stop();
+      this.currentSource = null;
+
+      // create a new source
+      this.currentSource = this.createSource(
+        this.currentBuffer,
+        this.currentGain
+      );
+      this.currentSource.start();
+
+      // set states
+      this.currentDuration = this.currentBuffer.duration;
+      this.currentStartTime = this.audioContext.currentTime;
+      this.currentElapsed = 0;
+      this.isPlaying = true;
+      this.hasMedia = true;
+
+      // start updates
+      this.startRAFUpdate();
+    } else if (this.currentBuffer && this.currentElapsed !== null) {
+      // edit the time elapsed
+      this.currentElapsed = startPoint;
+    }
+  }
+
+  public stop() {
     if (this.currentSource) {
       this.currentSource.stop();
       this.currentSource = null;
