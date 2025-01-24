@@ -2,12 +2,12 @@ import { useContext } from "react";
 import { AudioEngineContext } from "../context";
 
 export default function useAudioEngineContext() {
-  const ctx = useContext(AudioEngineContext);
+  const audioEngine = useContext(AudioEngineContext);
 
-  if (!ctx)
+  if (!audioEngine)
     throw new Error(
       "useAudioReactContext must be used within an AudioReactContextProvider"
     );
 
-  return ctx;
+  return audioEngine;
 }

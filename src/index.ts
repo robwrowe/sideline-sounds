@@ -31,7 +31,7 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()a;
+  mainWindow.webContents.openDevTools();
 
   // add the devtools extension
   installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])

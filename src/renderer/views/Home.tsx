@@ -35,7 +35,10 @@ export default function Home() {
             title="18 60 ElectroRock Bump"
             filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/18 60 ElectroRock Bump.wav"
           />
-          <SongCard />
+          <DataSongCard
+            title="27 45 Inspirational Orchestral Bump"
+            filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/27 45 Inspirational Orchestral Bump.wav"
+          />
           <SongCard />
           <SongCard />
           <SongCard />

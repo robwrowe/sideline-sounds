@@ -15,34 +15,28 @@ const ACTION_ICON_COLOR: ActionIconProps["color"] = "gray";
 const ICON_SIZE = 24;
 
 export default function AudioControls() {
-  const [isPaused, setIsPaused] = useState(true);
-  const audioEngine = useAudioEngineContext();
+  const { audioEngine, isPlaying, hasMedia } = useAudioEngineContext();
 
   // start playing the song in the context
   const handleClickPlay = useCallback(async () => {
     try {
-      const fileBuffer: ArrayBuffer = await window.electron.ipcRenderer.invoke(
-        "get-audio-file",
-        "/Users/robwrowe/Documents/test-audio/Event Theme Disc 01/03 Open w Vamp.wav"
-      );
-
-      const blob = new Blob([fileBuffer]);
-      const file = new File([blob], "03 Open w Vamp.wav", {
-        type: "audio/wav",
-      });
-
-      const audioBuffer = await audioEngine.loadAudio(file);
-      audioEngine.play(audioBuffer);
-      setIsPaused(false);
+      audioEngine.resume();
     } catch (err) {
-      console.error("Error playing file", err);
+      console.error("Error resuming file", err);
     }
   }, [audioEngine]);
 
   const handleClickPause = useCallback(async () => {
     try {
+      audioEngine.pause();
+    } catch (err) {
+      console.error("Error pausing file", err);
+    }
+  }, [audioEngine]);
+
+  const handleClickStop = useCallback(async () => {
+    try {
       audioEngine.stop();
-      setIsPaused(true);
     } catch (err) {
       console.error("Error pausing file", err);
     }
@@ -55,28 +49,31 @@ export default function AudioControls() {
         variant={ACTION_ICON_VARIANT}
         color={ACTION_ICON_COLOR}
         aria-label="Re-rack sound byte"
+        disabled={!hasMedia}
       >
         <IconPlayerSkipBackFilled size={ICON_SIZE} />
       </ActionIcon>
-      {isPaused ? (
-        <ActionIcon
-          size={ACTION_ICON_SIZE}
-          variant={ACTION_ICON_VARIANT}
-          color={ACTION_ICON_COLOR}
-          aria-label="Play sound"
-          onClick={handleClickPlay}
-        >
-          <IconPlayerPlayFilled size={ICON_SIZE} />
-        </ActionIcon>
-      ) : (
+      {isPlaying ? (
         <ActionIcon
           size={ACTION_ICON_SIZE}
           variant={ACTION_ICON_VARIANT}
           color={ACTION_ICON_COLOR}
           aria-label="Pause sound"
           onClick={handleClickPause}
+          disabled={!hasMedia}
         >
           <IconPlayerPauseFilled size={ICON_SIZE} />
+        </ActionIcon>
+      ) : (
+        <ActionIcon
+          size={ACTION_ICON_SIZE}
+          variant={ACTION_ICON_VARIANT}
+          color={ACTION_ICON_COLOR}
+          aria-label="Play sound"
+          onClick={handleClickPlay}
+          disabled={!hasMedia}
+        >
+          <IconPlayerPlayFilled size={ICON_SIZE} />
         </ActionIcon>
       )}
       <ActionIcon
@@ -84,7 +81,8 @@ export default function AudioControls() {
         variant={ACTION_ICON_VARIANT}
         color={ACTION_ICON_COLOR}
         aria-label="Stop sound byte"
-        onClick={handleClickPause}
+        onClick={handleClickStop}
+        disabled={!hasMedia}
       >
         <IconPlayerStopFilled size={ICON_SIZE} />
       </ActionIcon>

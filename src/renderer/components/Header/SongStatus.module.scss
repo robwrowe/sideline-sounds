@@ -62,3 +62,18 @@
   // monospace numbers
   font-variant-numeric: tabular-nums;
 }
+
+.imagePlaceholder {
+  background-color: light-dark(
+    var(--mantine-color-gray-3),
+    var(--mantine-color-dark-4)
+  );
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: var(--mantine-radius-xs);
+}
