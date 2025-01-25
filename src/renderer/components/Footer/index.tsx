@@ -1,0 +1,36 @@
+import React from "react";
+import { useDisclosure } from "@mantine/hooks";
+import { ActionIcon, Menu } from "@mantine/core";
+import { IconAdjustmentsCog } from "@tabler/icons-react";
+import styles from "./index.module.scss";
+
+import OutputDevices from "../OutputDevices";
+
+export default function Footer() {
+  const [showAdjustments, { toggle }] = useDisclosure(true);
+  return (
+    <>
+      <div className={styles.parent}>
+        <Menu withArrow>
+          <Menu.Target>
+            <ActionIcon
+              className={styles.icon}
+              size="sm"
+              variant="transparent"
+              c="gray"
+            >
+              <IconAdjustmentsCog size={20} />
+            </ActionIcon>
+          </Menu.Target>
+          {/*  */}
+
+          <Menu.Dropdown>
+            <Menu.Label>Audio Settings</Menu.Label>
+            <Menu.Item onClick={toggle}>Destinations</Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </div>
+      <OutputDevices opened={showAdjustments} onClose={toggle} />
+    </>
+  );
+}

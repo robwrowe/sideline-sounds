@@ -1,4 +1,11 @@
-import useDarkModeClassNames from "./useDarkModeClassNames.hook";
+import useAppDispatch from "./useAppDispatch";
+import useAppSelector from "./useAppSelector";
 import useAudioEngineContext from "./useAudioEngineContext";
+import useDarkModeClassNames from "./useDarkModeClassNames.hook";
 
-export { useDarkModeClassNames, useAudioEngineContext };
+export {
+  useAppDispatch,
+  useAppSelector,
+  useAudioEngineContext,
+  useDarkModeClassNames,
+};

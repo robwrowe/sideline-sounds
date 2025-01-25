@@ -33,8 +33,8 @@ export default class AudioEngine {
   private _rafId: NodeJS.Timeout | null = null;
   private _hasMedia = false;
   private _isPlaying = false;
+  private _deviceIdProgramA: string | null = null;
 
-  // TODO: set based on last known value
   private _volume = 1;
 
   public onMetadataChange?: (() => void) | null;
@@ -305,6 +305,14 @@ export default class AudioEngine {
     }
   }
 
+  public get deviceIdProgramA() {
+    return this._deviceIdProgramA;
+  }
+
+  public set deviceIdProgramA(value) {
+    this._deviceIdProgramA = value;
+  }
+
   public get volume() {
     return this._volume;
   }
@@ -493,6 +501,17 @@ export default class AudioEngine {
       this.startRAFUpdate(); // Start RAF updates
     }
 
+    console.log("AudioContext state:", this.audioContext.state);
+    console.log("Master gain connected:", this.masterGain.numberOfOutputs);
+    console.log(
+      "Destination channel count:",
+      this.audioContext.destination.channelCount
+    );
+    console.log(
+      "Number of outputs for masterGain:",
+      this.masterGain.numberOfOutputs
+    );
+
     this.isPlaying = true;
     this.hasMedia = true;
   }
@@ -607,4 +626,64 @@ export default class AudioEngine {
 
     this.stopRAFUpdate(); // Stop RAF updates
   }
+
+  public async setDestinationProgramA(newDeviceId: string | null) {
+    try {
+      console.log("running setDestinationProgramA");
+      navigator.mediaDevices.enumerateDevices().then((devices) => {
+        console.log(devices);
+      });
+      console.log("stopping audio...");
+      // stop all audio files
+      this.stop();
+
+      console.log("disconnecting master gain node");
+      // disconnect the master gain node
+      this.masterGain.disconnect();
+
+      console.log("creating new destination node");
+      // create a new MediaStreamAudioDestinationNode
+      const destinationNode = this.audioContext.createMediaStreamDestination();
+
+      console.log("connecting new node");
+      // connect the master gain to the new destination node
+      this.masterGain.connect(destinationNode);
+
+      console.log("creating new HTMLAudioElement");
+      // create an HTMLAudioElement and attach the destination stream
+      const audioElement = new Audio();
+      audioElement.srcObject = destinationNode.stream;
+
+      // set the sink ID (output device)
+      if (newDeviceId) {
+        console.log("setting sink ID", newDeviceId);
+        await audioElement.setSinkId(newDeviceId);
+      } else {
+        console.warn("not setting sink ID");
+      }
+
+      console.log("playing audio element");
+      // play the audio element to route the audio
+      await audioElement.play();
+
+      console.log("updating device ID in class", newDeviceId);
+      // update the device ID
+      this.deviceIdProgramA = newDeviceId;
+
+      console.log("Stream active:", destinationNode.stream.active);
+      console.log(
+        "Destination stream tracks:",
+        destinationNode.stream.getTracks()
+      );
+
+      console.log(
+        `Output device successfully changed to device ID "${newDeviceId}"`,
+        audioElement.readyState
+      );
+    } catch (err) {
+      console.error("Failed to update audio destination", err);
+    }
+  }
 }
+
+// hello, world!

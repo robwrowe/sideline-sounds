@@ -23,6 +23,7 @@ const createWindow = (): void => {
     width: 800,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      autoplayPolicy: "no-user-gesture-required",
     },
     show: !app.isPackaged,
   });
@@ -84,3 +85,6 @@ ipcMain.handle("get-audio-file", async (_, relativePath) => {
 
   return fs.readFile(filePath);
 });
+
+// ensure audio permission is granted
+app.commandLine.appendSwitch("enable-features", "AudioServiceSandbox");

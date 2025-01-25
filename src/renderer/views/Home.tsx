@@ -2,7 +2,8 @@ import React from "react";
 import { AppShell, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import styles from "./Home.module.scss";
-import { DataSongCard, SongCard, NavBar, Header } from "../components";
+
+import { DataSongCard, SongCard, NavBar, Header, Footer } from "../components";
 
 export default function Home() {
   const [opened, { toggle }] = useDisclosure(false);
@@ -11,7 +12,7 @@ export default function Home() {
     <AppShell
       layout="alt"
       header={{ height: 88 }}
-      footer={{ height: 48 }}
+      footer={{ height: 32 }}
       navbar={{ width: 300, breakpoint: "md", collapsed: { mobile: !opened } }}
       padding="md"
     >
@@ -69,7 +70,9 @@ export default function Home() {
           <SongCard />
         </div>
       </AppShell.Main>
-      <AppShell.Footer p="md">Footer</AppShell.Footer>
+      <AppShell.Footer p="0">
+        <Footer />
+      </AppShell.Footer>
     </AppShell>
   );
 }
