@@ -629,52 +629,34 @@ export default class AudioEngine {
 
   public async setDestinationProgramA(newDeviceId: string | null) {
     try {
-      console.log("running setDestinationProgramA");
-      navigator.mediaDevices.enumerateDevices().then((devices) => {
-        console.log(devices);
-      });
-      console.log("stopping audio...");
       // stop all audio files
       this.stop();
 
-      console.log("disconnecting master gain node");
       // disconnect the master gain node
       this.masterGain.disconnect();
 
-      console.log("creating new destination node");
       // create a new MediaStreamAudioDestinationNode
       const destinationNode = this.audioContext.createMediaStreamDestination();
 
-      console.log("connecting new node");
       // connect the master gain to the new destination node
       this.masterGain.connect(destinationNode);
 
-      console.log("creating new HTMLAudioElement");
       // create an HTMLAudioElement and attach the destination stream
       const audioElement = new Audio();
       audioElement.srcObject = destinationNode.stream;
 
       // set the sink ID (output device)
       if (newDeviceId) {
-        console.log("setting sink ID", newDeviceId);
         await audioElement.setSinkId(newDeviceId);
       } else {
-        console.warn("not setting sink ID");
+        console.warn("Not setting device ID. Will resolve to default.");
       }
 
-      console.log("playing audio element");
-      // play the audio element to route the audio
+      // start the audio element to route the audio
       await audioElement.play();
 
-      console.log("updating device ID in class", newDeviceId);
       // update the device ID
       this.deviceIdProgramA = newDeviceId;
-
-      console.log("Stream active:", destinationNode.stream.active);
-      console.log(
-        "Destination stream tracks:",
-        destinationNode.stream.getTracks()
-      );
 
       console.log(
         `Output device successfully changed to device ID "${newDeviceId}"`,

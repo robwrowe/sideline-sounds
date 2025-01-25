@@ -7,10 +7,12 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "make:mac": "electron-builder -m -c \"electron-builder-config.js\" --pd \"./out/sideline-sounds-darwin-arm64\"",
+    "build": "npm run package && npm run make:mac",
     "lint": "eslint --ext .ts,.tsx .",
-    "prettier-format": "prettier --config .prettierrc.json 'src/**/*.ts' 'src/**/*.tsx' 'src/**/*.scss' --write"
+    "prettier-format": "prettier --config .prettierrc.json 'src/**/*.ts' 'src/**/*.tsx' 'src/**/*.scss' --write",
+    "nvm": "nvm use 20.18.1",
+    "nvm:install": "nvm install 20.18.1"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.6.0",
@@ -24,6 +26,7 @@
     "@electron/fuses": "^1.8.0",
     "@types/css-modules": "^1.0.5",
     "@types/electron-devtools-installer": "^4.0.0",
+    "@types/node": "^22.10.10",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
     "@types/react-redux": "^7.1.34",
@@ -33,6 +36,7 @@
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
     "css-loader": "^6.11.0",
     "electron": "34.0.0",
+    "electron-builder": "^25.1.8",
     "electron-devtools-installer": "^4.0.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.0.1",

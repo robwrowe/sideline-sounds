@@ -33,6 +33,10 @@ declare global {
       };
     };
   }
+
+  interface HTMLAudioElement {
+    setSinkId(deviceId: string): Promise<void>;
+  }
 }
 
 export {}; // Ensure this file is treated as a module by TypeScript
