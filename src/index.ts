@@ -1,4 +1,21 @@
 /* eslint-disable no-console */
+/*
+ * Copyright © 2025 Robert W. Rowe
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import { app, BrowserWindow, ipcMain } from "electron";
 import {
   installExtension,
@@ -48,7 +65,14 @@ const createWindow = (): void => {
     .catch((err) => console.log("An error occurred adding extensions: ", err));
 
   mainWindow.on("ready-to-show", () => {
-    if (app.isPackaged) mainWindow.show();
+    if (app.isPackaged) {
+      mainWindow.show();
+    }
+  });
+
+  // When the window is ready, tell React to navigate to the home page
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow?.webContents.send("navigate", "/main");
   });
 };
 

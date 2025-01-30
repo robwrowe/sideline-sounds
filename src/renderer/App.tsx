@@ -1,12 +1,23 @@
-import React from "react";
-import { Route, Routes } from "react-router";
+import React, { useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router";
 
-import { Home } from "./views";
+import { Main } from "./views";
 
 export default function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (window.electron) {
+      window.electron.onNavigate((route: string) => {
+        navigate(route);
+      });
+    }
+  }, [navigate]);
+
   return (
     <Routes>
-      <Route path="/*" element={<Home />} />
+      <Route path="/" element={<p>Home</p>} />
+      <Route path="/main/*" element={<Main />} />
     </Routes>
   );
 }

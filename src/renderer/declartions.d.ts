@@ -31,6 +31,7 @@ declare global {
       ipcRenderer: {
         invoke: <T>(channel: string, ...args: unknown[]) => Promise<T>;
       };
+      onNavigate: (callback: (route: string) => void) => void;
     };
   }
 

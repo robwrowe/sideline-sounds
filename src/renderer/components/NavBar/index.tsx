@@ -6,9 +6,13 @@ import {
   IconBallBaseball,
   IconNotes,
   IconVinyl,
+  IconLogout,
 } from "@tabler/icons-react";
 import { Box, Burger, Title, Tooltip, UnstyledButton } from "@mantine/core";
 import styles from "./index.module.scss";
+
+import ExitShowModal from "./ExitShowModal";
+import { useDisclosure } from "@mantine/hooks";
 
 const mainLinksMockdata = [
   { icon: IconNotes, label: "Vault" },
@@ -34,6 +38,7 @@ export type NavBarProps = {
 export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
   const [active, setActive] = useState("Batting");
   const [activeLink, setActiveLink] = useState("Walk Up Music");
+  const [showExitModal, { toggle: toggleExitShowModal }] = useDisclosure(false);
 
   const mainLinks = mainLinksMockdata.map((link) => (
     <Tooltip
@@ -69,29 +74,47 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
   ));
 
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.wrapper}>
-        <div className={styles.aside}>
-          <div className={styles.logo}>
-            <Box visibleFrom="md">
-              <IconVinyl type="mark" size={30} />
-            </Box>
-            <Burger
-              opened={burgerOpened}
-              onClick={onBurgerClick}
-              hiddenFrom="md"
-              size="sm"
-            />
+    <>
+      <nav className={styles.navbar}>
+        <div className={styles.wrapper}>
+          <div className={styles.aside}>
+            <div className={styles.logo}>
+              <Box visibleFrom="md">
+                <IconVinyl type="mark" size={30} />
+              </Box>
+              <Burger
+                opened={burgerOpened}
+                onClick={onBurgerClick}
+                hiddenFrom="md"
+                size="sm"
+              />
+            </div>
+            <div className={styles.mainLinks}>{mainLinks}</div>
+            <div className={styles.logout}>
+              <Tooltip
+                label="Exit Show"
+                position="right"
+                withArrow
+                transitionProps={{ duration: 0 }}
+              >
+                <UnstyledButton
+                  onClick={toggleExitShowModal}
+                  className={styles.mainLink}
+                >
+                  <IconLogout size={22} stroke={1.5} />
+                </UnstyledButton>
+              </Tooltip>
+            </div>
           </div>
-          {mainLinks}
+          <div className={styles.main}>
+            <Title order={4} className={styles.title}>
+              {active}
+            </Title>
+            <div className={styles.linksContainer}>{links}</div>
+          </div>
         </div>
-        <div className={styles.main}>
-          <Title order={4} className={styles.title}>
-            {active}
-          </Title>
-          <div className={styles.linksContainer}>{links}</div>
-        </div>
-      </div>
-    </nav>
+      </nav>
+      <ExitShowModal opened={showExitModal} onClose={toggleExitShowModal} />
+    </>
   );
 }

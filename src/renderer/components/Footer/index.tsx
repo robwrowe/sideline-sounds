@@ -1,15 +1,21 @@
 import React from "react";
 import { useDisclosure } from "@mantine/hooks";
-import { ActionIcon, Menu } from "@mantine/core";
+import { ActionIcon, Menu, Title } from "@mantine/core";
 import { IconAdjustmentsCog } from "@tabler/icons-react";
 import styles from "./index.module.scss";
 
 import OutputDevices from "../OutputDevices";
 
 export default function Footer() {
-  const [showAdjustments, { toggle }] = useDisclosure(true);
+  const [showAdjustments, { toggle }] = useDisclosure(false);
   return (
-    <>
+    <div className={styles.container}>
+      <div></div>
+      <div>
+        <Title order={6} className={styles.copyright}>
+          Copyright © Rob W. Rowe
+        </Title>
+      </div>
       <div className={styles.parent}>
         <Menu withArrow>
           <Menu.Target>
@@ -31,6 +37,6 @@ export default function Footer() {
         </Menu>
       </div>
       <OutputDevices opened={showAdjustments} onClose={toggle} />
-    </>
+    </div>
   );
 }
