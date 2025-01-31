@@ -1,3 +1,4 @@
 import AudioEngine from "./AudioEngine";
+import IndexedDBApp from "./IndexedDBApp";
 
-export { AudioEngine };
+export { AudioEngine, IndexedDBApp };

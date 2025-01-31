@@ -4,7 +4,7 @@ import { Button, Modal, TextInput, ModalProps } from "@mantine/core";
 import styles from "./AddShowModal.module.scss";
 import { v4 as uuid } from "uuid";
 
-import { dbShows } from "../../../utils";
+import { dbShows } from "../../../repos";
 import { useNavigate } from "react-router";
 
 export type AddShowModalProps = {
@@ -15,7 +15,6 @@ export type AddShowModalProps = {
 export default function AddShowModal({ opened, onClose }: AddShowModalProps) {
   const [showName, setShowName] = useState("");
   const [loading, setLoading] = useState(false);
-  const { addItem } = dbShows();
   const navigate = useNavigate();
 
   const handleClick = useCallback(async () => {
@@ -23,7 +22,7 @@ export default function AddShowModal({ opened, onClose }: AddShowModalProps) {
       setLoading(true);
       const id = uuid();
 
-      await addItem({
+      await dbShows.addItem({
         id,
         name: showName,
       });
@@ -34,7 +33,7 @@ export default function AddShowModal({ opened, onClose }: AddShowModalProps) {
     } finally {
       setLoading(false);
     }
-  }, [addItem, navigate, showName]);
+  }, [navigate, showName]);
 
   return (
     <Modal title="Add Show" opened={opened} onClose={onClose}>

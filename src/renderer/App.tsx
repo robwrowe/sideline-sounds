@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { Route, Routes, useNavigate } from "react-router";
+import { Route, Routes, useNavigate, useLocation } from "react-router";
 
 import { Main } from "./views";
 
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (window.electron) {
@@ -13,6 +14,10 @@ export default function App() {
       });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    console.log("Current route:", `"${location.pathname}"`);
+  }, [location.pathname]);
 
   return (
     <Routes>

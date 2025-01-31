@@ -9,13 +9,7 @@ import OutputDevices from "../OutputDevices";
 export default function Footer() {
   const [showAdjustments, { toggle }] = useDisclosure(false);
   return (
-    <div className={styles.container}>
-      <div></div>
-      <div>
-        <Title order={6} className={styles.copyright}>
-          Copyright © Rob W. Rowe
-        </Title>
-      </div>
+    <>
       <div className={styles.parent}>
         <Menu withArrow>
           <Menu.Target>
@@ -37,6 +31,6 @@ export default function Footer() {
         </Menu>
       </div>
       <OutputDevices opened={showAdjustments} onClose={toggle} />
-    </div>
+    </>
   );
 }

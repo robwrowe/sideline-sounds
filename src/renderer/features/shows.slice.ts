@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { BaseInitialStateThunk, ThunkStatus, Show } from "../../types";
-import { dbShows } from "../utils";
+import { dbShows as db } from "../repos";
 
 interface InitialState extends BaseInitialStateThunk {
   shows: Show[];
@@ -11,8 +11,6 @@ const initialState: InitialState = {
   error: null,
   shows: [],
 };
-
-const db = dbShows();
 
 export const fetchShows = createAsyncThunk<Show[]>(
   "shows/fetchShows",
@@ -64,5 +62,4 @@ const showsSlice = createSlice({
 });
 
 export const { addShow, removeShow } = showsSlice.actions;
-
 export default showsSlice.reducer;

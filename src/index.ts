@@ -49,7 +49,9 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (!app.isPackaged) {
+    mainWindow.webContents.openDevTools();
+  }
 
   // add the devtools extension
   installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
@@ -72,6 +74,7 @@ const createWindow = (): void => {
 
   // When the window is ready, tell React to navigate to the home page
   mainWindow.webContents.on("did-finish-load", () => {
+    // mainWindow?.webContents.send("navigate", "/main/show");
     mainWindow?.webContents.send("navigate", "/main");
   });
 };

@@ -20,28 +20,77 @@ export type indexedDBAppOpts = {
    * The primary key to use for the database.
    * Defaults to `id`.
    */
-  keyPath?: string;
+  keyPath?: string | string[];
 };
 
-export default function indexedDBApp<
+export default class IndexedDBApp<
   T extends Record<string, unknown | unknown[]>,
->(storeName: string, opts: indexedDBAppOpts = {}) {
-  const dbName = opts.dbName ?? "primaryDatabase";
-  const version = opts.version ?? undefined;
+> {
+  private _dbName = "primaryDatabase";
+  private _version: number | undefined;
+  private _keyPath: string | string[] | undefined;
+
+  public get dbName() {
+    return this._dbName;
+  }
+
+  private set dbName(value) {
+    this._dbName = value;
+  }
+
+  private get version() {
+    return this._version;
+  }
+
+  private set version(value) {
+    this._version = value;
+  }
+
+  public get keyPath() {
+    return this._keyPath;
+  }
+
+  private set keyPath(value) {
+    this._keyPath = value;
+  }
+
+  constructor(
+    private _storeName: string,
+    opts: indexedDBAppOpts = {}
+  ) {
+    if (opts.dbName) {
+      this.dbName = opts.dbName;
+    }
+
+    if (opts.version) {
+      this.version = opts.version;
+    }
+
+    if (opts.keyPath) {
+      this.keyPath = opts.keyPath;
+    }
+  }
+
+  public get storeName() {
+    return this._storeName;
+  }
+
   // function to initialize the database
-  const initDB = async (): Promise<IDBDatabase> => {
+  private initDB = async (): Promise<IDBDatabase> => {
     return new Promise(
       (
         resolve: (arg0: IDBDatabase) => unknown,
         reject: (arg0: DOMException | null) => unknown
       ) => {
-        const request = indexedDB.open(dbName, version);
+        const request = indexedDB.open(this.dbName, this.version);
 
         request.onupgradeneeded = () => {
           const db = request.result;
 
-          if (!db.objectStoreNames.contains(storeName)) {
-            db.createObjectStore(storeName, { keyPath: "id" });
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName, {
+              keyPath: this.keyPath ?? "id",
+            });
           }
         };
 
@@ -52,15 +101,15 @@ export default function indexedDBApp<
   };
 
   // generic wrapper for database transactions
-  async function withDB<R>(
+  private async withDB<R>(
     mode: IDBTransactionMode,
     callback: (store: IDBObjectStore) => Promise<R>
   ): Promise<R> {
-    const db = await initDB();
+    const db = await this.initDB();
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(storeName, mode);
-      const store = transaction.objectStore(storeName);
+      const transaction = db.transaction(this.storeName, mode);
+      const store = transaction.objectStore(this.storeName);
 
       callback(store).then(resolve).catch(reject);
 
@@ -69,9 +118,8 @@ export default function indexedDBApp<
   }
 
   // CRUD operations
-  // add one item
-  const addItem = async (item: T): Promise<void> => {
-    return withDB("readwrite", (store) => {
+  public addItem = async (item: T): Promise<void> => {
+    return this.withDB("readwrite", (store) => {
       return new Promise<void>((resolve, reject) => {
         const request = store.add(item);
 
@@ -81,8 +129,8 @@ export default function indexedDBApp<
     });
   };
 
-  const getItems = async (): Promise<T[]> => {
-    return withDB("readonly", (store) => {
+  public getItems = async (): Promise<T[]> => {
+    return this.withDB("readonly", (store) => {
       return new Promise((resolve, reject) => {
         const request = store.getAll();
 
@@ -92,8 +140,8 @@ export default function indexedDBApp<
     });
   };
 
-  const updateItem = async (item: T): Promise<void> => {
-    return withDB("readwrite", (store) => {
+  public updateItem = async (item: T): Promise<void> => {
+    return this.withDB("readwrite", (store) => {
       return new Promise((resolve, reject) => {
         const request = store.put(item);
 
@@ -103,8 +151,8 @@ export default function indexedDBApp<
     });
   };
 
-  const deleteItem = async (id: number): Promise<void> => {
-    return withDB("readwrite", (store) => {
+  public deleteItem = async (id: number): Promise<void> => {
+    return this.withDB("readwrite", (store) => {
       return new Promise((resolve, reject) => {
         const request = store.delete(id);
 
@@ -113,6 +161,4 @@ export default function indexedDBApp<
       });
     });
   };
-
-  return { addItem, getItems, updateItem, deleteItem };
 }

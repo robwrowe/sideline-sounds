@@ -15,7 +15,14 @@
   "material-icon-theme.files.associations": {
     "*.slice.ts": "redux-reducer"
   },
-  "cSpell.words": ["crossfade", "mantine", "robwrowe", "tabler"],
+  "cSpell.words": [
+    "crossfade",
+    "mantine",
+    "robwrowe",
+    "subclip",
+    "subclipped",
+    "tabler"
+  ],
   "explorer.fileNesting.patterns": {
     "index.tsx": "${dirname}.tsx",
     "index.module.scss": "${dirname}.scss",
