@@ -21,10 +21,13 @@ export default function Show() {
   useEffect(() => {
     if (showID) {
       dispatch(setActiveShowID(showID));
-      return;
+    } else {
+      dispatch(setActiveShowID(null));
     }
 
-    dispatch(setActiveShowID(null));
+    return () => {
+      dispatch(setActiveShowID(null));
+    };
   }, [dispatch, showID]);
 
   // update local storage for future reference

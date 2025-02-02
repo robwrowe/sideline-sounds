@@ -24,6 +24,7 @@ import ExitShowModal from "./Modals/ExitShowModal";
 
 // TODO: add placeholder if there are no pages or banks in a show
 // TODO: add a modal for re-ordering pages & banks
+// TODO: update document title to name of show
 
 export type NavBarProps = {
   burgerOpened: boolean;
