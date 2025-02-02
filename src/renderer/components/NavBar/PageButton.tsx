@@ -1,4 +1,5 @@
 import React from "react";
+import classNames from "classnames";
 import { IconProps, Icon } from "@tabler/icons-react";
 import { Tooltip, UnstyledButton } from "@mantine/core";
 import styles from "./PageButton.module.scss";
@@ -8,6 +9,7 @@ type PageButtonProps = {
   label: string;
   onClick: () => void;
   isActive?: true;
+  className?: CSSModule["string"];
 };
 
 export default function PageButton({
@@ -15,6 +17,7 @@ export default function PageButton({
   label,
   onClick,
   isActive,
+  className,
 }: PageButtonProps) {
   const link = { icon };
 
@@ -27,7 +30,7 @@ export default function PageButton({
     >
       <UnstyledButton
         onClick={onClick}
-        className={styles.mainLink}
+        className={classNames(styles.mainLink, className)}
         data-active={isActive}
       >
         <link.icon size={22} stroke={1.5} />

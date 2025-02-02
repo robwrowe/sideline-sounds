@@ -74,11 +74,17 @@
   margin-top: calc(var(--mantine-spacing-md) - 1px);
 }
 
-.addPage {
+.addBank {
   background-color: light-dark(
     var(--mantine-color-gray-2),
     var(--mantine-color-dark-4)
   );
 
   font-style: italic;
+}
+
+.noPage {
+  text-align: center;
+  font-style: italic;
+  font-weight: bold;
 }

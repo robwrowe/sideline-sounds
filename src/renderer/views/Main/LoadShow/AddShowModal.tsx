@@ -7,7 +7,7 @@ import { v4 as uuid } from "uuid";
 import { dbShows } from "../../../repos";
 import { useNavigate } from "react-router";
 import { useAppDispatch } from "../../../hooks";
-import { fetchShows, setActiveShowID } from "../../../features";
+import { fetchShows } from "../../../features";
 
 export type AddShowModalProps = Pick<ModalProps, "opened" | "onClose">;
 
@@ -30,15 +30,18 @@ export default function AddShowModal({ opened, onClose }: AddShowModalProps) {
 
       // update redux
       dispatch(fetchShows());
-      dispatch(setActiveShowID(id));
 
+      // go to page
       navigate(`/main/show/${id}`);
+
+      // close modal
+      onClose();
     } catch (err) {
       console.error("Error when creating show", err);
     } finally {
       setLoading(false);
     }
-  }, [dispatch, navigate, showName]);
+  }, [dispatch, navigate, onClose, showName]);
 
   return (
     <Modal title="Add Show" opened={opened} onClose={onClose}>

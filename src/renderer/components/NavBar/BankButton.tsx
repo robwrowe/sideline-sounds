@@ -3,21 +3,25 @@ import classNames from "classnames";
 import styles from "./BankButton.module.scss";
 
 type BankButtonProps = {
-  link: string;
+  label: string;
   onClick: React.MouseEventHandler<HTMLAnchorElement>;
   isActive?: true;
   className?: CSSModule["string"];
+  disabled?: boolean;
 };
 
 export default function BankButton({
-  link,
+  label: link,
   onClick,
   isActive,
   className,
+  disabled,
 }: BankButtonProps) {
   return (
     <a
-      className={classNames(styles.link, className)}
+      className={classNames(styles.link, className, {
+        [styles.disabled]: disabled,
+      })}
       data-active={isActive}
       href="#"
       onClick={onClick}

@@ -3,11 +3,6 @@ import { useNavigate, useParams } from "react-router";
 import { useDisclosure } from "@mantine/hooks";
 import { Box, Burger, Title, Tooltip, UnstyledButton } from "@mantine/core";
 import {
-  IconCalendarMonth,
-  IconShirtSport,
-  IconClock,
-  IconBallBaseball,
-  IconNotes,
   IconVinyl,
   IconLogout,
   IconPlus,
@@ -18,12 +13,7 @@ import * as TablerIcons from "@tabler/icons-react";
 import styles from "./index.module.scss";
 
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import {
-  fetchBanks,
-  fetchPages,
-  setActivePageID,
-  setActiveBankID,
-} from "../../features";
+import { fetchBanks, fetchPages } from "../../features";
 import { ShowParams, ThunkStatus } from "../../../types";
 
 import PageButton from "./PageButton";
@@ -32,19 +22,8 @@ import AddNewPageModal from "./Modals/AddNewPageModal";
 import AddNewBankModal from "./Modals/AddNewBankModal";
 import ExitShowModal from "./Modals/ExitShowModal";
 
-// TODO: show banks based on data
-// TODO: see if there's a better way to handle the navigate + setting active IDs
-// TODO: store last selected show, page, and bank
 // TODO: add placeholder if there are no pages or banks in a show
 // TODO: add a modal for re-ordering pages & banks
-
-const linksMockdata = [
-  "Upbeat",
-  "Mound Visit",
-  "Hits & Runs",
-  "Sound Effects",
-  "Walk Up Music",
-];
 
 export type NavBarProps = {
   burgerOpened: boolean;
@@ -63,10 +42,18 @@ type PageState = BankState & {
 export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  const [showExitModal, { toggle: toggleExitShowModal }] = useDisclosure(false);
+  const [showAddNewPageModal, { toggle: toggleAddNewPageModal }] =
+    useDisclosure(false);
+  const [showAddNewBankModal, { toggle: toggleAddNewBankModal }] =
+    useDisclosure(false);
+
   const { showID } = useParams<ShowParams>();
 
   const pagesData = useAppSelector(({ pages }) => pages.pages);
   const pagesStatus = useAppSelector(({ pages }) => pages.status);
+  const activePageID = useAppSelector(({ pages }) => pages.activePageID);
 
   const [pages, setPages] = useState<PageState[]>([]);
   const [activePageLabel, setActivePageLabel] = useState("");
@@ -117,6 +104,7 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
   const [banks, setBanks] = useState<BankState[]>([]);
   const banksData = useAppSelector(({ banks }) => banks.banks);
   const banksStatus = useAppSelector(({ banks }) => banks.status);
+  const activeBankID = useAppSelector(({ banks }) => banks.activeBankID);
 
   // get the latest banks in redux
   const handleFetchBanks = useCallback(() => {
@@ -128,46 +116,55 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
     handleFetchBanks();
   }, [handleFetchBanks]);
 
-  //
-  //
-  //
+  // build out the buttons for the banks
+  useEffect(() => {
+    if (banksStatus === ThunkStatus.SUCCEEDED) {
+      const data: BankState[] = [];
 
-  const [activeLink, setActiveLink] = useState("Walk Up Music");
-  const [showExitModal, { toggle: toggleExitShowModal }] = useDisclosure(false);
-  const [showAddNewPageModal, { toggle: toggleAddNewPageModal }] =
-    useDisclosure(false);
-  const [showAddNewBankModal, { toggle: toggleAddNewBankModal }] =
-    useDisclosure(true);
+      for (const bank of banksData) {
+        if (bank.pageID === activePageID) {
+          data.push({
+            id: bank.id,
+            label: bank.name,
+          });
+        }
+      }
 
+      setBanks(data);
+      return;
+    }
+
+    setBanks([]);
+  }, [activePageID, banksData, banksStatus]);
+
+  // on click handlers
   const handleClickPage = useCallback(
     (id: string, label: string) => {
       setActivePageLabel(label);
-      setActivePageID(id);
-      navigate(`/main/show/${showID}/page/${id}/bank/${id}`);
-      dispatch(setActivePageID(id));
+      // see if there's a bank previously selected
+      const prevSelectedBankID = localStorage.getItem(
+        `bank-selection:show:${showID}:page:${id}`
+      );
+
+      if (prevSelectedBankID) {
+        navigate(
+          `/main/show/${showID}/page/${id}/bank/${JSON.parse(prevSelectedBankID)}`
+        );
+      } else {
+        navigate(`/main/show/${showID}/page/${id}`);
+      }
     },
-    [dispatch, navigate, showID]
+    [navigate, showID]
   );
 
   const handleClickBank = useCallback(
-    (id: string, link: string) => {
-      dispatch(setActiveBankID(id));
-      setActiveLink(link);
+    (id: string) => {
+      if (showID && activePageID) {
+        navigate(`/main/show/${showID}/page/${activePageID}/bank/${id}`);
+      }
     },
-    [dispatch]
+    [activePageID, navigate, showID]
   );
-
-  const links = linksMockdata.map((link) => (
-    <BankButton
-      key={link}
-      link={link}
-      onClick={(event) => {
-        event.preventDefault();
-        handleClickBank(link, link);
-      }}
-      isActive={activeLink === link || undefined}
-    />
-  ));
 
   return (
     <>
@@ -201,6 +198,7 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
                 icon={IconPlus}
                 label="Add New Page"
                 onClick={() => toggleAddNewPageModal()}
+                className={styles.addPage}
               />
             </div>
             <div className={styles.logout}>
@@ -224,16 +222,28 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
               {activePageLabel}
             </Title>
             <div className={styles.linksContainer}>
-              {links}
+              {banks.map((item) => (
+                <BankButton
+                  key={`bank-${item.label}`}
+                  label={item.label}
+                  onClick={() => handleClickBank(item.id)}
+                  isActive={item.id === activeBankID || undefined}
+                />
+              ))}
               {/* add new bank */}
-              <BankButton
-                link="Add New Bank"
-                onClick={(event) => {
-                  event.preventDefault();
-                  toggleAddNewBankModal();
-                }}
-                className={styles.addPage}
-              />
+              {activePageID ? (
+                <BankButton
+                  label="Add New Bank"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (activePageID) toggleAddNewBankModal();
+                  }}
+                  className={styles.addBank}
+                  disabled={!activePageID}
+                />
+              ) : (
+                <p className={styles.noPage}>No page selected</p>
+              )}
             </div>
           </div>
         </div>

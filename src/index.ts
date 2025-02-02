@@ -74,11 +74,11 @@ const createWindow = (): void => {
 
   // When the window is ready, tell React to navigate to the home page
   mainWindow.webContents.on("did-finish-load", () => {
-    // mainWindow?.webContents.send(
-    //   "navigate",
-    //   "/main/show/c40bb8fc-4f66-48e2-8c32-078426e6ec96"
-    // );
-    mainWindow?.webContents.send("navigate", "/main");
+    mainWindow?.webContents.send(
+      "navigate",
+      "/main/show/419717fb-f85f-49fd-9bbf-ea69d43d3d55"
+    );
+    // mainWindow?.webContents.send("navigate", "/main");
   });
 };
 

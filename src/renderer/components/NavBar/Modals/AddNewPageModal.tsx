@@ -98,12 +98,15 @@ export default function AddNewPageModal({
 
       // update route to new page
       navigate(`/main/show/${showID}/page/${id}`);
+
+      // close the modal
+      onClose();
     } catch (err) {
       console.error("Error when creating page", err);
     } finally {
       setLoading(false);
     }
-  }, [dispatch, iconValue, navigate, pageName, showID]);
+  }, [dispatch, iconValue, navigate, onClose, pageName, showID]);
 
   return (
     <Modal title="Add Page" opened={opened} onClose={onClose}>

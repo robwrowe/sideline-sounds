@@ -1,15 +1,41 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router";
 import styles from "./index.module.scss";
 
 import { DataSongCard, SongCard } from "../../../components";
 import { ShowParams } from "../../../../types";
+import { useAppDispatch } from "../../../hooks";
+import { setActiveBankID } from "../../../features";
 
 const NUM_OF_ROWS = 4;
 const NUM_OF_COLS = 4;
 
 export default function ShowBank() {
-  const { showID, bankID } = useParams<ShowParams>();
+  const { bankID, showID, pageID } = useParams<ShowParams>();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (bankID) {
+      dispatch(setActiveBankID(bankID));
+    } else {
+      dispatch(setActiveBankID(null));
+    }
+
+    // on dismount, clear selection
+    return () => {
+      dispatch(setActiveBankID(null));
+    };
+  }, [dispatch, bankID]);
+
+  // update local storage for future reference
+  useEffect(() => {
+    if (showID && pageID) {
+      localStorage.setItem(
+        `bank-selection:show:${showID}:page:${pageID}`,
+        JSON.stringify(bankID)
+      );
+    }
+  }, [bankID, pageID, showID]);
 
   return (
     <div
@@ -19,8 +45,6 @@ export default function ShowBank() {
         gridTemplateRows: Array(NUM_OF_ROWS).fill("1fr").join(" "),
       }}
     >
-      <p>Show ID x: {showID}</p>
-      <p>Bank ID x: {bankID}</p>
       <DataSongCard
         title="03 Open w Vamp"
         filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 01/03 Open w Vamp.wav"

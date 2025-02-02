@@ -11,13 +11,24 @@
   height: 44px;
   line-height: 44px;
 
+  &.disabled {
+    cursor: not-allowed;
+
+    background-color: light-dark(
+      var(--mantine-color-gray-4),
+      var(--mantine-color-dark-8)
+    );
+    color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.2));
+  }
 
   &:hover {
-    background-color: light-dark(
-      var(--mantine-color-gray-1),
-      var(--mantine-color-dark-5)
-    );
-    color: light-dark(var(--mantine-color-dark), var(--mantine-color-light));
+    &:not(.disabled) {
+      background-color: light-dark(
+        var(--mantine-color-gray-1),
+        var(--mantine-color-dark-5)
+      );
+      color: light-dark(var(--mantine-color-dark), var(--mantine-color-light));
+    }
   }
 
   &[data-active] {

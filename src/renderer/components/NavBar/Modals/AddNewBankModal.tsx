@@ -14,7 +14,7 @@ import styles from "./AddNewBankModal.module.scss";
 import { dbBanks } from "../../../repos";
 import { ShowParams } from "../../../../types";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
-import { fetchBanks, setActiveBankID } from "../../../features";
+import { fetchBanks } from "../../../features";
 
 export type AddNewBankModalProps = Pick<ModalProps, "opened" | "onClose">;
 
@@ -26,8 +26,8 @@ export default function AddNewBankModal({
   const dispatch = useAppDispatch();
 
   const [pageName, setPageName] = useState("");
-  const [numOfRows, setNumOfRows] = useState<number | string>(5);
-  const [numOfCols, setNumOfCols] = useState<number | string>(5);
+  const [numOfRows, setNumOfRows] = useState<number | string>(4);
+  const [numOfCols, setNumOfCols] = useState<number | string>(4);
   const [loading, setLoading] = useState(false);
   const { showID } = useParams<ShowParams>();
   const pageID = useAppSelector(({ pages }) => pages.activePageID);
@@ -60,13 +60,24 @@ export default function AddNewBankModal({
       dispatch(fetchBanks({ showID }));
 
       navigate(`/main/show/${showID}/page/${pageID}/bank/${id}`);
-      dispatch(setActiveBankID(id));
+
+      // close the modal
+      onClose();
     } catch (err) {
       console.error("Error when creating bank", err);
     } finally {
       setLoading(false);
     }
-  }, [dispatch, navigate, numOfCols, numOfRows, pageID, pageName, showID]);
+  }, [
+    dispatch,
+    navigate,
+    numOfCols,
+    numOfRows,
+    onClose,
+    pageID,
+    pageName,
+    showID,
+  ]);
 
   return (
     <Modal title="Add New Bank" opened={opened} onClose={onClose}>
@@ -106,7 +117,7 @@ export default function AddNewBankModal({
             onClick={handleClick}
             loading={loading}
           >
-            Create Show
+            Create Bank
           </Button>
           <Button
             fullWidth
