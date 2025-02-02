@@ -16,7 +16,7 @@ export const fetchContentButtons = createAsyncThunk<ContentButton[]>(
   "banks/fetchContentButtons",
   async () => {
     try {
-      const data = db.getItems();
+      const data = await db.getItems();
 
       return data;
     } catch (err) {

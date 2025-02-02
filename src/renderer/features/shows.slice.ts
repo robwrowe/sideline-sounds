@@ -4,19 +4,21 @@ import { dbShows as db } from "../repos";
 
 interface InitialState extends BaseInitialStateThunk {
   shows: Show[];
+  activeShowID: string | null;
 }
 
 const initialState: InitialState = {
   status: ThunkStatus.IDLE,
   error: null,
   shows: [],
+  activeShowID: null,
 };
 
 export const fetchShows = createAsyncThunk<Show[]>(
   "shows/fetchShows",
   async () => {
     try {
-      const data = db.getItems();
+      const data = await db.getItems();
 
       return data;
     } catch (err) {
@@ -37,6 +39,10 @@ const showsSlice = createSlice({
     removeShow(state, { payload: id }: { payload: string }) {
       const arr = state.shows.filter((item) => item.id !== id);
       state.shows = arr;
+    },
+
+    setActiveShowID(state, { payload }: { payload: string | null }) {
+      state.activeShowID = payload;
     },
   },
   extraReducers: (builder) => {
@@ -61,5 +67,5 @@ const showsSlice = createSlice({
   },
 });
 
-export const { addShow, removeShow } = showsSlice.actions;
+export const { addShow, removeShow, setActiveShowID } = showsSlice.actions;
 export default showsSlice.reducer;

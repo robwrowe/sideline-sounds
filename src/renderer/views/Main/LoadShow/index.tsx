@@ -13,7 +13,7 @@ import {
   useDarkModeClassNames,
 } from "../../../hooks";
 import { ThunkStatus } from "../../../../types";
-import { fetchShows } from "../../../features";
+import { fetchShows, setActiveShowID } from "../../../features";
 
 type StartButtons = {
   title: string;
@@ -22,8 +22,8 @@ type StartButtons = {
 };
 
 export default function Home() {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const darkModeStyles = useDarkModeClassNames(styles);
 
   const [addShowOpened, { toggle: addShowToggle }] = useDisclosure(false);
@@ -62,9 +62,10 @@ export default function Home() {
 
   const handleClickShow = useCallback(
     (id: string) => {
-      navigate(`show/${id}`, { relative: "path" });
+      navigate(`/main/show/${id}`);
+      dispatch(setActiveShowID(id));
     },
-    [navigate]
+    [dispatch, navigate]
   );
 
   return (

@@ -29,7 +29,7 @@ export default function ExitShowModal({ opened, onClose }: ExitShowModalProps) {
             color="red"
             onClick={() => {
               try {
-                navigate("..", { relative: "route" });
+                navigate("/main");
               } catch (err) {
                 console.error("Error exiting show", err);
               } finally {

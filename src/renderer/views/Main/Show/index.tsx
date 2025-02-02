@@ -1,21 +1,30 @@
-import React from "react";
-import { AppShell, Group } from "@mantine/core";
+import React, { useEffect } from "react";
+import { useParams, Route, Routes } from "react-router";
+import { AppShell, Group, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import styles from "./index.module.scss";
 
-import {
-  DataSongCard,
-  SongCard,
-  NavBar,
-  Header,
-  Footer,
-} from "../../../components";
+import { NavBar, Header, Footer } from "../../../components";
+import { ShowParams } from "../../../../types";
+import ShowBank from "./ShowBank";
+import { useAppSelector } from "../../../hooks";
 
-const NUM_OF_ROWS = 4;
-const NUM_OF_COLS = 4;
-
-export default function Main() {
+export default function Show() {
   const [opened, { toggle }] = useDisclosure(false);
+  const { showID } = useParams<ShowParams>();
+  const pageID = useAppSelector(({ pages }) => pages.activePageID);
+  const bankID = useAppSelector(({ banks }) => banks.activeBankID);
+
+  useEffect(() => {
+    console.log("Show.tsx", "showID", showID);
+  }, [showID]);
+
+  useEffect(() => {
+    console.log("Show.tsx", "pageID", pageID);
+  }, [pageID]);
+
+  useEffect(() => {
+    console.log("Show.tsx", "bankID", bankID);
+  }, [bankID]);
 
   return (
     <AppShell
@@ -36,54 +45,15 @@ export default function Main() {
         </Group>
       </AppShell.Navbar>
       <AppShell.Main>
-        <div
-          className={styles.grid}
-          style={{
-            gridTemplateColumns: Array(NUM_OF_COLS).fill("1fr").join(" "),
-            gridTemplateRows: Array(NUM_OF_ROWS).fill("1fr").join(" "),
-          }}
-        >
-          <DataSongCard
-            title="03 Open w Vamp"
-            filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 01/03 Open w Vamp.wav"
-          />
-          <DataSongCard
-            title="18 60 ElectroRock Bump"
-            filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/18 60 ElectroRock Bump.wav"
-          />
-          <DataSongCard
-            title="27 45 Inspirational Orchestral Bump"
-            filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/27 45 Inspirational Orchestral Bump.wav"
-          />
-          <DataSongCard
-            title="17 05-07 Groovy Hip Hop Sting"
-            filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/17 05-07 Groovy Hip Hop Sting.wav"
-          />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-          <SongCard />
-        </div>
+        <Stack>
+          <Text>Show ID: {showID}</Text>
+          <Text>Page ID: {pageID}</Text>
+          <Text>Bank ID: {bankID}</Text>
+        </Stack>
+        <Routes>
+          <Route path="page/:pageID/bank/:bankID" element={<ShowBank />} />
+          <Route path="*" element={<p>No bank selected</p>} />
+        </Routes>
       </AppShell.Main>
       <AppShell.Footer p="0">
         <Footer />

@@ -4,27 +4,37 @@ import { dbPages as db } from "../repos";
 
 interface InitialState extends BaseInitialStateThunk {
   pages: Page[];
+  activePageID: string | null;
 }
 
 const initialState: InitialState = {
   status: ThunkStatus.IDLE,
   error: null,
   pages: [],
+  activePageID: null,
 };
 
-export const fetchPages = createAsyncThunk<Page[]>(
-  "pages/fetchPages",
-  async () => {
-    try {
-      const data = db.getItems();
+type FetchPagesFilters = {
+  showID?: string;
+};
 
-      return data;
-    } catch (err) {
-      console.error("Error fetching pages", err);
-      throw err;
+export const fetchPages = createAsyncThunk<
+  Page[],
+  FetchPagesFilters | undefined
+>("pages/fetchPages", async (filters = {}) => {
+  try {
+    const data = await db.getItems();
+
+    if (filters) {
+      return data.filter((item) => item.showID === filters.showID);
     }
+
+    return data;
+  } catch (err) {
+    console.error("Error fetching pages", err);
+    throw err;
   }
-);
+});
 
 const pagesSlice = createSlice({
   name: "pages",
@@ -37,6 +47,10 @@ const pagesSlice = createSlice({
     removePage(state, { payload: id }: { payload: string }) {
       const arr = state.pages.filter((item) => item.id !== id);
       state.pages = arr;
+    },
+
+    setActivePageID(state, { payload }: { payload: string | null }) {
+      state.activePageID = payload;
     },
   },
   extraReducers: (builder) => {
@@ -61,5 +75,5 @@ const pagesSlice = createSlice({
   },
 });
 
-export const { addPage, removePage } = pagesSlice.actions;
+export const { addPage, removePage, setActivePageID } = pagesSlice.actions;
 export default pagesSlice.reducer;

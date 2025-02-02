@@ -6,16 +6,17 @@ import { v4 as uuid } from "uuid";
 
 import { dbShows } from "../../../repos";
 import { useNavigate } from "react-router";
+import { useAppDispatch } from "../../../hooks";
+import { fetchShows, setActiveShowID } from "../../../features";
 
-export type AddShowModalProps = {
-  opened: ModalProps["opened"];
-  onClose: ModalProps["onClose"];
-};
+export type AddShowModalProps = Pick<ModalProps, "opened" | "onClose">;
 
 export default function AddShowModal({ opened, onClose }: AddShowModalProps) {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
   const [showName, setShowName] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleClick = useCallback(async () => {
     try {
@@ -27,13 +28,17 @@ export default function AddShowModal({ opened, onClose }: AddShowModalProps) {
         name: showName,
       });
 
-      navigate(`show/${id}`, { relative: "path" });
+      // update redux
+      dispatch(fetchShows());
+      dispatch(setActiveShowID(id));
+
+      navigate(`/main/show/${id}`);
     } catch (err) {
       console.error("Error when creating show", err);
     } finally {
       setLoading(false);
     }
-  }, [navigate, showName]);
+  }, [dispatch, navigate, showName]);
 
   return (
     <Modal title="Add Show" opened={opened} onClose={onClose}>

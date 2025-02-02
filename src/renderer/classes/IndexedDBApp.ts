@@ -6,17 +6,6 @@ export type indexedDBAppOpts = {
   dbName?: string;
 
   /**
-   * The version to open the database with.
-   * If the version is not provided and the database exists,
-   * then a connection to the database will be opened without
-   * changing its version.
-   * If the version is not provided and the database does not exist,
-   * then it will be created with version `1`
-   * More info here: https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/open
-   */
-  version?: number;
-
-  /**
    * The primary key to use for the database.
    * Defaults to `id`.
    */
@@ -26,8 +15,8 @@ export type indexedDBAppOpts = {
 export default class IndexedDBApp<
   T extends Record<string, unknown | unknown[]>,
 > {
+  private version = 1;
   private _dbName = "primaryDatabase";
-  private _version: number | undefined;
   private _keyPath: string | string[] | undefined;
 
   public get dbName() {
@@ -36,14 +25,6 @@ export default class IndexedDBApp<
 
   private set dbName(value) {
     this._dbName = value;
-  }
-
-  private get version() {
-    return this._version;
-  }
-
-  private set version(value) {
-    this._version = value;
   }
 
   public get keyPath() {
@@ -60,10 +41,6 @@ export default class IndexedDBApp<
   ) {
     if (opts.dbName) {
       this.dbName = opts.dbName;
-    }
-
-    if (opts.version) {
-      this.version = opts.version;
     }
 
     if (opts.keyPath) {
@@ -94,7 +71,16 @@ export default class IndexedDBApp<
           }
         };
 
-        request.onsuccess = () => resolve(request.result);
+        request.onsuccess = () => {
+          const db = request.result;
+
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            reject(
+              new DOMException(`Object store "${this.storeName}" not found.`)
+            );
+          }
+          resolve(request.result);
+        };
         request.onerror = () => reject(request.error);
       }
     );

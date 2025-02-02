@@ -1,0 +1,19 @@
+.container {
+  width: 100%;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--mantine-spacing-md);
+}
+
+.row {
+  width: 100%;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: var(--mantine-spacing-md);
+}

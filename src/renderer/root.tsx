@@ -7,6 +7,8 @@ import { Provider } from "react-redux";
 import App from "./App";
 import { AudioEngineProvider } from "./context";
 
+import initDB, { stores } from "./repos";
+
 // core styles are required for all packages
 import "@mantine/core/styles.css";
 
@@ -39,6 +41,9 @@ const theme = createTheme({
   },
   primaryColor: "app",
 });
+
+// when this mounts for the first time, initialize the database
+initDB(stores);
 
 const root = createRoot(document.body);
 

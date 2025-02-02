@@ -1,30 +1,63 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { BaseInitialStateThunk, ThunkStatus, Bank } from "../../types";
 import { dbBanks as db } from "../repos";
+import { RootState } from "../store";
 
 interface InitialState extends BaseInitialStateThunk {
   banks: Bank[];
+  activeBankID: string | null;
 }
 
 const initialState: InitialState = {
   status: ThunkStatus.IDLE,
   error: null,
   banks: [],
+  activeBankID: null,
 };
 
-export const fetchBanks = createAsyncThunk<Bank[]>(
-  "banks/fetchBanks",
-  async () => {
-    try {
-      const data = db.getItems();
+type FetchBanksFilters = {
+  showID?: string;
+  pageID?: string;
+};
 
-      return data;
-    } catch (err) {
-      console.error("Error fetching banks", err);
-      throw err;
+export const fetchBanks = createAsyncThunk<
+  Bank[],
+  FetchBanksFilters | undefined
+>("banks/fetchBanks", async (filters = {}, thunkAPI) => {
+  try {
+    const data = await db.getItems();
+
+    if (filters) {
+      const showID = filters?.showID;
+      const pageID = filters?.pageID;
+      const state = thunkAPI.getState() as RootState;
+      const availablePageIDs: string[] = [];
+
+      for (const page of state.pages.pages) {
+        if (page.showID === showID) {
+          availablePageIDs.push(page.id);
+        }
+      }
+
+      return data.filter((item) => {
+        if (pageID && item.pageID === pageID) {
+          return true;
+        }
+
+        if (availablePageIDs.indexOf(item.pageID) >= 0) {
+          return true;
+        }
+
+        return false;
+      });
     }
+
+    return data;
+  } catch (err) {
+    console.error("Error fetching banks", err);
+    throw err;
   }
-);
+});
 
 const banksSlice = createSlice({
   name: "banks",
@@ -37,6 +70,10 @@ const banksSlice = createSlice({
     removeBank(state, { payload: id }: { payload: string }) {
       const arr = state.banks.filter((item) => item.id !== id);
       state.banks = arr;
+    },
+
+    setActiveBankID(state, { payload }: { payload: string | null }) {
+      state.activeBankID = payload;
     },
   },
   extraReducers: (builder) => {
@@ -61,5 +98,5 @@ const banksSlice = createSlice({
   },
 });
 
-export const { addBank, removeBank } = banksSlice.actions;
+export const { addBank, removeBank, setActiveBankID } = banksSlice.actions;
 export default banksSlice.reducer;
