@@ -10,7 +10,8 @@
     "renderer": "client",
     "styles": "sass",
     "features": "redux-reducer",
-    "components": "react-components"
+    "components": "react-components",
+    "menus": "project"
   },
   "material-icon-theme.files.associations": {
     "*.slice.ts": "redux-reducer"
