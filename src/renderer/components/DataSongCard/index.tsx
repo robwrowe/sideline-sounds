@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import SongCard, { SongCardProps } from "../SongCard";
 import { useAudioEngineContext } from "../../hooks";
+import { getFileName, getAudioMimeType } from "../../../utils";
 
 export type DataSongCardProps = Pick<
   SongCardProps,
@@ -8,12 +9,6 @@ export type DataSongCardProps = Pick<
 > & {
   filePath: string;
 };
-
-function getFileName(path: string): string | null {
-  const regex = /([^/\\]+)(?=\.[^/\\]+$)/;
-  const match = path.match(regex);
-  return match ? match[0] : null;
-}
 
 export default function DataSongCard({
   filePath,
@@ -28,19 +23,16 @@ export default function DataSongCard({
     // extract the file name from the path
     const fileName = getFileName(filePath) || "No Name Found";
 
-    // play the song
-    const fileBuffer: ArrayBuffer = await window.electron.ipcRenderer.invoke(
-      "get-audio-file",
-      filePath
-    );
+    const fileBuffer = await window.electron.audio.fileBuffer(filePath);
 
     const blob = new Blob([fileBuffer]);
 
     const file = new File([blob], fileName, {
-      type: "audio/wav",
+      type: getAudioMimeType(filePath),
     });
 
     const audioBuffer = await audioEngine.loadAudio(file);
+
     audioEngine.play(audioBuffer, { title, artist, image });
   }, [artist, audioEngine, filePath, image, title]);
 

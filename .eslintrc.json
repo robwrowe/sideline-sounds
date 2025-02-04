@@ -20,5 +20,12 @@
   "rules": {
     // "no-console": 1,       // Means warning - TODO add electron logger
     "prettier/prettier": 2 // Means error
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
   }
 }

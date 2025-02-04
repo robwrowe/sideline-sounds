@@ -5,13 +5,7 @@ import { IconMusic, IconMusicOff } from "@tabler/icons-react";
 import styles from "./SongStatus.module.scss";
 
 import { useAudioEngineContext, useDarkModeClassNames } from "../../hooks";
-
-// Helper to format time in mm:ss format
-const formatTime = (seconds: number) => {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-};
+import { formatSecondsToTime } from "../../../utils";
 
 export default function SongStatus() {
   const darkModeStyles = useDarkModeClassNames(styles);
@@ -45,10 +39,14 @@ export default function SongStatus() {
           <div className={styles.songProgressContainer}>
             <div className={styles.songTime}>
               <Text fz="0.75rem">
-                {currentElapsed !== null ? formatTime(currentElapsed) : ""}
+                {currentElapsed !== null
+                  ? formatSecondsToTime(currentElapsed)
+                  : ""}
               </Text>
               <Text fz="0.75rem">
-                {currentRemaining !== null ? formatTime(currentRemaining) : ""}
+                {currentRemaining !== null
+                  ? formatSecondsToTime(currentRemaining)
+                  : ""}
               </Text>
             </div>
             <Progress

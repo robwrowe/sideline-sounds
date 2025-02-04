@@ -3,6 +3,7 @@ import banksSlice from "./features/banks.slice";
 import outputDevicesSlice from "./features/outputDevices.slice";
 import pagesSlice from "./features/pages.slice";
 import showsSlice from "./features/shows.slice";
+import audioFilesSlice from "./features/audioFiles.slice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     pages: pagesSlice,
     shows: showsSlice,
     banks: banksSlice,
+    audioFiles: audioFilesSlice,
   },
 });
 

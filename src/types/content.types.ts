@@ -1,14 +1,12 @@
-export type ContentFile = {
+import { IAudioMetadata } from "music-metadata";
+
+export type AudioFileMetadata = IAudioMetadata & { cover: string | null };
+
+export type AudioFile = {
   /**
    * Unique identifier of the content
    */
   id: string;
-
-  /**
-   * The show this content belongs to.
-   * If not defined, it will be accessible to all shows.
-   */
-  showID: string | null;
 
   /**
    * The title of the song
@@ -33,7 +31,7 @@ export type ContentFile = {
   /**
    * The image associated with the content. Typically the album cover.
    */
-  image: Blob | null;
+  // image: Blob | null;
 
   /**
    * The filepath to read the file from disk
@@ -47,6 +45,17 @@ export type ContentFile = {
   color: string | null;
 
   /**
+   * Subclips that are associated with this clip.
+   * Key is the unique identifier for the subclip.
+   */
+  subClips: Record<string, SubClip>;
+
+  /**
+   * The total run time for the file in seconds
+   */
+  duration: number | null;
+
+  /**
    * TODO: add the following properties
    * - tags
    * - include in as-run
@@ -56,16 +65,6 @@ export type ContentFile = {
 };
 
 export type SubClip = {
-  /**
-   * The unique identifier for this subclip
-   */
-  id: string;
-
-  /**
-   * The parent content to be subclipped
-   */
-  contentFileID: string;
-
   /**
    * The name of this subclip
    */

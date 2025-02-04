@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router";
 
-import { Main } from "./views";
+import { Library, Main } from "./views";
 
 export default function App() {
   const navigate = useNavigate();
@@ -23,6 +23,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<p>Home</p>} />
       <Route path="/main/*" element={<Main />} />
+      <Route path="/library/*" element={<Library />} />
     </Routes>
   );
 }

@@ -1,3 +1,5 @@
+import { AudioFileMetadata, DialogOpenOpts } from "../types";
+
 declare module "*.scss";
 
 declare module "*.png" {
@@ -31,7 +33,19 @@ declare global {
       ipcRenderer: {
         invoke: <T>(channel: string, ...args: unknown[]) => Promise<T>;
       };
+
       onNavigate: (callback: (route: string) => void) => void;
+
+      dialog: {
+        showOpenDialog: (
+          opts: DialogOpenOpts
+        ) => Promise<Electron.OpenDialogReturnValue>;
+      };
+
+      audio: {
+        fileBuffer: (filePath: string) => Promise<ArrayBuffer>;
+        metadata: (filePath: string) => Promise<AudioFileMetadata>;
+      };
     };
   }
 

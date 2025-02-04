@@ -17,7 +17,7 @@ import styles from "./AddNewPageModal.module.scss";
 
 import { dbPages } from "../../../repos";
 import { Page, ShowParams } from "../../../../types";
-import { PAGE_ICONS } from "../../../constants";
+import { PAGE_ICONS } from "../../../../constants";
 import { useAppDispatch } from "../../../hooks";
 import { fetchPages, setActivePageID } from "../../../features";
 

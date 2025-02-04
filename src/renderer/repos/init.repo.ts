@@ -1,4 +1,4 @@
-import { INDEXED_DB_VERSION } from "../constants";
+import { INDEXED_DB_VERSION } from "../../constants";
 
 export type InitDBStore = {
   /**

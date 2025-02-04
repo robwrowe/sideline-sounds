@@ -1,3 +1,5 @@
+import { INDEXED_DB_VERSION } from "../../constants";
+
 export type indexedDBAppOpts = {
   /**
    * The name of the database to connect to.
@@ -15,7 +17,7 @@ export type indexedDBAppOpts = {
 export default class IndexedDBApp<
   T extends Record<string, unknown | unknown[]>,
 > {
-  private version = 1;
+  private version = INDEXED_DB_VERSION;
   private _dbName = "primaryDatabase";
   private _keyPath: string | string[] | undefined;
 

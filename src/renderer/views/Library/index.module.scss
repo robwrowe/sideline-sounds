@@ -1,0 +1,13 @@
+.control {
+  display: block !important;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md) !important;
+  border-radius: var(--mantine-radius-md) !important;
+  font-weight: 500 !important;
+
+  &:hover {
+    background-color: light-dark(
+      var(--mantine-color-gray-0),
+      var(--mantine-color-dark-6)
+    ) !important;
+  }
+}

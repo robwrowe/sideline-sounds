@@ -59,7 +59,10 @@ export default function Main() {
             title="17 05-07 Groovy Hip Hop Sting"
             filePath="/Users/robwrowe/Documents/test-audio/Event Theme Disc 02/17 05-07 Groovy Hip Hop Sting.wav"
           />
-          <SongCard />
+          <DataSongCard
+            title="Edited File"
+            filePath="/Users/robwrowe/Documents/01 Main Theme - edited.wav"
+          />
           <SongCard />
           <SongCard />
           <SongCard />
