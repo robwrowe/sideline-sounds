@@ -21,6 +21,8 @@ type LinksObject = {
   onClick: () => void;
 };
 
+// TODO: check if file still exists on disk
+
 export default function Library() {
   const dispatch = useAppDispatch();
   const audioFiles = useAppSelector(({ audioFiles }) => audioFiles.audioFiles);

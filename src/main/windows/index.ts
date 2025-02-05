@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, session } from "electron";
 import {
   installExtension,
   REDUX_DEVTOOLS,
@@ -16,9 +16,11 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+export let mainWindow: BrowserWindow | null = null;
+
 const createWindow = (): void => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
     webPreferences: {
@@ -40,7 +42,7 @@ const createWindow = (): void => {
   installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
     .then(async (extensions) => {
       setTimeout(() => {
-        mainWindow.reload();
+        mainWindow?.reload();
 
         console.log(
           `Added Extensions: ${extensions.map((item) => item.name).join(", ")}`
@@ -51,7 +53,7 @@ const createWindow = (): void => {
 
   mainWindow.on("ready-to-show", () => {
     if (app.isPackaged) {
-      mainWindow.show();
+      mainWindow?.show();
     }
   });
 
@@ -66,7 +68,17 @@ const createWindow = (): void => {
     // //
     // mainWindow?.webContents.send("navigate", "/main/show");
     // //
-    mainWindow?.webContents.send("navigate", "/library");
+    // mainWindow?.webContents.send("navigate", "/library");
+  });
+
+  // Modify HTTP headers to set CSP dynamically
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    // Modify the headers to allow blob URLs for media
+    const headers = details.responseHeaders ?? {};
+    headers["Content-Security-Policy"] = [
+      "default-src 'self'; media-src 'self' blob:; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';",
+    ];
+    callback({ cancel: false, responseHeaders: headers });
   });
 };
 

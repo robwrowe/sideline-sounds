@@ -1,0 +1,21 @@
+.container {
+  width: 100%;
+  padding: var(--mantine-spacing-xl);
+
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--mantine-spacing-md);
+}
+
+.controls {
+  width: 100%;
+
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: var(--mantine-spacing-lg);
+}

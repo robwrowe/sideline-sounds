@@ -13,6 +13,10 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.on("navigate", (_event, route) => callback(route));
   },
 
+  toggleTheme: (callback: () => void) => {
+    ipcRenderer.on("theme:toggle", () => callback());
+  },
+
   dialog: {
     showOpenDialog: (opts: DialogOpenOpts = {}) =>
       ipcRenderer.invoke("dialog:showOpenDialog", opts),

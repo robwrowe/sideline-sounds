@@ -96,7 +96,6 @@ export default function AudioFilesTable({
   const lastEscapePress = useRef<number | null>(null);
 
   useEffect(() => {
-    console.log("****", "data", data);
     setSortedData(data);
   }, [data]);
 

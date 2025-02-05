@@ -36,6 +36,8 @@ declare global {
 
       onNavigate: (callback: (route: string) => void) => void;
 
+      toggleTheme: (callback: () => void) => void;
+
       dialog: {
         showOpenDialog: (
           opts: DialogOpenOpts

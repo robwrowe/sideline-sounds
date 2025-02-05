@@ -55,12 +55,13 @@ export type AudioFile = {
    */
   duration: number | null;
 
+  // TODO: add the following properties
   /**
-   * TODO: add the following properties
    * - tags
    * - include in as-run
    * - duck (sound fx)
    * - loop behavior (single vs. 3 point loop)
+   * - image/cover photo
    */
 };
 

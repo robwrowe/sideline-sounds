@@ -20,11 +20,13 @@
     "crossfade",
     "flac",
     "mantine",
+    "playhead",
     "robwrowe",
     "subclip",
     "subclipped",
     "Subclips",
-    "tabler"
+    "tabler",
+    "wavesurfer"
   ],
   "explorer.fileNesting.patterns": {
     "index.tsx": "${dirname}.tsx",

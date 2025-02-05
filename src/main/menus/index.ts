@@ -1,4 +1,5 @@
 import { app, Menu } from "electron";
+import { mainWindow } from "../windows";
 
 // Custom menu for macOS
 const menuTemplate: Array<
@@ -20,6 +21,10 @@ const menuTemplate: Array<
         label: "Open",
         accelerator: "CmdOrCtrl+O",
         click: () => console.log("Open clicked"),
+      },
+      {
+        label: "Toggle Theme",
+        click: () => mainWindow?.webContents.send("theme:toggle"),
       },
       { label: "Close", role: "close" },
     ],
