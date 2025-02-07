@@ -4,6 +4,7 @@ import {
   ActionIcon,
   Button,
   ColorInput,
+  Grid,
   Group,
   LoadingOverlay,
   Modal,
@@ -23,6 +24,8 @@ import {
 import { dbAudioFiles } from "../../repos";
 import { AudioFile } from "../../../types";
 import { fetchAudioFiles } from "../../features";
+import { AudioFileEditor } from "../../components";
+import { resolve } from "path";
 
 function RightSection({ onClick }: { onClick: () => void }) {
   const colorScheme = useColorScheme();
@@ -54,6 +57,7 @@ export default function AddFileModal({
 }: AddFileModalProps) {
   const [loading, setLoading] = useState(false);
   const appDispatch = useAppDispatch();
+  const [idFallback] = useState(uuid());
 
   const handleChange = useCallback(
     (type: AudioFileActionHandler["type"], value: string | null) => {
@@ -62,145 +66,211 @@ export default function AddFileModal({
     [dispatch]
   );
 
-  const handleSubmit = useCallback(async () => {
-    try {
-      const { title, artist, album, year, filePath, color, duration } = state;
-      // confirm there's a title
-      if (!title) {
-        // prompt the user to add a title
-        alert("Missing file title.");
-        return;
+  const handleClose = useCallback(
+    () =>
+      new Promise<void>((resolve) => {
+        onClose();
+        const timeout = setTimeout(() => {
+          setLoading(false);
+          dispatch({ type: "RESET" });
+          resolve();
+        }, 2000);
+
+        return () => {
+          clearTimeout(timeout);
+        };
+      }),
+    [dispatch, onClose]
+  );
+
+  const handleSubmit = useCallback(
+    async (closeAfterFinish = true) => {
+      try {
+        const { id, title, artist, album, year, filePath, color, duration } =
+          state;
+
+        // confirm there's a title
+        if (!title) {
+          // prompt the user to add a title
+          alert("Missing file title.");
+          return;
+        }
+
+        // confirm there's a file path
+        if (!filePath) {
+          // prompt the user to select a valid file
+          throw new Error("Missing file");
+        }
+
+        // set the UI to a loading state
+        setLoading(true);
+
+        // build out the payload for the database
+        const item: AudioFile = {
+          id: id ?? idFallback,
+          title,
+          artist,
+          album,
+          year,
+          filePath,
+          color,
+          duration,
+          subClips: {},
+        };
+
+        // add it to the database
+        await dbAudioFiles.addItem(item);
+
+        // update redux
+        appDispatch(fetchAudioFiles());
+
+        if (closeAfterFinish) {
+          handleClose();
+        } else {
+          // reset the state
+          dispatch({ type: "RESET" });
+          // prompt user for new file
+        }
+      } catch (err) {
+        console.error("Error adding new file", err);
+        alert("An error occurred when attempting to add a file");
       }
-
-      // confirm there's a file path
-      if (!filePath) {
-        // prompt the user to select a valid file
-        throw new Error("Missing file");
-      }
-
-      // set the UI to a loading state
-      setLoading(true);
-
-      // build out the payload for the database
-      const id = uuid();
-      const item: AudioFile = {
-        id,
-        title,
-        artist,
-        album,
-        year,
-        filePath,
-        color,
-        duration,
-        subClips: {},
-      };
-
-      // add it to the database
-      await dbAudioFiles.addItem(item);
-
-      // update redux
-      appDispatch(fetchAudioFiles());
-    } catch (err) {
-      console.error("Error adding new file", err);
-      alert("An error occurred when attempting to add a file");
-    }
-
-    onClose();
-    const timeout = setTimeout(() => setLoading(false), 2000);
-
-    return () => clearTimeout(timeout);
-  }, [appDispatch, onClose, state]);
+    },
+    [appDispatch, dispatch, handleClose, idFallback, state]
+  );
 
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={handleClose}
       title="Import File"
       withCloseButton={false}
+      size="xl"
     >
-      <Stack gap="sm">
-        <TextInput
-          label="Title"
-          value={state.title ?? ""}
-          onChange={(evt) =>
-            handleChange("SET_TITLE", evt.currentTarget.value ?? null)
-          }
-          rightSection={
-            state.title && (
-              <RightSection onClick={() => handleChange("SET_TITLE", null)} />
-            )
-          }
-        />
-        <TextInput
-          label="Artist"
-          value={state.artist ?? ""}
-          onChange={(evt) =>
-            handleChange("SET_ARTIST", evt.currentTarget.value ?? null)
-          }
-          rightSection={
-            state.artist && (
-              <RightSection onClick={() => handleChange("SET_ARTIST", null)} />
-            )
-          }
-        />
-        <TextInput
-          label="Album"
-          value={state.album ?? ""}
-          onChange={(evt) =>
-            handleChange("SET_ALBUM", evt.currentTarget.value ?? null)
-          }
-          rightSection={
-            state.album && (
-              <RightSection onClick={() => handleChange("SET_ALBUM", null)} />
-            )
-          }
-        />
-        <TextInput
-          label="Year"
-          value={state.year ?? ""}
-          onChange={(evt) =>
-            handleChange("SET_YEAR", evt.currentTarget.value ?? null)
-          }
-          rightSection={
-            state.year && (
-              <RightSection onClick={() => handleChange("SET_YEAR", null)} />
-            )
-          }
-        />
-        <ColorInput
-          label="Color"
-          value={state.color ?? ""}
-          onChange={(value) => handleChange("SET_COLOR", value ?? null)}
-          rightSection={
-            state.color && (
-              <RightSection onClick={() => handleChange("SET_COLOR", null)} />
-            )
-          }
-          swatches={SWATCHES}
-          withPicker={false}
-          withEyeDropper={false}
-          closeOnColorSwatchClick={true}
-        />
-        <Group justify="space-between">
-          <Button
-            onClick={handleSubmit}
-            leftSection={<IconMusicPlus size={16} />}
-            disabled={!state.filePath || !state.title}
-          >
-            Import
-          </Button>
-          <Button
-            onClick={() => {
-              onClose();
-              dispatch({ type: "RESET" });
-            }}
-            variant="outline"
-            color="red"
-          >
-            Cancel
-          </Button>
-        </Group>
-      </Stack>
+      <AudioFileEditor
+        file={{
+          id: state.id ?? idFallback,
+          title: state.title ?? "",
+          artist: state.artist,
+          album: state.album,
+          year: state.year,
+          filePath: state.filePath ?? "",
+          color: state.color,
+          subClips: {},
+          duration: null,
+        }}
+      >
+        <Grid>
+          <Grid.Col span={12}>
+            <TextInput
+              label="Title"
+              value={state.title ?? ""}
+              onChange={(evt) =>
+                handleChange("SET_TITLE", evt.currentTarget.value ?? null)
+              }
+              rightSection={
+                state.title && (
+                  <RightSection
+                    onClick={() => handleChange("SET_TITLE", null)}
+                  />
+                )
+              }
+            />
+          </Grid.Col>
+          <Grid.Col span={6}>
+            <TextInput
+              label="Artist"
+              value={state.artist ?? ""}
+              onChange={(evt) =>
+                handleChange("SET_ARTIST", evt.currentTarget.value ?? null)
+              }
+              rightSection={
+                state.artist && (
+                  <RightSection
+                    onClick={() => handleChange("SET_ARTIST", null)}
+                  />
+                )
+              }
+            />
+          </Grid.Col>
+          <Grid.Col span={6}>
+            <TextInput
+              label="Album"
+              value={state.album ?? ""}
+              onChange={(evt) =>
+                handleChange("SET_ALBUM", evt.currentTarget.value ?? null)
+              }
+              rightSection={
+                state.album && (
+                  <RightSection
+                    onClick={() => handleChange("SET_ALBUM", null)}
+                  />
+                )
+              }
+            />
+          </Grid.Col>
+          <Grid.Col span={6}>
+            <TextInput
+              label="Year"
+              value={state.year ?? ""}
+              onChange={(evt) =>
+                handleChange("SET_YEAR", evt.currentTarget.value ?? null)
+              }
+              rightSection={
+                state.year && (
+                  <RightSection
+                    onClick={() => handleChange("SET_YEAR", null)}
+                  />
+                )
+              }
+            />
+          </Grid.Col>
+          <Grid.Col span={6}>
+            <ColorInput
+              label="Color"
+              value={state.color ?? ""}
+              onChange={(value) => handleChange("SET_COLOR", value ?? null)}
+              rightSection={
+                state.color && (
+                  <RightSection
+                    onClick={() => handleChange("SET_COLOR", null)}
+                  />
+                )
+              }
+              swatches={SWATCHES}
+              withPicker={false}
+              withEyeDropper={false}
+              closeOnColorSwatchClick={true}
+            />
+          </Grid.Col>
+          <Grid.Col span={12}>
+            <Group justify="flex-start" style={{ width: "100%" }}>
+              <Button
+                onClick={() => handleSubmit(true)}
+                leftSection={<IconMusicPlus size={16} />}
+                disabled={!state.filePath || !state.title}
+              >
+                Import
+              </Button>
+              <Button
+                onClick={() => handleSubmit(false)}
+                leftSection={<IconMusicPlus size={16} />}
+                disabled={!state.filePath || !state.title}
+              >
+                Import Another
+              </Button>
+              <Button
+                onClick={handleClose}
+                variant="outline"
+                color="red"
+                style={{ marginLeft: "auto" }}
+              >
+                Cancel
+              </Button>
+            </Group>
+          </Grid.Col>
+        </Grid>
+      </AudioFileEditor>
       <LoadingOverlay visible={loading} />
     </Modal>
   );

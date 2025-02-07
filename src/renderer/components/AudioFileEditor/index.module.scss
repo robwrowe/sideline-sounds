@@ -1,0 +1,49 @@
+.parent {
+  margin: var(--mantine-spacing-xl);
+  padding: calc(0.25rem * var(--mantine-scale));
+  border-radius: var(--mantine-radius-lg) !important;
+}
+
+.container {
+  width: 100%;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--mantine-spacing-md);
+}
+
+// play/pause, zoom controls
+.controlsContainer {
+  width: 100%;
+
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--mantine-spacing-lg);
+}
+
+.waveform {
+  width: 100%;
+  padding: calc(0.25rem * var(--mantine-scale));
+
+  border: calc(0.0625rem * var(--mantine-scale)) solid
+    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  border-radius: var(--mantine-radius-sm);
+}
+
+.metadata {
+  margin: 0.25rem 0 0 0;
+
+  width: 100%;
+}
+
+.name {
+  width: calc(100% - var(--mantine-spacing-md) - 202px);
+}
+
+.colorInput {
+  width: 202px;
+}

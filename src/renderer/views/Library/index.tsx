@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { AppShell, Burger, Group, Title, UnstyledButton } from "@mantine/core";
+import { v4 as uuid } from "uuid";
 import styles from "./index.module.scss";
 
 import { AudioFilesTable } from "../../components";
@@ -72,6 +73,7 @@ export default function Library() {
         return;
       }
 
+      const id = uuid();
       const filePath = file.filePaths[0];
 
       // get the metadata for this file
@@ -79,6 +81,7 @@ export default function Library() {
 
       // build out the initial value
       const fileInitialState: AudioFileState = {
+        id,
         title: metadata.common.title ?? getFileName(filePath),
         artist: metadata.common.artist ?? null,
         album: metadata.common.album ?? null,

@@ -1,9 +1,3 @@
-.parent {
-  margin: var(--mantine-spacing-xl);
-  padding: calc(0.25rem * var(--mantine-scale));
-  border-radius: var(--mantine-radius-lg) !important;
-}
-
 .container {
   width: 100%;
 
@@ -32,19 +26,4 @@
   border: calc(0.0625rem * var(--mantine-scale)) solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
   border-radius: var(--mantine-radius-sm);
-}
-
-.metadata {
-  width: 100%;
-  display: flex;
-  flex-flow: row wrap;
-  gap: var(--mantine-spacing-md);
-}
-
-.name {
-  width: calc(100% - var(--mantine-spacing-md) - 202px);
-}
-
-.colorInput {
-  width: 202px;
 }

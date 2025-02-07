@@ -68,7 +68,7 @@ const createWindow = (): void => {
     // //
     // mainWindow?.webContents.send("navigate", "/main/show");
     // //
-    // mainWindow?.webContents.send("navigate", "/library");
+    mainWindow?.webContents.send("navigate", "/library");
   });
 
   // Modify HTTP headers to set CSP dynamically

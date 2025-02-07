@@ -1,0 +1,311 @@
+import React, { useState, useCallback, useEffect, useMemo } from "react";
+import {
+  ActionIcon,
+  Card,
+  ColorInput,
+  LoadingOverlay,
+  TextInput,
+  useMantineColorScheme,
+} from "@mantine/core";
+import { IconX } from "@tabler/icons-react";
+import styles from "./index.module.scss";
+
+import { formatSecondsToTime } from "../../../utils";
+import { AudioFile } from "../../../types";
+import { SWATCHES } from "../../../constants";
+
+import { InOutPointLabel } from "../../components/InOutPoint";
+import SongCard from "../../components/SongCard";
+import Waveform from "../../components/Waveform";
+
+enum PointType {
+  IN = "in",
+  OUT = "out",
+}
+
+export type SubclipEditorProps = {
+  file: AudioFile;
+  showInOutPoint?: boolean;
+  onSetInPoint?: (value: number | null) => void;
+  onSetOutPoint?: (value: number | null) => void;
+};
+
+// TODO: create/update subclip
+// TODO: add ability to listen on PGM or PFL
+// TODO: add array of subclips to the bottom
+//
+export default function AudioFileEditor({
+  file,
+  showInOutPoint,
+  onSetInPoint,
+  onSetOutPoint,
+}: SubclipEditorProps) {
+  const { colorScheme } = useMantineColorScheme();
+
+  // audio file
+  const { title, artist, album, filePath } = file;
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [loadingAudio, setLoadingAudio] = useState(false);
+
+  // waveform metadata
+  const [playheadPosition, setPlayheadPosition] = useState(0);
+  const [duration, setDuration] = useState<number | null>(null);
+
+  // in/out points
+  const [inPoint, setInPoint] = useState<number | null>(null);
+  const [outPoint, setOutPoint] = useState<number | null>(null);
+  const subclipDuration = useMemo(() => {
+    const outVal = outPoint || duration;
+    const inVal = inPoint || 0;
+
+    if (outVal !== null && outVal > inVal) {
+      return outVal - inVal;
+    }
+
+    return null;
+  }, [inPoint, outPoint, duration]);
+
+  // subclip metadata
+  const [name, setName] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
+
+  /*****************************************************
+   * HELPER FUNCTIONS                                  *
+   * needed to be placed here for proper block-scoping *
+   *****************************************************/
+  // checks if a new in/out point isn't past the other point
+  const isValidPoint = useCallback(
+    (val: number | null, selectedPoint: PointType) => {
+      // if its clearing the point, it will always be true
+      if (val === null) return true;
+
+      if (selectedPoint === PointType.IN) {
+        // confirm the in point is before the out
+        if (outPoint !== null && val >= outPoint) {
+          // in point is after the out; not valid
+          return false;
+        }
+      } else if (selectedPoint === PointType.OUT) {
+        // confirm the out point is after the in
+        if (inPoint !== null && val <= inPoint) {
+          // out point is before the in; not valid
+          return false;
+        }
+      }
+
+      return true;
+    },
+    [inPoint, outPoint]
+  );
+
+  /********************
+   * AUDIO FILE SETUP *
+   ********************/
+  // parse the audio file
+  const fetchAndSetAudioBlob = useCallback(async () => {
+    try {
+      setLoadingAudio(true);
+
+      // get the file as a buffer
+      const fileBuffer = await window.electron.audio.fileBuffer(filePath);
+
+      // convert to a blob
+      const blob = new Blob([fileBuffer]);
+
+      // update state
+      setAudioBlob(blob);
+    } catch (err) {
+      console.error("Error setting audio blob in subclip editor.", err);
+      setAudioBlob(null);
+    } finally {
+      setLoadingAudio(false);
+    }
+  }, [filePath]);
+
+  // when the component mounts or the filepath updates, update blob
+  useEffect(() => {
+    fetchAndSetAudioBlob();
+  }, [fetchAndSetAudioBlob]);
+
+  /*************************
+   * IN/OUT POINT HANDLERS *
+   *************************/
+  // set the in/out point
+  const handleClickSet = useCallback(
+    (point: PointType) => {
+      const isValid = isValidPoint(playheadPosition, point);
+
+      if (point === PointType.IN) {
+        if (isValid) {
+          setInPoint(playheadPosition);
+        } else {
+          alert("In point must be before out point.");
+        }
+      } else if (point === PointType.OUT) {
+        if (isValid) {
+          setOutPoint(playheadPosition);
+        } else {
+          alert("Out point must be after in point.");
+        }
+      }
+    },
+    [isValidPoint, playheadPosition]
+  );
+
+  // clear the value in the point
+  const handleClickClear = useCallback((point: PointType) => {
+    if (point === PointType.IN) {
+      setInPoint(null);
+    } else if (point === PointType.OUT) {
+      setOutPoint(null);
+    }
+  }, []);
+
+  // format the display value in the component
+  const inPointValue = useMemo(
+    () => (inPoint !== null ? formatSecondsToTime(inPoint, 2) : null),
+    [inPoint]
+  );
+
+  const outPointValue = useMemo(
+    () => (outPoint !== null ? formatSecondsToTime(outPoint, 2) : null),
+    [outPoint]
+  );
+
+  // when the points update, update the parent component
+  useEffect(() => {
+    if (onSetInPoint) {
+      onSetInPoint(inPoint);
+    }
+  }, [inPoint, onSetInPoint]);
+
+  useEffect(() => {
+    if (onSetOutPoint) {
+      onSetOutPoint(outPoint);
+    }
+  }, [outPoint, onSetOutPoint]);
+
+  return (
+    <>
+      <Card className={styles.parent} withBorder>
+        <div className={styles.container}>
+          {/* song info */}
+          <SongCard
+            title={title}
+            artist={
+              artist && album
+                ? `${artist} | ${album}`
+                : artist
+                  ? artist
+                  : album
+                    ? album
+                    : undefined
+            }
+            duration={
+              subclipDuration && duration
+                ? `${formatSecondsToTime(duration)} (${formatSecondsToTime(subclipDuration)})`
+                : duration
+                  ? formatSecondsToTime(duration)
+                  : undefined
+            }
+          />
+          {/* waveform */}
+          <Waveform
+            audioBlob={audioBlob}
+            onClickLeftPipe={
+              showInOutPoint ? () => handleClickSet(PointType.IN) : undefined
+            }
+            onClickRightPipe={
+              showInOutPoint ? () => handleClickSet(PointType.OUT) : undefined
+            }
+            leftPipeActionIconProps={
+              showInOutPoint
+                ? {
+                    disabled: !isValidPoint(playheadPosition, PointType.IN),
+                  }
+                : undefined
+            }
+            rightPipeActionIconProps={
+              showInOutPoint
+                ? {
+                    disabled: !isValidPoint(playheadPosition, PointType.OUT),
+                  }
+                : undefined
+            }
+            onSetDuration={(val) => setDuration(val)}
+            onPlayheadUpdate={(val) => setPlayheadPosition(val)}
+            inPoint={showInOutPoint ? inPoint : undefined}
+            outPoint={showInOutPoint ? outPoint : undefined}
+            regions={[
+              { id: "69420", start: inPoint, end: outPoint },
+              { id: "69421", start: 5, end: 15 },
+            ]}
+          />
+          {/* in/out point */}
+          {showInOutPoint && (
+            <div className={styles.controlsContainer}>
+              {/* in point */}
+              <InOutPointLabel
+                label="In Point"
+                value={inPointValue}
+                onClickClear={() => handleClickClear(PointType.IN)}
+              />
+              {/* out point */}
+              <InOutPointLabel
+                label="Out Point"
+                value={outPointValue}
+                onClickClear={() => handleClickClear(PointType.OUT)}
+              />
+            </div>
+          )}
+          {/* subclip metadata */}
+          <div className={styles.metadata}>
+            <TextInput
+              className={styles.name}
+              label="Name"
+              value={name ?? ""}
+              onChange={(evt) => setName(evt.target.value)}
+              rightSection={
+                name && (
+                  <ActionIcon
+                    size="input-sm"
+                    variant="transparent"
+                    color={colorScheme === "light" ? "black" : "gray"}
+                    onClick={() => setName(null)}
+                    tabIndex={-1}
+                  >
+                    <IconX size={16} />
+                  </ActionIcon>
+                )
+              }
+            />
+            <ColorInput
+              className={styles.colorInput}
+              label="Color"
+              value={color ?? ""}
+              onChange={(val) => setColor(val)}
+              swatches={SWATCHES}
+              withPicker={false}
+              withEyeDropper={false}
+              closeOnColorSwatchClick={true}
+              rightSection={
+                color && (
+                  <ActionIcon
+                    size="input-sm"
+                    variant="transparent"
+                    color={colorScheme === "light" ? "black" : "gray"}
+                    onClick={() => setColor(null)}
+                    tabIndex={-1}
+                  >
+                    <IconX size={16} />
+                  </ActionIcon>
+                )
+              }
+            />
+          </div>
+        </div>
+      </Card>
+      <LoadingOverlay visible={loadingAudio} />
+    </>
+  );
+}

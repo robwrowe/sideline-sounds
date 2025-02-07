@@ -35,9 +35,11 @@ export { InOutPointLabel };
 
 export type InOutPointProps = {
   value: string | null;
+  onClickSkip: (val: number) => void;
+
   label?: string;
   active?: boolean;
-  onClickSkip: (val: number) => void;
+
   onClickComponent?: () => void;
   onClickClear?: () => void;
   onClickLeftPipe?: () => void;
@@ -45,9 +47,13 @@ export type InOutPointProps = {
 
   className?: CSSModule["string"];
   style?: CSSProperties;
+
   actionIconProps?: ActionIconProps;
   iconProps?: IconProps;
   actionIconGroupSectionProps: ActionIconGroupSectionProps;
+
+  leftPipeActionIconProps?: ActionIconProps;
+  rightPipeActionIconProps?: ActionIconProps;
 
   hideRewindBackward10?: boolean;
   hideRewindBackward5?: boolean;
@@ -74,6 +80,8 @@ export default function InOutPoint({
   style,
   actionIconProps,
   iconProps,
+  leftPipeActionIconProps,
+  rightPipeActionIconProps,
   actionIconGroupSectionProps,
   hideRewindBackward10 = false,
   hideRewindBackward5 = false,
@@ -123,6 +131,7 @@ export default function InOutPoint({
                 {...actionIconDefaultProps}
                 {...actionIconProps}
                 onClick={onClickLeftPipe}
+                {...leftPipeActionIconProps}
               >
                 <IconChevronLeftPipe color={iconColor} {...iconProps} />
               </ActionIcon>
@@ -238,6 +247,7 @@ export default function InOutPoint({
                 {...actionIconDefaultProps}
                 {...actionIconProps}
                 onClick={onClickRightPipe}
+                {...rightPipeActionIconProps}
               >
                 <IconChevronRightPipe color={iconColor} {...iconProps} />
               </ActionIcon>

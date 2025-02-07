@@ -3,7 +3,7 @@ import { Route, Routes, useNavigate, useLocation } from "react-router";
 
 import { Library, Main } from "./views";
 
-import { SubclipEditor } from "./components";
+import { AudioFileEditor } from "./components";
 import { useMantineColorScheme } from "@mantine/core";
 
 export default function App() {
@@ -36,7 +36,8 @@ export default function App() {
       <Route
         path="/"
         element={
-          <SubclipEditor
+          <AudioFileEditor
+            showInOutPoint
             file={{
               id: "341ce6dd-bb92-4a05-aff3-2bcf8e469e54",
               title: "Vamp",

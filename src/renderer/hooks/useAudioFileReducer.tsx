@@ -1,4 +1,5 @@
 import { useReducer } from "react";
+
 import { AudioFile } from "../../types";
 
 export type AudioFileState = Omit<
@@ -7,6 +8,7 @@ export type AudioFileState = Omit<
 > & {
   title: AudioFile["title"] | null;
   filePath: AudioFile["filePath"] | null;
+  id: AudioFile["id"] | null;
 };
 
 export type AudioFileAction =
@@ -47,6 +49,7 @@ export type AudioFileActionHandler = Exclude<
 >;
 
 const audioFileInitialState: AudioFileState = {
+  id: null,
   title: null,
   artist: null,
   album: null,
@@ -89,6 +92,10 @@ function reducer(state: AudioFileState, action: AudioFileAction) {
       throw new Error("Invalid action");
   }
 }
+
+export type AudioFileReducerHelpers = {
+  importFile: Promise<boolean>;
+};
 
 export default function useAudioFileReducer(
   initialState = audioFileInitialState
