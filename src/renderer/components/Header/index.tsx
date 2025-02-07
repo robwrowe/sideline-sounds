@@ -63,10 +63,10 @@ export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
           isPlaying={isPlaying}
           hasMedia={hasMedia}
           crossfadeActive={crossfadeActive}
-          handleClickBackwards={handleClickBackwards}
-          handleClickPlay={handleClickPlay}
-          handleClickPause={handleClickPause}
-          handleClickStop={handleClickStop}
+          onClickBackwards={handleClickBackwards}
+          onClickPlay={handleClickPlay}
+          onClickPause={handleClickPause}
+          onClickStop={handleClickStop}
         />
         {/* Audio Status */}
         <SongStatus />

@@ -33,7 +33,25 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<SubclipEditor />} />
+      <Route
+        path="/"
+        element={
+          <SubclipEditor
+            file={{
+              id: "341ce6dd-bb92-4a05-aff3-2bcf8e469e54",
+              title: "Vamp",
+              artist: "ESPN",
+              album: "College Football",
+              year: null,
+              filePath:
+                "/Users/robwrowe/Documents/test-audio/Event Theme Disc 01/04 Vamp.wav",
+              color: null,
+              duration: 51.42666666666667,
+              subClips: {},
+            }}
+          />
+        }
+      />
       <Route path="/main/*" element={<Main />} />
       <Route path="/library/*" element={<Library />} />
     </Routes>

@@ -19,11 +19,11 @@ export type AudioControlsProps = {
   hasMedia?: boolean;
   crossfadeActive?: boolean;
 
-  handleClickBackwards?: () => void;
-  handleClickPlay?: () => void;
-  handleClickPause?: () => void;
-  handleClickStop?: () => void;
-  handleClickForwards?: () => void;
+  onClickBackwards?: () => void;
+  onClickPlay?: () => void;
+  onClickPause?: () => void;
+  onClickStop?: () => void;
+  onClickForwards?: () => void;
 
   togglePlayPause?: boolean;
 
@@ -35,11 +35,11 @@ export default function AudioControls({
   isPlaying,
   hasMedia = true,
   crossfadeActive,
-  handleClickBackwards,
-  handleClickPlay,
-  handleClickPause,
-  handleClickStop,
-  handleClickForwards,
+  onClickBackwards,
+  onClickPlay,
+  onClickPause,
+  onClickStop,
+  onClickForwards,
   togglePlayPause = true,
   actionIconProps,
   iconProps,
@@ -47,21 +47,21 @@ export default function AudioControls({
   return (
     <ActionIconGroup>
       {/* skip backwards */}
-      {handleClickBackwards && (
+      {onClickBackwards && (
         <ActionIcon
           size={ACTION_ICON_SIZE}
           variant={ACTION_ICON_VARIANT}
           color={ACTION_ICON_COLOR}
           aria-label="Re-rack sound byte"
           {...actionIconProps}
-          onClick={handleClickBackwards}
+          onClick={onClickBackwards}
           disabled={!hasMedia || crossfadeActive}
         >
           <IconPlayerSkipBackFilled size={ICON_SIZE} {...iconProps} />
         </ActionIcon>
       )}
       {/* toggle play/pause */}
-      {handleClickPause && handleClickPlay && togglePlayPause ? (
+      {onClickPause && onClickPlay && togglePlayPause ? (
         isPlaying ? (
           <ActionIcon
             size={ACTION_ICON_SIZE}
@@ -69,7 +69,7 @@ export default function AudioControls({
             color={ACTION_ICON_COLOR}
             aria-label="Pause sound"
             {...actionIconProps}
-            onClick={handleClickPause}
+            onClick={onClickPause}
             disabled={!hasMedia || crossfadeActive}
           >
             <IconPlayerPauseFilled size={ICON_SIZE} {...iconProps} />
@@ -81,7 +81,7 @@ export default function AudioControls({
             color={ACTION_ICON_COLOR}
             aria-label="Play sound"
             {...actionIconProps}
-            onClick={handleClickPlay}
+            onClick={onClickPlay}
             disabled={!hasMedia || crossfadeActive}
           >
             <IconPlayerPlayFilled size={ICON_SIZE} {...iconProps} />
@@ -89,56 +89,56 @@ export default function AudioControls({
         )
       ) : null}
       {/* play */}
-      {handleClickPlay && (!togglePlayPause || !handleClickPause) && (
+      {onClickPlay && (!togglePlayPause || !onClickPause) && (
         <ActionIcon
           size={ACTION_ICON_SIZE}
           variant={ACTION_ICON_VARIANT}
           color={ACTION_ICON_COLOR}
           aria-label="Play sound"
           {...actionIconProps}
-          onClick={handleClickPlay}
+          onClick={onClickPlay}
           disabled={!hasMedia || crossfadeActive || isPlaying}
         >
           <IconPlayerPlayFilled size={ICON_SIZE} {...iconProps} />
         </ActionIcon>
       )}
       {/* pause */}
-      {handleClickPause && (!togglePlayPause || !handleClickPlay) && (
+      {onClickPause && (!togglePlayPause || !onClickPlay) && (
         <ActionIcon
           size={ACTION_ICON_SIZE}
           variant={ACTION_ICON_VARIANT}
           color={ACTION_ICON_COLOR}
           aria-label="Pause sound"
           {...actionIconProps}
-          onClick={handleClickPause}
+          onClick={onClickPause}
           disabled={!hasMedia || crossfadeActive || !isPlaying}
         >
           <IconPlayerPauseFilled size={ICON_SIZE} {...iconProps} />
         </ActionIcon>
       )}
       {/* stop */}
-      {handleClickStop && (
+      {onClickStop && (
         <ActionIcon
           size={ACTION_ICON_SIZE}
           variant={ACTION_ICON_VARIANT}
           color={ACTION_ICON_COLOR}
           aria-label="Stop sound byte"
           {...actionIconProps}
-          onClick={handleClickStop}
+          onClick={onClickStop}
           disabled={!hasMedia}
         >
           <IconPlayerStopFilled size={ICON_SIZE} {...iconProps} />
         </ActionIcon>
       )}
       {/* skip forwards */}
-      {handleClickForwards && (
+      {onClickForwards && (
         <ActionIcon
           size={ACTION_ICON_SIZE}
           variant={ACTION_ICON_VARIANT}
           color={ACTION_ICON_COLOR}
           aria-label="Go to the end of the sound byte"
           {...actionIconProps}
-          onClick={handleClickForwards}
+          onClick={onClickForwards}
           disabled={!hasMedia || crossfadeActive}
         >
           <IconPlayerSkipForwardFilled size={ICON_SIZE} {...iconProps} />

@@ -1,21 +1,50 @@
+.parent {
+  margin: var(--mantine-spacing-xl);
+  padding: calc(0.25rem * var(--mantine-scale));
+  border-radius: var(--mantine-radius-lg) !important;
+}
+
 .container {
   width: 100%;
-  padding: var(--mantine-spacing-xl);
 
   display: flex;
   flex-flow: column nowrap;
-  align-items: center;
   justify-content: flex-start;
+  align-items: center;
   gap: var(--mantine-spacing-md);
 }
 
-.controls {
+// play/pause, zoom controls
+.controlsContainer {
   width: 100%;
 
   display: flex;
   flex-flow: row wrap;
-  align-items: center;
   justify-content: space-between;
-
+  align-items: center;
   gap: var(--mantine-spacing-lg);
+}
+
+.waveform {
+  width: 100%;
+  padding: calc(0.25rem * var(--mantine-scale));
+
+  border: calc(0.0625rem * var(--mantine-scale)) solid
+    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  border-radius: var(--mantine-radius-sm);
+}
+
+.metadata {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  gap: var(--mantine-spacing-md);
+}
+
+.name {
+  width: calc(100% - var(--mantine-spacing-md) - 202px);
+}
+
+.colorInput {
+  width: 202px;
 }
