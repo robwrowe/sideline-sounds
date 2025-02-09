@@ -24,16 +24,18 @@ export default function InOutPointLabel({
     <div className={styles.parent} style={{ cursor: "inherit" }}>
       <TextInput
         readOnly
-        defaultValue={value ?? undefined}
+        value={value ?? ""}
         label={label}
         tabIndex={-1}
+        style={{ width: "100%" }}
         styles={{
           input: {
             cursor: "inherit",
           },
         }}
         rightSection={
-          onClickClear && (
+          onClickClear &&
+          value && (
             <ActionIcon
               {...actionIconProps}
               onClick={onClickClear}

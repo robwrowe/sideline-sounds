@@ -1,5 +1,8 @@
 import AudioControls from "./AudioControls";
-import AudioFileEditor from "./AudioFileEditor";
+import AudioFileEditor, {
+  AudioFileMetadataEditor,
+  AudioFileSubclip,
+} from "./AudioFileEditor";
 import AudioFilesTable from "./AudioFilesTable";
 import DataSongCard from "./DataSongCard";
 import Footer from "./Footer";
@@ -13,6 +16,8 @@ import ZoomControls from "./ZoomControls";
 export {
   AudioControls,
   AudioFileEditor,
+  AudioFileMetadataEditor,
+  AudioFileSubclip,
   AudioFilesTable,
   DataSongCard,
   Footer,

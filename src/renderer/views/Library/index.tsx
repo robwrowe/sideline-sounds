@@ -47,10 +47,6 @@ export default function Library() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    console.log("useAudioFileReducer", "state", state);
-  }, [state]);
-
   const handleClickImportFile = useCallback(async () => {
     try {
       openImportFile();
@@ -89,6 +85,7 @@ export default function Library() {
         filePath,
         color: null,
         duration: metadata.format.duration ?? null,
+        subclips: [],
       };
 
       // update the reducer

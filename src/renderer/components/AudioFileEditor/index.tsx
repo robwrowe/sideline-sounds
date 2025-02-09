@@ -5,15 +5,18 @@ import React, {
   useMemo,
   ReactNode,
 } from "react";
-import { Card, LoadingOverlay } from "@mantine/core";
+import { LoadingOverlay } from "@mantine/core";
 import styles from "./index.module.scss";
 
 import { formatSecondsToTime } from "../../../utils";
 import { AudioFile } from "../../../types";
 
-import { InOutPointLabel } from "../InOutPoint";
 import SongCard from "../SongCard";
 import Waveform from "../Waveform";
+import AudioFileMetadataEditor from "./AudioFileMetadataEditor";
+import AudioFileSubclip from "./AudioFileSubclip";
+
+export { AudioFileMetadataEditor, AudioFileSubclip };
 
 enum PointType {
   IN = "in",
@@ -22,22 +25,22 @@ enum PointType {
 
 export type SubclipEditorProps = {
   file: AudioFile;
-  showInOutPoint?: boolean;
+  showInOutMarker?: boolean;
+  activeSubclip?: string | null;
+  children?: ReactNode;
   onSetInPoint?: (value: number | null) => void;
   onSetOutPoint?: (value: number | null) => void;
-  children?: ReactNode;
 };
 
-// TODO: create/update subclip
 // TODO: add ability to listen on PGM or PFL
-// TODO: add array of subclips to the bottom
 //
 export default function AudioFileEditor({
   file,
-  showInOutPoint,
+  showInOutMarker = true,
+  children,
+  activeSubclip,
   onSetInPoint,
   onSetOutPoint,
-  children,
 }: SubclipEditorProps) {
   // audio file
   const { title, artist, album, filePath } = file;
@@ -63,6 +66,26 @@ export default function AudioFileEditor({
 
     return null;
   }, [inPoint, outPoint, duration]);
+
+  // set the in/out point to the active subclip
+  const setInOutPointFromSubclip = useCallback(() => {
+    if (activeSubclip && file.subclips) {
+      const subclip = file.subclips.find((item) => item.id === activeSubclip);
+
+      if (subclip) {
+        setInPoint(subclip.inPoint);
+        setOutPoint(subclip.outPoint);
+        return;
+      }
+    }
+
+    setInPoint(null);
+    setOutPoint(null);
+  }, [activeSubclip, file.subclips]);
+
+  useEffect(() => {
+    setInOutPointFromSubclip();
+  }, [setInOutPointFromSubclip]);
 
   /*****************************************************
    * HELPER FUNCTIONS                                  *
@@ -144,52 +167,27 @@ export default function AudioFileEditor({
       if (point === PointType.IN) {
         if (isValid) {
           setInPoint(playheadPosition);
+
+          if (onSetInPoint) {
+            onSetInPoint(playheadPosition);
+          }
         } else {
           alert("In point must be before out point.");
         }
       } else if (point === PointType.OUT) {
         if (isValid) {
           setOutPoint(playheadPosition);
+
+          if (onSetOutPoint) {
+            onSetOutPoint(playheadPosition);
+          }
         } else {
           alert("Out point must be after in point.");
         }
       }
     },
-    [isValidPoint, playheadPosition]
+    [isValidPoint, onSetInPoint, playheadPosition]
   );
-
-  // clear the value in the point
-  const handleClickClear = useCallback((point: PointType) => {
-    if (point === PointType.IN) {
-      setInPoint(null);
-    } else if (point === PointType.OUT) {
-      setOutPoint(null);
-    }
-  }, []);
-
-  // format the display value in the component
-  const inPointValue = useMemo(
-    () => (inPoint !== null ? formatSecondsToTime(inPoint, 2) : null),
-    [inPoint]
-  );
-
-  const outPointValue = useMemo(
-    () => (outPoint !== null ? formatSecondsToTime(outPoint, 2) : null),
-    [outPoint]
-  );
-
-  // when the points update, update the parent component
-  useEffect(() => {
-    if (onSetInPoint) {
-      onSetInPoint(inPoint);
-    }
-  }, [inPoint, onSetInPoint]);
-
-  useEffect(() => {
-    if (onSetOutPoint) {
-      onSetOutPoint(outPoint);
-    }
-  }, [outPoint, onSetOutPoint]);
 
   return (
     <>
@@ -218,20 +216,20 @@ export default function AudioFileEditor({
         <Waveform
           audioBlob={audioBlob}
           onClickLeftPipe={
-            showInOutPoint ? () => handleClickSet(PointType.IN) : undefined
+            showInOutMarker ? () => handleClickSet(PointType.IN) : undefined
           }
           onClickRightPipe={
-            showInOutPoint ? () => handleClickSet(PointType.OUT) : undefined
+            showInOutMarker ? () => handleClickSet(PointType.OUT) : undefined
           }
           leftPipeActionIconProps={
-            showInOutPoint
+            showInOutMarker
               ? {
                   disabled: !isValidPoint(playheadPosition, PointType.IN),
                 }
               : undefined
           }
           rightPipeActionIconProps={
-            showInOutPoint
+            showInOutMarker
               ? {
                   disabled: !isValidPoint(playheadPosition, PointType.OUT),
                 }
@@ -239,27 +237,18 @@ export default function AudioFileEditor({
           }
           onSetDuration={(val) => setDuration(val)}
           onPlayheadUpdate={(val) => setPlayheadPosition(val)}
-          inPoint={showInOutPoint ? inPoint : undefined}
-          outPoint={showInOutPoint ? outPoint : undefined}
-          regions={[{ id: "69420", start: inPoint, end: outPoint }]}
+          inPoint={inPoint}
+          outPoint={outPoint}
+          regions={[
+            ...file.subclips.map((item) => ({
+              id: item.id,
+              start: item.inPoint,
+              end: item.outPoint,
+              active: item.id === activeSubclip,
+              name: item.name,
+            })),
+          ]}
         />
-        {/* in/out point */}
-        {showInOutPoint && (
-          <div className={styles.controlsContainer}>
-            {/* in point */}
-            <InOutPointLabel
-              label="In Point"
-              value={inPointValue}
-              onClickClear={() => handleClickClear(PointType.IN)}
-            />
-            {/* out point */}
-            <InOutPointLabel
-              label="Out Point"
-              value={outPointValue}
-              onClickClear={() => handleClickClear(PointType.OUT)}
-            />
-          </div>
-        )}
         {/* subclip metadata */}
         {children && <div className={styles.metadata}>{children}</div>}
       </div>

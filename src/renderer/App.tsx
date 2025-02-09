@@ -37,7 +37,6 @@ export default function App() {
         path="/"
         element={
           <AudioFileEditor
-            showInOutPoint
             file={{
               id: "341ce6dd-bb92-4a05-aff3-2bcf8e469e54",
               title: "Vamp",
@@ -48,7 +47,7 @@ export default function App() {
                 "/Users/robwrowe/Documents/test-audio/Event Theme Disc 01/04 Vamp.wav",
               color: null,
               duration: 51.42666666666667,
-              subClips: {},
+              subclips: [],
             }}
           />
         }

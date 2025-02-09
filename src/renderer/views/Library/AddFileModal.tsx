@@ -1,46 +1,25 @@
-import React, { useCallback, useState } from "react";
-import { useColorScheme } from "@mantine/hooks";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActionIcon,
   Button,
-  ColorInput,
-  Grid,
   Group,
   LoadingOverlay,
   Modal,
-  Stack,
-  TextInput,
+  ScrollAreaAutosize,
+  Tabs,
 } from "@mantine/core";
-import { IconMusicPlus, IconX } from "@tabler/icons-react";
+import { IconMusicPlus } from "@tabler/icons-react";
 import { v4 as uuid } from "uuid";
+import styles from "./AddFileModal.module.scss";
 
-import { SWATCHES } from "../../../constants";
-import {
-  AudioFileActionHandler,
-  AudioFileAction,
-  AudioFileState,
-  useAppDispatch,
-} from "../../hooks";
+import { AudioFileAction, AudioFileState, useAppDispatch } from "../../hooks";
 import { dbAudioFiles } from "../../repos";
-import { AudioFile } from "../../../types";
+import { AudioFile, Subclip } from "../../../types";
 import { fetchAudioFiles } from "../../features";
-import { AudioFileEditor } from "../../components";
-import { resolve } from "path";
-
-function RightSection({ onClick }: { onClick: () => void }) {
-  const colorScheme = useColorScheme();
-  return (
-    <ActionIcon
-      size="input-sm"
-      variant="transparent"
-      color={colorScheme === "light" ? "black" : "gray"}
-      onClick={onClick}
-      tabIndex={-1}
-    >
-      <IconX size={16} />
-    </ActionIcon>
-  );
-}
+import {
+  AudioFileEditor,
+  AudioFileMetadataEditor,
+  AudioFileSubclip,
+} from "../../components";
 
 export type AddFileModalProps = {
   opened: boolean;
@@ -59,12 +38,9 @@ export default function AddFileModal({
   const appDispatch = useAppDispatch();
   const [idFallback] = useState(uuid());
 
-  const handleChange = useCallback(
-    (type: AudioFileActionHandler["type"], value: string | null) => {
-      dispatch({ type, payload: value });
-    },
-    [dispatch]
-  );
+  // section control
+  const [selectedTab, setSelectedTab] = useState<string | null>("file");
+  const [selectedSubclip, setSelectedSubclip] = useState<string | null>(null);
 
   const handleClose = useCallback(
     () =>
@@ -115,7 +91,7 @@ export default function AddFileModal({
           filePath,
           color,
           duration,
-          subClips: {},
+          subclips: [],
         };
 
         // add it to the database
@@ -139,13 +115,54 @@ export default function AddFileModal({
     [appDispatch, dispatch, handleClose, idFallback, state]
   );
 
+  // when the user changes in/out point, update the state
+  const handleSetInPoint = useCallback(
+    (value: number | null) => {
+      if (selectedSubclip) {
+        const subclip = state.subclips.find(
+          (item) => item.id === selectedSubclip
+        );
+
+        if (subclip) {
+          const payload: Subclip = { ...subclip, inPoint: value };
+          dispatch({ type: "UPDATE_SUBCLIP", id: selectedSubclip, payload });
+        } else {
+          console.warn("Not setting in point. Cannot find matching subclip.");
+        }
+      } else {
+        console.warn("Not setting in point. No subclip selected.");
+      }
+    },
+    [dispatch, selectedSubclip, state.subclips]
+  );
+
+  const handleSetOutPoint = useCallback(
+    (value: number | null) => {
+      if (selectedSubclip) {
+        const subclip = state.subclips.find(
+          (item) => item.id === selectedSubclip
+        );
+
+        if (subclip) {
+          const payload: Subclip = { ...subclip, outPoint: value };
+          dispatch({ type: "UPDATE_SUBCLIP", id: selectedSubclip, payload });
+        } else {
+          console.warn("Not setting out point. Cannot find matching subclip.");
+        }
+      } else {
+        console.warn("Not setting out point. No subclip selected.");
+      }
+    },
+    [dispatch, selectedSubclip, state.subclips]
+  );
+
   return (
     <Modal
       opened={opened}
       onClose={handleClose}
       title="Import File"
       withCloseButton={false}
-      size="xl"
+      size="60rem"
     >
       <AudioFileEditor
         file={{
@@ -156,120 +173,61 @@ export default function AddFileModal({
           year: state.year,
           filePath: state.filePath ?? "",
           color: state.color,
-          subClips: {},
+          subclips: state.subclips,
           duration: null,
         }}
+        activeSubclip={selectedSubclip}
+        onSetInPoint={handleSetInPoint}
+        onSetOutPoint={handleSetOutPoint}
       >
-        <Grid>
-          <Grid.Col span={12}>
-            <TextInput
-              label="Title"
-              value={state.title ?? ""}
-              onChange={(evt) =>
-                handleChange("SET_TITLE", evt.currentTarget.value ?? null)
-              }
-              rightSection={
-                state.title && (
-                  <RightSection
-                    onClick={() => handleChange("SET_TITLE", null)}
-                  />
-                )
-              }
-            />
-          </Grid.Col>
-          <Grid.Col span={6}>
-            <TextInput
-              label="Artist"
-              value={state.artist ?? ""}
-              onChange={(evt) =>
-                handleChange("SET_ARTIST", evt.currentTarget.value ?? null)
-              }
-              rightSection={
-                state.artist && (
-                  <RightSection
-                    onClick={() => handleChange("SET_ARTIST", null)}
-                  />
-                )
-              }
-            />
-          </Grid.Col>
-          <Grid.Col span={6}>
-            <TextInput
-              label="Album"
-              value={state.album ?? ""}
-              onChange={(evt) =>
-                handleChange("SET_ALBUM", evt.currentTarget.value ?? null)
-              }
-              rightSection={
-                state.album && (
-                  <RightSection
-                    onClick={() => handleChange("SET_ALBUM", null)}
-                  />
-                )
-              }
-            />
-          </Grid.Col>
-          <Grid.Col span={6}>
-            <TextInput
-              label="Year"
-              value={state.year ?? ""}
-              onChange={(evt) =>
-                handleChange("SET_YEAR", evt.currentTarget.value ?? null)
-              }
-              rightSection={
-                state.year && (
-                  <RightSection
-                    onClick={() => handleChange("SET_YEAR", null)}
-                  />
-                )
-              }
-            />
-          </Grid.Col>
-          <Grid.Col span={6}>
-            <ColorInput
-              label="Color"
-              value={state.color ?? ""}
-              onChange={(value) => handleChange("SET_COLOR", value ?? null)}
-              rightSection={
-                state.color && (
-                  <RightSection
-                    onClick={() => handleChange("SET_COLOR", null)}
-                  />
-                )
-              }
-              swatches={SWATCHES}
-              withPicker={false}
-              withEyeDropper={false}
-              closeOnColorSwatchClick={true}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <Group justify="flex-start" style={{ width: "100%" }}>
-              <Button
-                onClick={() => handleSubmit(true)}
-                leftSection={<IconMusicPlus size={16} />}
-                disabled={!state.filePath || !state.title}
-              >
-                Import
-              </Button>
-              <Button
-                onClick={() => handleSubmit(false)}
-                leftSection={<IconMusicPlus size={16} />}
-                disabled={!state.filePath || !state.title}
-              >
-                Import Another
-              </Button>
-              <Button
-                onClick={handleClose}
-                variant="outline"
-                color="red"
-                style={{ marginLeft: "auto" }}
-              >
-                Cancel
-              </Button>
-            </Group>
-          </Grid.Col>
-        </Grid>
+        {/* TODO: dynamically set scroll area height */}
+        <ScrollAreaAutosize mah={450} scrollbars="y">
+          <Tabs
+            defaultValue="subclips"
+            className={styles.tabs}
+            value={selectedTab}
+            onChange={(value) => setSelectedTab(value)}
+          >
+            <Tabs.List>
+              <Tabs.Tab value="file">File</Tabs.Tab>
+              <Tabs.Tab value="subclips">Subclips</Tabs.Tab>
+            </Tabs.List>
+
+            <Tabs.Panel value="file">
+              <div className={styles.tabPanel}>
+                <AudioFileMetadataEditor state={state} dispatch={dispatch} />
+              </div>
+            </Tabs.Panel>
+            <Tabs.Panel value="subclips">
+              <div className={styles.tabPanel}>
+                <AudioFileSubclip
+                  state={state}
+                  dispatch={dispatch}
+                  selectedSubclip={selectedSubclip}
+                  setSelectedSubclip={setSelectedSubclip}
+                />
+              </div>
+            </Tabs.Panel>
+            {/* AudioFileSubclip */}
+          </Tabs>
+        </ScrollAreaAutosize>
+        <Group justify="flex-start" style={{ width: "100%" }}>
+          <Button
+            onClick={() => handleSubmit(true)}
+            leftSection={<IconMusicPlus size={16} />}
+            disabled={!state.filePath || !state.title}
+          >
+            Import
+          </Button>
+          <Button
+            onClick={handleClose}
+            variant="outline"
+            color="red"
+            style={{ marginLeft: "auto" }}
+          >
+            Cancel
+          </Button>
+        </Group>
       </AudioFileEditor>
       <LoadingOverlay visible={loading} />
     </Modal>

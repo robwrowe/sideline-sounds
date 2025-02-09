@@ -46,9 +46,8 @@ export type AudioFile = {
 
   /**
    * Subclips that are associated with this clip.
-   * Key is the unique identifier for the subclip.
    */
-  subClips: Record<string, SubClip>;
+  subclips: Subclip[];
 
   /**
    * The total run time for the file in seconds
@@ -65,7 +64,12 @@ export type AudioFile = {
    */
 };
 
-export type SubClip = {
+export type Subclip = {
+  /**
+   * Unique identifier of the content
+   */
+  id: string;
+
   /**
    * The name of this subclip
    */

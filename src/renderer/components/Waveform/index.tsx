@@ -11,10 +11,7 @@ import TimelinePlugin, {
   TimelinePluginOptions,
 } from "wavesurfer.js/dist/plugins/timeline";
 import MinimapPlugin from "wavesurfer.js/dist/plugins/minimap";
-import RegionsPlugin, {
-  Region,
-  RegionParams,
-} from "wavesurfer.js/dist/plugins/regions";
+import RegionsPlugin from "wavesurfer.js/dist/plugins/regions";
 import styles from "./index.module.scss";
 
 import { formatSecondsToTime } from "../../../utils";
@@ -133,6 +130,8 @@ export type RegionOpts = {
   id?: string;
   start?: number | null;
   end?: number | null;
+  active?: boolean;
+  name?: string;
 };
 
 export type WaveformProps = Pick<
@@ -208,6 +207,7 @@ export default function Waveform({
   const [isPlaying, setIsPlaying] = useState(false); // audio playback state
   const [playheadPosition, setPlayheadPosition] = useState(0);
   const [duration, setDuration] = useState<number | null>(null);
+  const regionDurationRef = useRef(duration);
   const [showTimeRemaining, { toggle: toggleTimeRemaining }] =
     useDisclosure(false);
   const playheadValue = useMemo(() => {
@@ -311,8 +311,6 @@ export default function Waveform({
   // also do not allow the file to play past the out point
   const handleAudioprocess = useCallback(
     (currentTime: number) => {
-      console.log("wavesurfer event fired", "audioprocess");
-
       // update playhead position
       setPlayheadPosition(currentTime);
 
@@ -328,32 +326,27 @@ export default function Waveform({
   // seeking: When the user seeks to a new position
   // when the user seeks to a new position, update playhead position
   const handleSeeking = useCallback((currentTime: number) => {
-    console.log("wavesurfer event fired", "seeking", currentTime);
     setPlayheadPosition(currentTime);
   }, []);
 
   // when the audio starts playing, set isPlaying state
   const handlePlay = useCallback(() => {
-    console.log("wavesurfer event fired", "play");
     setIsPlaying(true);
   }, []);
 
   // when the audio playing is paused, set isPlaying state
   const handlePause = useCallback(() => {
-    console.log("wavesurfer event fired", "pause");
     setIsPlaying(false);
   }, []);
 
   // when the audio is finished playing, set isPlaying state
   const handleFinish = useCallback(() => {
-    console.log("wavesurfer event fired", "finish");
     setIsPlaying(false);
   }, []);
 
   // error: When source file is unable to be fetched, decoded, or an error is thrown by media element
   // when an error occurs, inform the user
   const handleError = useCallback((error: Error) => {
-    console.log("wavesurfer event fired", "error");
     alert("An error occurred when creating the waveform.");
     console.error("Error emitted in wavesurfer", error);
   }, []);
@@ -362,8 +355,8 @@ export default function Waveform({
   // when the audio has been loaded, set the duration
   const handleDecode = useCallback(
     (duration: number) => {
-      console.log("wavesurfer event fired", "decode", duration);
       setDuration(duration);
+      regionDurationRef.current = duration;
 
       if (onSetDuration) {
         onSetDuration(duration);
@@ -416,7 +409,6 @@ export default function Waveform({
    *********************/
   // play/pause controls
   const handleClickBackwards = useCallback(() => {
-    console.log("clicked backwards");
     // when the user clicks on the backwards button,
     // it should go to the start of the subclip
     const time = inPoint || 0;
@@ -424,21 +416,16 @@ export default function Waveform({
   }, [inPoint, wavesurfer]);
 
   const handleClickPlay = useCallback(() => {
-    console.log("clicked play");
     if (wavesurfer) {
       // if the playhead is outside the valid range, move it
       const start = inPoint || 0;
       const end = outPoint || wavesurfer.getDuration();
 
-      console.log("start", start);
-      console.log("end", end);
-      console.log("wavesurfer.getCurrentTime()", wavesurfer.getCurrentTime());
-
       if (
         wavesurfer.getCurrentTime() < start || // if the playhead is before the start
         (end !== null && wavesurfer.getCurrentTime() >= end) // if the playhead is after the end
       ) {
-        console.log("moving playhead to the start point", start);
+        console.info("moving playhead to the start point", start);
         wavesurfer.seekTo(start / wavesurfer.getDuration());
       }
 
@@ -447,12 +434,10 @@ export default function Waveform({
   }, [inPoint, outPoint, wavesurfer]);
 
   const handleClickPause = useCallback(() => {
-    console.log("clicked pause");
     wavesurfer?.pause();
   }, [wavesurfer]);
 
   const handleClickForwards = useCallback(() => {
-    console.log("clicked forwards");
     // when the user clicks on the forwards button,
     // it should go to the end of the subclip
     const time = outPoint || wavesurfer?.getDuration();
@@ -502,55 +487,102 @@ export default function Waveform({
   /*******************
    * REGION HANDLERS *
    *******************/
-  const setRegion = useCallback(() => {
+  useEffect(() => {
     if (!regionsRef.current) return;
 
-    const newRegionIDs = regions.map((item) => item.id);
-    // get the existing regions except for the ones in regions
-    const curRegions = regionsRef.current
+    // Track the current region state (by ID and its start/end points)
+    const currentRegionState = regionsRef.current
       .getRegions()
-      .filter((region) => !newRegionIDs.includes(region.id));
-
-    // clear the existing regions
-    regionsRef.current.clearRegions();
-
-    // re-add the previous regions
-    for (const region of curRegions) {
-      regionsRef.current.addRegion({
+      .map((region) => ({
         id: region.id,
         start: region.start,
         end: region.end,
-        color: "rgba(255,255,255, 0.1)",
-        drag: false,
-        resize: false,
-      });
-    }
+      }));
 
-    // create the new region
-    for (const region of regions) {
-      // only draw if at least one point is set
-      if (region.start !== null || region.end !== null) {
-        const start = region.start || 0;
-        const end = region.end || duration;
+    // Check if there's an active region
+    const activeRegion = regions.find((item) => item.active);
 
-        // confirm there's an end
-        if (end !== null) {
-          regionsRef.current.addRegion({
-            id: region.id,
-            start,
-            end,
-            color: "rgba(255,255,255, 0.1)",
-            drag: false,
-            resize: false,
-          });
+    // Compare with the new region state (by ID and start/end points)
+    // If there's an active region, filter out other regions
+    const newRegionState = activeRegion
+      ? [
+          {
+            id: activeRegion.id,
+            start: activeRegion.start || 0,
+            end: activeRegion.end || duration,
+          },
+        ]
+      : regions.map((region) => ({
+          id: region.id,
+          start: region.start || 0,
+          end: region.end || duration,
+        }));
+
+    // Check if there's any difference in the regions (active or start/end changes)
+    const isRegionStateChanged =
+      currentRegionState.length !== newRegionState.length ||
+      currentRegionState.some(
+        (currRegion, index) =>
+          currRegion.start !== newRegionState[index].start ||
+          currRegion.end !== newRegionState[index].end
+      );
+
+    if (isRegionStateChanged) {
+      // Clear existing regions
+      regionsRef.current.clearRegions();
+      console.info("Cleared regions due to change in state.");
+
+      // Wait for a short delay before adding new regions
+      const interval = setTimeout(() => {
+        if (!regionsRef.current) return;
+
+        // Determine if there's an active region
+        const activeRegion = regions.find((item) => item.active);
+
+        if (activeRegion) {
+          const { id } = activeRegion;
+          const start = activeRegion.start || 0;
+          const end = activeRegion.end || duration;
+
+          // Add the active region
+          if (end !== null) {
+            regionsRef.current.addRegion({
+              id,
+              start,
+              end,
+              color: "rgba(255,255,255, 0.1)",
+              drag: false,
+              resize: false,
+            });
+          }
+        } else {
+          // Add all regions if no active region
+          for (const region of regions) {
+            const { id } = region;
+            const start = region.start || 0;
+            const end = region.end || duration;
+
+            if (end !== null) {
+              regionsRef.current.addRegion({
+                id,
+                start,
+                end,
+                color: "rgba(255,255,255, 0.1)",
+                drag: false,
+                resize: false,
+                content: region.name,
+              });
+            }
+          }
         }
-      }
-    }
-  }, [regions, duration]);
+      }, 100); // Delay before adding regions, adjust as necessary
 
-  useEffect(() => {
-    setRegion();
-  }, [setRegion]);
+      // Cleanup: clear the timeout on cleanup or region change
+      return () => clearTimeout(interval);
+    }
+
+    // If no change in region state, nothing to do
+  }, [regions, duration]); // Run effect when regions or duration change
 
   /*****************************
    * PLAYHEAD DISPLAY HANDLERS *
