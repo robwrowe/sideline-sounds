@@ -163,6 +163,7 @@ export default function Library() {
             closeImportFile();
             closeMenu();
           }}
+          onAddAnother={handleClickImportFile}
           state={state}
           dispatch={localDispatch}
         />

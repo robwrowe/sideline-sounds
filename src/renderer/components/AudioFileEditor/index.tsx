@@ -30,6 +30,8 @@ export type SubclipEditorProps = {
   children?: ReactNode;
   onSetInPoint?: (value: number | null) => void;
   onSetOutPoint?: (value: number | null) => void;
+  disableInMarker?: boolean;
+  disableOutMarker?: boolean;
 };
 
 // TODO: add ability to listen on PGM or PFL
@@ -41,6 +43,8 @@ export default function AudioFileEditor({
   activeSubclip,
   onSetInPoint,
   onSetOutPoint,
+  disableInMarker = false,
+  disableOutMarker = false,
 }: SubclipEditorProps) {
   // audio file
   const { title, artist, album, filePath } = file;
@@ -186,7 +190,7 @@ export default function AudioFileEditor({
         }
       }
     },
-    [isValidPoint, onSetInPoint, playheadPosition]
+    [isValidPoint, onSetInPoint, onSetOutPoint, playheadPosition]
   );
 
   return (
@@ -224,14 +228,18 @@ export default function AudioFileEditor({
           leftPipeActionIconProps={
             showInOutMarker
               ? {
-                  disabled: !isValidPoint(playheadPosition, PointType.IN),
+                  disabled:
+                    disableInMarker ||
+                    !isValidPoint(playheadPosition, PointType.IN),
                 }
               : undefined
           }
           rightPipeActionIconProps={
             showInOutMarker
               ? {
-                  disabled: !isValidPoint(playheadPosition, PointType.OUT),
+                  disabled:
+                    disableOutMarker ||
+                    !isValidPoint(playheadPosition, PointType.OUT),
                 }
               : undefined
           }

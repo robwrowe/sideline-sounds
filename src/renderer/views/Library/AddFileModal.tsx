@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Button,
   Group,
@@ -7,7 +7,7 @@ import {
   ScrollAreaAutosize,
   Tabs,
 } from "@mantine/core";
-import { IconMusicPlus } from "@tabler/icons-react";
+import { IconMusicUp } from "@tabler/icons-react";
 import { v4 as uuid } from "uuid";
 import styles from "./AddFileModal.module.scss";
 
@@ -26,6 +26,7 @@ export type AddFileModalProps = {
   onClose: () => void;
   state: AudioFileState;
   dispatch: React.ActionDispatch<[action: AudioFileAction]>;
+  onAddAnother?: () => Promise<void>;
 };
 
 export default function AddFileModal({
@@ -33,6 +34,7 @@ export default function AddFileModal({
   onClose,
   state,
   dispatch,
+  onAddAnother,
 }: AddFileModalProps) {
   const [loading, setLoading] = useState(false);
   const appDispatch = useAppDispatch();
@@ -100,19 +102,22 @@ export default function AddFileModal({
         // update redux
         appDispatch(fetchAudioFiles());
 
-        if (closeAfterFinish) {
-          handleClose();
-        } else {
+        // see if we should prompt the user for another import
+        if (!closeAfterFinish && onAddAnother) {
           // reset the state
           dispatch({ type: "RESET" });
-          // prompt user for new file
+
+          // call the new file
+          onAddAnother();
+        } else {
+          handleClose();
         }
       } catch (err) {
         console.error("Error adding new file", err);
         alert("An error occurred when attempting to add a file");
       }
     },
-    [appDispatch, dispatch, handleClose, idFallback, state]
+    [appDispatch, dispatch, handleClose, idFallback, onAddAnother, state]
   );
 
   // when the user changes in/out point, update the state
@@ -179,6 +184,14 @@ export default function AddFileModal({
         activeSubclip={selectedSubclip}
         onSetInPoint={handleSetInPoint}
         onSetOutPoint={handleSetOutPoint}
+        disableInMarker={
+          selectedTab !== "subclips" ||
+          (selectedTab === "subclips" && selectedSubclip === null)
+        }
+        disableOutMarker={
+          selectedTab !== "subclips" ||
+          (selectedTab === "subclips" && selectedSubclip === null)
+        }
       >
         {/* TODO: dynamically set scroll area height */}
         <ScrollAreaAutosize mah={450} scrollbars="y">
@@ -214,7 +227,7 @@ export default function AddFileModal({
         <Group justify="flex-start" style={{ width: "100%" }}>
           <Button
             onClick={() => handleSubmit(true)}
-            leftSection={<IconMusicPlus size={16} />}
+            leftSection={<IconMusicUp size={16} />}
             disabled={!state.filePath || !state.title}
           >
             Import

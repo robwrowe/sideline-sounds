@@ -20,13 +20,18 @@ import {
 import styles from "./index.module.scss";
 
 import { AudioFile, BaseInitialStateThunk, ThunkStatus } from "../../../types";
-import { formatSecondsToTime } from "../../../utils";
+import {
+  formatSecondsToTime,
+  getAudioMimeType,
+  getFileName,
+} from "../../../utils";
 
 import TableTh from "./TableTh";
+import { useAudioEngineContext } from "../../hooks";
 
 type AudioData = Pick<
   AudioFile,
-  "id" | "title" | "artist" | "album" | "duration"
+  "id" | "title" | "artist" | "album" | "duration" | "filePath"
 >;
 type SortKeys = keyof Pick<AudioFile, "title" | "artist" | "album">;
 
@@ -88,6 +93,7 @@ export default function AudioFilesTable({
   hideCheckbox = false,
 }: AudioFilesTableProps) {
   const colorScheme = useComputedColorScheme();
+  const { audioEngine } = useAudioEngineContext();
 
   const [search, setSearch] = useState("");
   const [sortedData, setSortedData] = useState(data);
@@ -136,6 +142,28 @@ export default function AudioFilesTable({
     [data, reverseSortDirection, sortBy]
   );
 
+  // TODO: allow user to pause/stop audio file
+  // allow user to play back audio file
+  const handleClickPlay = useCallback(
+    async (filePath: string) => {
+      // extract the file name from the path
+      const fileName = getFileName(filePath) || "No Name Found";
+
+      const fileBuffer = await window.electron.audio.fileBuffer(filePath);
+
+      const blob = new Blob([fileBuffer]);
+
+      const file = new File([blob], fileName, {
+        type: getAudioMimeType(filePath),
+      });
+
+      const audioBuffer = await audioEngine.loadAudio(file);
+
+      audioEngine.play(audioBuffer);
+    },
+    [audioEngine]
+  );
+
   const rows = sortedData.map((row) => (
     <Table.Tr key={row.id}>
       {!hideCheckbox && (
@@ -155,6 +183,8 @@ export default function AudioFilesTable({
                 size="sm"
                 variant="transparent"
                 color={colorScheme === "light" ? "black" : "gray"}
+                onClick={() => handleClickPlay(row.filePath)}
+                disabled={!row.filePath}
               >
                 <IconPlayerPlay size={16} />
               </ActionIcon>

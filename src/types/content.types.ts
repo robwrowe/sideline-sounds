@@ -1,5 +1,7 @@
 import { IAudioMetadata } from "music-metadata";
 
+// TODO: add datetime when file was imported and last edited
+
 export type AudioFileMetadata = IAudioMetadata & { cover: string | null };
 
 export type AudioFile = {
