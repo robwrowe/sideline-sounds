@@ -59,16 +59,16 @@ const createWindow = (): void => {
 
   // When the window is ready, tell React to navigate to the home page
   mainWindow.webContents.on("did-finish-load", () => {
-    // mainWindow?.webContents.send(
-    //   "navigate",
-    //   "/main/show/419717fb-f85f-49fd-9bbf-ea69d43d3d55"
-    // );
+    mainWindow?.webContents.send(
+      "navigate",
+      "/main/show/419717fb-f85f-49fd-9bbf-ea69d43d3d55"
+    );
     // //
     // mainWindow?.webContents.send("navigate", "/main");
     // //
     // mainWindow?.webContents.send("navigate", "/main/show");
     // //
-    mainWindow?.webContents.send("navigate", "/library");
+    // mainWindow?.webContents.send("navigate", "/library");
   });
 
   // Modify HTTP headers to set CSP dynamically
