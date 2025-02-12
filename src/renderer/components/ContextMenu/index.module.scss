@@ -1,21 +1,28 @@
-.contextMenu {
+$defaultSpacing: calc(0.25rem * var(--mantine-scale));
+
+.target {
   position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 4px 0;
-  list-style: none;
-  min-width: 150px;
   z-index: 100;
+  min-width: 9.5rem;
+}
 
-  li {
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background 0.2s ease-in-out;
+.dropdownContainer {
+  width: 100%;
+  padding: calc($defaultSpacing * 2) 0;
 
-    &:hover {
-      background: #f0f0f0;
-    }
-  }
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: $defaultSpacing;
+}
+
+.divider {
+  width: 100%;
+
+  margin: 0.25rem 0;
+}
+
+.label {
+  margin: 0 calc($defaultSpacing * 2) !important;
 }

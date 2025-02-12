@@ -1,0 +1,15 @@
+.button {
+  width: calc(100% - calc(1rem * var(--mantine-scale))) !important;
+  padding: calc(var(--mantine-spacing-xs) / 1.5) var(--mantine-spacing-sm);
+  margin: 0 calc(0.5rem * var(--mantine-scale));
+
+  &:hover {
+    background-color: light-dark(
+      var(--mantine-color-gray-3) var(--mantine-color-dark-4)
+    );
+  }
+}
+
+.text {
+  padding: 0 1.5rem 0 0 !important;
+}

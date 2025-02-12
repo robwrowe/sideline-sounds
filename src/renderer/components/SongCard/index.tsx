@@ -1,10 +1,11 @@
 import React, { useCallback, useRef, useState } from "react";
 import classNames from "classnames";
-import { IconMusic } from "@tabler/icons-react";
+import { IconMusic, IconPencil, IconTrashFilled } from "@tabler/icons-react";
 import { Box, Card, Image, Text, ImageProps } from "@mantine/core";
 import styles from "./index.module.scss";
 
-import ContextMenu, { ContextMenuItem, ContextMenuProps } from "../ContextMenu";
+import ContextMenu, { ContextMenuProps } from "../ContextMenu";
+import { ContextMenuItem } from "../../../types";
 
 export type SongCardProps = {
   /**
@@ -52,9 +53,10 @@ export default function SongCard({
   onClick,
   onDoubleClick,
 }: SongCardProps) {
-  const [menu, setMenu] = useState<Pick<ContextMenuProps, "x" | "y"> | null>(
-    null
-  );
+  const [menu, setMenu] = useState<Pick<ContextMenuProps, "x" | "y"> | null>({
+    x: 500,
+    y: 140,
+  });
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleContextMenu = useCallback((event: React.MouseEvent) => {
@@ -107,19 +109,35 @@ export default function SongCard({
       </Card>
       {menu && (
         <ContextMenu
+          opened={Boolean(menu)}
+          x={menu?.x}
+          y={menu?.y}
           items={[
+            { type: "label", label: "File" },
             {
               label: "Edit",
               onClick: () => console.log("edit"),
+              Icon: IconPencil,
             },
             {
               label: "Delete",
               onClick: () => console.log("delete"),
             },
+            { type: "divider" },
+            { type: "label", label: "Danger Zone", color: "red" },
+            {
+              label: "Delete Forever",
+              onClick: () => console.log("delete"),
+              Icon: IconTrashFilled,
+              color: "red",
+            },
           ]}
-          x={menu.x}
-          y={menu.y}
           onClose={handleCloseMenu}
+          onChange={(value: boolean) => {
+            if (!value) {
+              setMenu(null);
+            }
+          }}
         />
       )}
     </>
