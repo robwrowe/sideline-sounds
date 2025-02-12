@@ -6,7 +6,7 @@ ipcMain.handle(
   "dialog:showOpenDialog",
   async (_, opts: DialogOpenOpts = {}) => {
     const response = await dialog.showOpenDialog({ ...opts });
-    
+
     return response;
   }
 );

@@ -29,3 +29,12 @@ contextBridge.exposeInMainWorld("electron", {
       ipcRenderer.invoke("audio:metadata", filePath),
   },
 });
+
+contextBridge.exposeInMainWorld("log", {
+  log: (...args: unknown[]) => ipcRenderer.invoke("log:log", ...args),
+  info: (...args: unknown[]) => ipcRenderer.invoke("log:info", ...args),
+  warn: (...args: unknown[]) => ipcRenderer.invoke("log:warn", ...args),
+  error: (...args: unknown[]) => ipcRenderer.invoke("log:error", ...args),
+  debug: (...args: unknown[]) => ipcRenderer.invoke("log:debug", ...args),
+  trace: (...args: unknown[]) => ipcRenderer.invoke("log:trace", ...args),
+});

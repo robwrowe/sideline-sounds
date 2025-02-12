@@ -59,16 +59,16 @@ const createWindow = (): void => {
 
   // When the window is ready, tell React to navigate to the home page
   mainWindow.webContents.on("did-finish-load", () => {
-    // mainWindow?.webContents.send(
-    //   "navigate",
-    //   "/main/show/419717fb-f85f-49fd-9bbf-ea69d43d3d55"
-    // );
+    mainWindow?.webContents.send(
+      "navigate",
+      "/main/show/419717fb-f85f-49fd-9bbf-ea69d43d3d55"
+    );
     // //
     // mainWindow?.webContents.send("navigate", "/main");
     // //
     // mainWindow?.webContents.send("navigate", "/main/show");
     // //
-    mainWindow?.webContents.send("navigate", "/library");
+    // mainWindow?.webContents.send("navigate", "/library");
   });
 
   // Modify HTTP headers to set CSP dynamically
@@ -79,6 +79,20 @@ const createWindow = (): void => {
       "default-src 'self'; media-src 'self' blob:; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';",
     ];
     callback({ cancel: false, responseHeaders: headers });
+  });
+
+  // TEMP: logging for context menu issues
+  mainWindow.on("close", () => console.log("Window is about to close"));
+  mainWindow.on("closed", () => console.log("Window was closed"));
+  mainWindow.on("unresponsive", () =>
+    console.log("Window was become unresponsive.")
+  );
+  mainWindow.on("resized", () => console.log("Window was resized"));
+  mainWindow.on("focus", () => console.log("Window was focused"));
+  mainWindow.on("blur", () => console.log("Window lost focus"));
+
+  mainWindow.webContents.on("render-process-gone", (event, details) => {
+    console.log("Renderer process has gone:", details, event);
   });
 };
 
