@@ -19,6 +19,7 @@ export default function DataSongCard({
 }: DataSongCardProps) {
   const { audioEngine } = useAudioEngineContext();
 
+  // play audio on first click
   const handleClick = useCallback(async () => {
     // extract the file name from the path
     const fileName = getFileName(filePath) || "No Name Found";
