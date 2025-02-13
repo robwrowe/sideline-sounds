@@ -25,6 +25,7 @@ import {
 import { dbContentButtons } from "../../../../repos";
 
 import openContentButtonModal from "./ContentModal";
+import openContentButtonDeleteModal from "./ContentModalDelete";
 
 export default function ShowBank() {
   const { bankID, showID, pageID } = useParams<ShowParams>();
@@ -108,6 +109,18 @@ export default function ShowBank() {
     [bankID, handleFetchButtons]
   );
 
+  const handleClickDelete = useCallback(
+    async (buttonNumber: number) => {
+      if (bankID) {
+        await dbContentButtons.deleteItem([bankID, buttonNumber]);
+
+        // update redux
+        handleFetchButtons();
+      }
+    },
+    [bankID, handleFetchButtons]
+  );
+
   // play audio on first click
   const handleClick = useCallback(
     async (obj: AudioFile) => {
@@ -162,14 +175,13 @@ export default function ShowBank() {
         },
         {
           label: "Delete Content",
-          onClick: async () => {
-            if (bankID) {
-              await dbContentButtons.deleteItem([bankID, i]);
-
-              // update redux
-              handleFetchButtons();
-            }
-          },
+          onClick: () =>
+            openContentButtonDeleteModal({
+              title: "Remove Content Button",
+              props: {
+                onConfirm: () => handleClickDelete(i),
+              },
+            }),
         },
       ];
 
@@ -208,11 +220,12 @@ export default function ShowBank() {
     setCards(result);
   }, [
     audioFiles,
-    bankID,
     buttons,
     handleClick,
     handleClickAssign,
-    handleFetchButtons,
+    handleClickDelete,
+    numOfCols,
+    numOfRows,
   ]);
 
   return (

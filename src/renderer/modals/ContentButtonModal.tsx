@@ -98,6 +98,8 @@ export default function ContentButtonModal({
             setValue={setValueSubclip}
             selectedAudioFileID={valueFile}
           />
+          {/* TODO: replace this with a shared/reusable component */}
+          {/* TODO: use name of color, not hex value */}
           <ColorInput
             label="Color"
             value={color ?? ""}

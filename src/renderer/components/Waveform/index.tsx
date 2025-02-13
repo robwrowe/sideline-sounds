@@ -631,6 +631,7 @@ export default function Waveform({
           isPlaying={isPlaying}
         />
         {/* playhead controls */}
+        {/* TODO: when jogging, play the audio back */}
         <InOutPoint
           value={playheadValue}
           onClickSkip={handleClickSkip}
