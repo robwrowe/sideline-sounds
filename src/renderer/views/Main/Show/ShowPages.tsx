@@ -5,7 +5,7 @@ import { ShowParams } from "../../../../types";
 import { setActivePageID } from "../../../features";
 import { useAppDispatch } from "../../../hooks";
 
-import ShowBank from "./ShowBank";
+import Bank from "./Bank";
 
 export default function Show() {
   const dispatch = useAppDispatch();
@@ -26,7 +26,7 @@ export default function Show() {
 
   return (
     <Routes>
-      <Route path="bank/:bankID" element={<ShowBank />} />
+      <Route path="bank/:bankID" element={<Bank />} />
       <Route path="*" element={<p>No bank selected</p>} />
     </Routes>
   );

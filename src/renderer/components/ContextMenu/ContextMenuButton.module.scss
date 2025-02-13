@@ -1,7 +1,7 @@
 .button {
-  width: calc(100% - calc(1rem * var(--mantine-scale))) !important;
-  padding: calc(var(--mantine-spacing-xs) / 1.5) var(--mantine-spacing-sm);
-  margin: 0 calc(0.5rem * var(--mantine-scale));
+  width: calc(100% - calc(0.5rem * var(--mantine-scale))) !important;
+  padding: calc(var(--mantine-spacing-xs) / 1.5);
+  margin: 0 calc(0.25rem * var(--mantine-scale));
 
   &:hover {
     background-color: light-dark(

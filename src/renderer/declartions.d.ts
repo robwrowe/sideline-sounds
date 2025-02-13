@@ -1,4 +1,5 @@
 import { AudioFileMetadata, DialogOpenOpts } from "../types";
+import { modals } from "./modals";
 
 declare module "*.scss";
 
@@ -62,6 +63,12 @@ declare global {
 
   interface HTMLAudioElement {
     setSinkId(deviceId: string): Promise<void>;
+  }
+}
+
+declare module "@mantine/modals" {
+  export interface MantineModalsOverride {
+    modals: typeof modals;
   }
 }
 

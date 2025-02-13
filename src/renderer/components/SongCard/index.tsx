@@ -1,11 +1,12 @@
 import React, { useCallback, useRef, useState } from "react";
 import classNames from "classnames";
-import { IconMusic, IconPencil, IconTrashFilled } from "@tabler/icons-react";
+import { IconMusic } from "@tabler/icons-react";
 import { Box, Card, Image, Text, ImageProps } from "@mantine/core";
 import styles from "./index.module.scss";
 
-import ContextMenu, { ContextMenuProps } from "../ContextMenu";
 import { ContextMenuItem } from "../../../types";
+
+import ContextMenu, { ContextMenuProps } from "../ContextMenu";
 
 export type SongCardProps = {
   /**
@@ -45,6 +46,9 @@ export type SongCardProps = {
   contextMenu?: ContextMenuItem[];
 };
 
+// TODO: add style for "active"
+// TODO: add style for "previously played"
+// TODO: add style for "artist previously played"
 export default function SongCard({
   title,
   artist,
@@ -52,19 +56,62 @@ export default function SongCard({
   image,
   onClick,
   onDoubleClick,
+  contextMenu,
 }: SongCardProps) {
-  const [menu, setMenu] = useState<Pick<ContextMenuProps, "x" | "y"> | null>({
-    x: 500,
-    y: 140,
-  });
+  const [menu, setMenu] = useState<Pick<ContextMenuProps, "x" | "y"> | null>(
+    null
+  );
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleContextMenu = useCallback((event: React.MouseEvent) => {
-    event.preventDefault();
-    setMenu({ x: event.clientX, y: event.clientY });
-  }, []);
+  // needed to prevent the onClick from firing if the context menu needs to be closed
+  const [lastInteraction, setLastInteraction] = useState<
+    "left" | "right" | null
+  >(null);
 
-  const handleCloseMenu = useCallback(() => setMenu(null), []);
+  const handleContextMenu = useCallback(
+    (event: React.MouseEvent) => {
+      console.log("context menu", menu);
+      event.preventDefault();
+
+      setLastInteraction("right");
+
+      // if the menu is already opened, close it
+      if (menu) {
+        setMenu(null);
+      } else {
+        // otherwise, open the menu
+        setMenu({ x: event.clientX, y: event.clientY });
+      }
+    },
+    [menu]
+  );
+
+  const handleClick = useCallback(() => {
+    console.log("click", menu);
+
+    if (lastInteraction === "right") {
+      setLastInteraction(null);
+      return;
+    }
+
+    // if the context menu is opened, close it
+    if (menu !== null) {
+      console.log("click", "if");
+      setMenu(null);
+    } else if (onClick) {
+      console.log("click", "else if");
+      // otherwise, perform the normal action
+      onClick();
+    }
+
+    setLastInteraction("left");
+  }, [lastInteraction, menu, onClick]);
+
+  const handleClose = useCallback(() => {
+    console.log("closed");
+    setMenu(null);
+    setLastInteraction(null);
+  }, []);
 
   return (
     <>
@@ -72,14 +119,13 @@ export default function SongCard({
         withBorder
         radius="md"
         padding="xs"
-        // onClick={onClick}
         onDoubleClick={onDoubleClick}
         className={classNames(styles.parent, {
           [styles.clickHandler]: onClick || onDoubleClick,
         })}
         //
         onContextMenu={handleContextMenu}
-        onClick={handleCloseMenu}
+        onClick={handleClick}
         ref={menuRef}
       >
         <div className={styles.container}>
@@ -107,33 +153,15 @@ export default function SongCard({
           </div>
         </div>
       </Card>
-      {menu && (
+      {menu && contextMenu && (
         <ContextMenu
           opened={Boolean(menu)}
           x={menu?.x}
           y={menu?.y}
-          items={[
-            { type: "label", label: "File" },
-            {
-              label: "Edit",
-              onClick: () => console.log("edit"),
-              Icon: IconPencil,
-            },
-            {
-              label: "Delete",
-              onClick: () => console.log("delete"),
-            },
-            { type: "divider" },
-            { type: "label", label: "Danger Zone", color: "red" },
-            {
-              label: "Delete Forever",
-              onClick: () => console.log("delete"),
-              Icon: IconTrashFilled,
-              color: "red",
-            },
-          ]}
-          onClose={handleCloseMenu}
+          items={contextMenu}
+          onClose={handleClose}
           onChange={(value: boolean) => {
+            console.log("on change", value);
             if (!value) {
               setMenu(null);
             }

@@ -8,6 +8,7 @@ import App from "./App";
 import { AudioEngineProvider } from "./context";
 
 import initDB, { stores } from "./repos";
+import AppModalsProvider from "./modals";
 
 // core styles are required for all packages
 import "@mantine/core/styles.css";
@@ -51,9 +52,11 @@ root.render(
   <Provider store={store}>
     <MemoryRouter>
       <MantineProvider theme={theme} defaultColorScheme="dark">
-        <AudioEngineProvider>
-          <App />
-        </AudioEngineProvider>
+        <AppModalsProvider>
+          <AudioEngineProvider>
+            <App />
+          </AudioEngineProvider>
+        </AppModalsProvider>
       </MantineProvider>
     </MemoryRouter>
   </Provider>

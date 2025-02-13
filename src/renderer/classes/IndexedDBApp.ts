@@ -1,6 +1,6 @@
 import { INDEXED_DB_VERSION } from "../../constants";
 
-export type indexedDBAppOpts = {
+export type indexedDBAppOpts<T extends Record<string, unknown | unknown[]>> = {
   /**
    * The name of the database to connect to.
    * Defaults to `primaryDatabase`
@@ -11,7 +11,7 @@ export type indexedDBAppOpts = {
    * The primary key to use for the database.
    * Defaults to `id`.
    */
-  keyPath?: string | string[];
+  keyPath?: keyof T | (keyof T)[];
 };
 
 export default class IndexedDBApp<
@@ -19,7 +19,7 @@ export default class IndexedDBApp<
 > {
   private version = INDEXED_DB_VERSION;
   private _dbName = "primaryDatabase";
-  private _keyPath: string | string[] | undefined;
+  private _keyPath: keyof T | (keyof T)[] | undefined;
 
   public get dbName() {
     return this._dbName;
@@ -39,7 +39,7 @@ export default class IndexedDBApp<
 
   constructor(
     private _storeName: string,
-    opts: indexedDBAppOpts = {}
+    opts: indexedDBAppOpts<T> = {}
   ) {
     if (opts.dbName) {
       this.dbName = opts.dbName;
@@ -68,7 +68,7 @@ export default class IndexedDBApp<
 
           if (!db.objectStoreNames.contains(this.storeName)) {
             db.createObjectStore(this.storeName, {
-              keyPath: this.keyPath ?? "id",
+              keyPath: (this.keyPath as string | string[] | undefined) ?? "id",
             });
           }
         };
@@ -117,6 +117,30 @@ export default class IndexedDBApp<
     });
   };
 
+  public addItems = async (items: T[]): Promise<void> => {
+    return this.withDB("readwrite", (store) => {
+      return new Promise<void>((resolve, reject) => {
+        const transaction = store.transaction;
+        let completed = 0;
+
+        for (const item of items) {
+          const request = store.add(item);
+
+          request.onsuccess = () => {
+            completed++;
+            if (completed === items.length) {
+              resolve();
+            }
+          };
+
+          request.onerror = () => reject(request.error);
+        }
+
+        transaction.onerror = () => reject(transaction.error);
+      });
+    });
+  };
+
   public getItems = async (): Promise<T[]> => {
     return this.withDB("readonly", (store) => {
       return new Promise((resolve, reject) => {
@@ -139,10 +163,19 @@ export default class IndexedDBApp<
     });
   };
 
-  public deleteItem = async (id: number): Promise<void> => {
+  public deleteItem = async (key: T[keyof T] | T[keyof T][]): Promise<void> => {
     return this.withDB("readwrite", (store) => {
       return new Promise((resolve, reject) => {
-        const request = store.delete(id);
+        let keyValue: unknown;
+
+        if (Array.isArray(this.keyPath)) {
+          // extract multiple keys if using a compound key
+          keyValue = this.keyPath.map((k) => (key as T)[k]);
+        } else {
+          keyValue = key;
+        }
+
+        const request = store.delete(keyValue as IDBValidKey);
 
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);

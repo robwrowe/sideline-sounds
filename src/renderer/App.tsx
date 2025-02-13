@@ -1,15 +1,25 @@
 import React, { useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router";
+import { useMantineColorScheme } from "@mantine/core";
 
 import { Library, Main } from "./views";
-
 import { AudioFileEditor } from "./components";
-import { useMantineColorScheme } from "@mantine/core";
+import { useAppDispatch } from "./hooks";
+
+import {
+  fetchAudioFiles,
+  fetchBanks,
+  fetchContentButtons,
+  fetchOutputDevices,
+  fetchPages,
+  fetchShows,
+} from "./features";
 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toggleColorScheme } = useMantineColorScheme();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (window.electron) {
@@ -30,6 +40,31 @@ export default function App() {
   useEffect(() => {
     console.log("Current route:", `"${location.pathname}"`);
   }, [location.pathname]);
+
+  // TEMP: fetch all data when component mounts
+  useEffect(() => {
+    dispatch(fetchAudioFiles());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchBanks());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchOutputDevices());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchPages());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchShows());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchContentButtons());
+  }, [dispatch]);
 
   return (
     <Routes>

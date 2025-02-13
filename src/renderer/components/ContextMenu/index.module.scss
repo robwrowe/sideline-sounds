@@ -8,13 +8,13 @@ $defaultSpacing: calc(0.25rem * var(--mantine-scale));
 
 .dropdownContainer {
   width: 100%;
-  padding: calc($defaultSpacing * 2) 0;
+  padding: calc($defaultSpacing) 0;
 
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: flex-start;
-  gap: $defaultSpacing;
+  gap: 0;
 }
 
 .divider {
@@ -24,5 +24,5 @@ $defaultSpacing: calc(0.25rem * var(--mantine-scale));
 }
 
 .label {
-  margin: 0 calc($defaultSpacing * 2) !important;
+  margin: 0 calc($defaultSpacing) !important;
 }

@@ -1,17 +1,22 @@
 import { configureStore } from "@reduxjs/toolkit";
+import logger from "redux-logger";
+
 import banksSlice from "./features/banks.slice";
 import outputDevicesSlice from "./features/outputDevices.slice";
 import pagesSlice from "./features/pages.slice";
 import showsSlice from "./features/shows.slice";
 import audioFilesSlice from "./features/audioFiles.slice";
+import contentButtonsSlice from "./features/contentButtons.slice";
 
 export const store = configureStore({
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
   reducer: {
     outputDevices: outputDevicesSlice,
     pages: pagesSlice,
     shows: showsSlice,
     banks: banksSlice,
     audioFiles: audioFilesSlice,
+    contentButtons: contentButtonsSlice,
   },
 });
 

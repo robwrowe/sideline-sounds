@@ -25,6 +25,11 @@ type ContentButtonFile = {
    * The content ID that will be played
    */
   contentID: string;
+
+  /**
+   * If this is a subclip, the ID for it
+   */
+  subclipID: string | null;
 };
 
 type ContentButtonPlaylist = {

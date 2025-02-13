@@ -3,13 +3,13 @@ import { BaseInitialStateThunk, ThunkStatus, ContentButton } from "../../types";
 import { dbContentButtons as db } from "../repos";
 
 interface InitialState extends BaseInitialStateThunk {
-  banks: ContentButton[];
+  contentButtons: ContentButton[];
 }
 
 const initialState: InitialState = {
   status: ThunkStatus.IDLE,
   error: null,
-  banks: [],
+  contentButtons: [],
 };
 
 export const fetchContentButtons = createAsyncThunk<ContentButton[]>(
@@ -26,12 +26,12 @@ export const fetchContentButtons = createAsyncThunk<ContentButton[]>(
   }
 );
 
-const banksSlice = createSlice({
-  name: "banks",
+const contentButtonsSlice = createSlice({
+  name: "contentButtons",
   initialState,
   reducers: {
     addContentButton(state, { payload: data }: { payload: ContentButton }) {
-      state.banks.push(data);
+      state.contentButtons.push(data);
     },
 
     removeContentButton(
@@ -40,10 +40,10 @@ const banksSlice = createSlice({
         payload: { bankID, buttonNumber },
       }: { payload: Pick<ContentButton, "bankID" | "buttonNumber"> }
     ) {
-      const arr = state.banks.filter(
+      const arr = state.contentButtons.filter(
         (item) => item.bankID !== bankID && item.buttonNumber !== buttonNumber
       );
-      state.banks = arr;
+      state.contentButtons = arr;
     },
   },
   extraReducers: (builder) => {
@@ -57,7 +57,7 @@ const banksSlice = createSlice({
       (state, { payload: data }: { payload: ContentButton[] }) => {
         state.status = ThunkStatus.SUCCEEDED;
         state.error = null;
-        state.banks = data;
+        state.contentButtons = data;
       }
     );
 
@@ -68,5 +68,6 @@ const banksSlice = createSlice({
   },
 });
 
-export const { addContentButton, removeContentButton } = banksSlice.actions;
-export default banksSlice.reducer;
+export const { addContentButton, removeContentButton } =
+  contentButtonsSlice.actions;
+export default contentButtonsSlice.reducer;

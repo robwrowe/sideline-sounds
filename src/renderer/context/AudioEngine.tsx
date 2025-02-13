@@ -7,6 +7,9 @@ import React, {
 } from "react";
 import { AudioEngine } from "../classes";
 
+// TODO: when a file is finished playing, do not perform a cross-fade (can prob also not cross-fade if it's paused)
+// TODO: add option to fade out when stopping
+
 type AudioEngineContextType = {
   audioEngine: AudioEngine;
   hasMedia: boolean;

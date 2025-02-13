@@ -64,8 +64,17 @@ export default function AddFileModal({
   const handleSubmit = useCallback(
     async (closeAfterFinish = true) => {
       try {
-        const { id, title, artist, album, year, filePath, color, duration } =
-          state;
+        const {
+          id,
+          title,
+          artist,
+          album,
+          year,
+          filePath,
+          color,
+          duration,
+          subclips,
+        } = state;
 
         // confirm there's a title
         if (!title) {
@@ -93,7 +102,7 @@ export default function AddFileModal({
           filePath,
           color,
           duration,
-          subclips: [],
+          subclips,
         };
 
         // add it to the database

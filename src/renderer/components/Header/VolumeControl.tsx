@@ -31,7 +31,11 @@ export default function VolumeControls() {
 
   return (
     <div className={styles.parent}>
-      <IconVolume3 size={24} />
+      <IconVolume3
+        size={24}
+        className={styles.icon}
+        onClick={() => handleChange(0)}
+      />
       <Slider
         value={volumeState * 100}
         color="gray"
@@ -39,7 +43,11 @@ export default function VolumeControls() {
         onChange={handleChange}
         label={(value) => `${Math.round(value)}%`}
       />
-      <IconVolume size={24} />
+      <IconVolume
+        size={24}
+        className={styles.icon}
+        onClick={() => handleChange(100)}
+      />
     </div>
   );
 }

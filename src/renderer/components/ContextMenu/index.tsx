@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Divider, Popover, Stack, Text } from "@mantine/core";
+import { Box, Divider, Popover, Text } from "@mantine/core";
 import styles from "./index.module.scss";
 
 import { ContextMenuItem } from "../../../types";
@@ -29,7 +29,7 @@ export default function ContextMenu({
   );
 
   return (
-    <Popover opened={true} onChange={onChange} styles={{}}>
+    <Popover opened={opened} onChange={onChange} styles={{}}>
       <Popover.Target>
         <Box
           className={styles.target}
