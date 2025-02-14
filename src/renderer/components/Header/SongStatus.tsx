@@ -55,7 +55,7 @@ export default function SongStatus() {
                   ? (currentElapsed / (currentDuration || 1)) * 100
                   : 0
               }
-              color="highlight"
+              color="accent"
               p="0"
               m="0"
             />

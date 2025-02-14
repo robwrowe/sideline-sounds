@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Box,
   CloseButton,
@@ -10,11 +10,12 @@ import {
   Stack,
   useCombobox,
 } from "@mantine/core";
-import { AudioFile, Subclip, ThunkStatus } from "../../../../types";
 
-import SubclipOption from "./SubclipOption";
+import { Subclip, ThunkStatus } from "../../../../types";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import { fetchAudioFiles } from "../../../features";
+
+import SubclipOption from "./SubclipOption";
 
 function getFilteredOptions(
   data: Subclip[],

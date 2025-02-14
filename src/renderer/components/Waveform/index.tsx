@@ -247,15 +247,15 @@ export default function Waveform({
       cursorColor:
         colorScheme === "light" ? theme.colors.gray[8] : theme.colors.dark[2],
       cursorWidth: 4,
-      waveColor: theme.colors.highlight[colorScheme === "light" ? 3 : 6],
-      progressColor: theme.colors.highlight[colorScheme === "light" ? 6 : 9],
+      waveColor: theme.colors.accent[colorScheme === "light" ? 3 : 6],
+      progressColor: theme.colors.accent[colorScheme === "light" ? 6 : 9],
       minPxPerSec, // zoom
       plugins: [
         (timelineRef.current = TimelinePlugin.create(timelineOpts)),
         (regionsRef.current = RegionsPlugin.create()),
         MinimapPlugin.create({
           height: 20,
-          cursorColor: theme.colors.highlight[colorScheme === "light" ? 3 : 6],
+          cursorColor: theme.colors.accent[colorScheme === "light" ? 3 : 6],
           waveColor:
             colorScheme === "light"
               ? theme.colors.gray[9]
@@ -276,12 +276,7 @@ export default function Waveform({
       ws.destroy();
       setWavesurfer(null);
     };
-  }, [
-    colorScheme,
-    theme.colors.dark,
-    theme.colors.gray,
-    theme.colors.highlight,
-  ]);
+  }, [colorScheme, theme.colors.dark, theme.colors.gray, theme.colors.accent]);
 
   // set waveform to the audio file in blob
   const loadBlobInWaveform = useCallback(async () => {

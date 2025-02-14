@@ -100,19 +100,19 @@ export default function InOutPoint({
   const iconColor: string | undefined =
     colorScheme === "light"
       ? active
-        ? theme.colors.highlight[5]
+        ? theme.colors.accent[5]
         : "gray"
       : active
-        ? theme.colors.highlight[5]
+        ? theme.colors.accent[5]
         : theme.colors.dark[2];
 
   const c: StyleProp<DefaultMantineColor> | undefined =
     colorScheme === "light"
       ? active
-        ? theme.colors.highlight[5]
+        ? theme.colors.accent[5]
         : "gray"
       : active
-        ? theme.colors.highlight[5]
+        ? theme.colors.accent[5]
         : theme.colors.dark[2];
 
   const actionIconDefaultProps: ActionIconProps = {

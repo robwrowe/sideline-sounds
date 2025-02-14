@@ -17,7 +17,7 @@ export default function InOutPointLabel({
   const actionIconProps: ActionIconProps = {
     size: "md",
     variant: "transparent",
-    color: "highlight",
+    color: "accent",
   };
 
   return (

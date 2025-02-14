@@ -27,7 +27,7 @@ const theme = createTheme({
       "#428e93",
       "#2d7b80",
     ],
-    highlight: [
+    accent: [
       "#fff3e3",
       "#ffe6cd",
       "#ffcc9c",
