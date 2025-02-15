@@ -1,21 +1,19 @@
 import React, { useCallback, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { AppShell, Burger, Group, Title, UnstyledButton } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { v4 as uuid } from "uuid";
 import styles from "./index.module.scss";
 
 import { AudioFilesTable } from "../../components";
 import { SUPPORTED_AUDIO_FILE_TYPES } from "../../../constants";
-import {
-  AudioFileState,
-  useAppDispatch,
-  useAppSelector,
-  useAudioFileReducer,
-} from "../../hooks";
+import { AudioFileState, useAppDispatch, useAppSelector } from "../../hooks";
 import { getFileName } from "../../../utils";
-
-import AddFileModal from "./AddFileModal";
 import { fetchAudioFiles } from "../../features";
+
+import openAudioFileModal from "./AudioFileModal";
+import { AudioFile } from "../../../types";
+import { dbAudioFiles } from "../../repos";
 
 type LinksObject = {
   label: string;
@@ -30,11 +28,42 @@ export default function Library() {
   const status = useAppSelector(({ audioFiles }) => audioFiles.status);
   const error = useAppSelector(({ audioFiles }) => audioFiles.error);
 
-  const [state, localDispatch] = useAudioFileReducer();
-  const [menuOpened, { toggle: toggleMenu, close: closeMenu }] =
-    useDisclosure();
-  const [importFile, { open: openImportFile, close: closeImportFile }] =
-    useDisclosure(false);
+  const [menuOpened, { toggle: toggleMenu }] = useDisclosure();
+
+  // when a file is imported, update the data
+  const handleSubmit = useCallback(
+    async (item: AudioFile, contextModalID?: string) => {
+      try {
+        // confirm there's a title
+        if (!item?.title) {
+          // prompt the user to add a title
+          alert("Missing file title.");
+          return;
+        }
+
+        // confirm there's a file path
+        if (!item?.filePath) {
+          // prompt the user to select a valid file
+          throw new Error("Missing file");
+        }
+
+        // add it to the database
+        await dbAudioFiles.addItem(item);
+
+        // update redux
+        dispatch(fetchAudioFiles());
+
+        // if a context modal ID is provided, close the modal
+        if (contextModalID) {
+          modals.close(contextModalID);
+        }
+      } catch (err) {
+        console.error("Error adding new file", err);
+        alert("An error occurred when attempting to add a file");
+      }
+    },
+    [dispatch]
+  );
 
   // when the page mounts, update the data in redux
   const fetchAndSetData = useCallback(() => {
@@ -49,7 +78,6 @@ export default function Library() {
 
   const handleClickImportFile = useCallback(async () => {
     try {
-      openImportFile();
       // prompt the user for a file
       const file = await window.electron.dialog.showOpenDialog({
         title: "Import Audio File",
@@ -65,7 +93,6 @@ export default function Library() {
 
       // if the user canceled, close the modal
       if (file.canceled || file.filePaths.length <= 0) {
-        closeImportFile();
         return;
       }
 
@@ -89,11 +116,18 @@ export default function Library() {
       };
 
       // update the reducer
-      localDispatch({ type: "SET", payload: fileInitialState });
+      openAudioFileModal({
+        title: "Import Audio File",
+        props: {
+          filePath,
+          defaultValues: fileInitialState,
+          onConfirm: handleSubmit,
+        },
+      });
     } catch (err) {
       console.error("Error opening file", err);
     }
-  }, [closeImportFile, localDispatch, openImportFile]);
+  }, [handleSubmit]);
 
   const LINKS: LinksObject[] = [
     {
@@ -157,16 +191,6 @@ export default function Library() {
 
       <AppShell.Main>
         <AudioFilesTable data={audioFiles} status={status} error={error} />
-        <AddFileModal
-          opened={importFile}
-          onClose={() => {
-            closeImportFile();
-            closeMenu();
-          }}
-          onAddAnother={handleClickImportFile}
-          state={state}
-          dispatch={localDispatch}
-        />
       </AppShell.Main>
 
       <AppShell.Footer p="0"></AppShell.Footer>

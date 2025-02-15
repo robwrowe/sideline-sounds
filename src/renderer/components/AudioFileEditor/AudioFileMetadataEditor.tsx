@@ -9,6 +9,7 @@ import {
   AudioFileState,
 } from "../../hooks";
 import { ColorCombobox } from "../Combobox";
+import { AudioFile } from "../../../types";
 
 function RightSection({ onClick }: { onClick: () => void }) {
   const colorScheme = useColorScheme();
@@ -26,89 +27,78 @@ function RightSection({ onClick }: { onClick: () => void }) {
 }
 
 export type AddFileModalProps = {
-  state: AudioFileState;
-  dispatch: React.ActionDispatch<[action: AudioFileAction]>;
+  title: AudioFile["title"] | null;
+  setTitle: (val: AudioFile["title"] | null) => void;
+
+  artist: AudioFile["artist"] | null;
+  setArtist: (val: AudioFile["artist"] | null) => void;
+
+  album: AudioFile["album"] | null;
+  setAlbum: (val: AudioFile["album"] | null) => void;
+
+  year: AudioFile["year"] | null;
+  setYear: (val: AudioFile["year"] | null) => void;
+
+  color: AudioFile["color"] | null;
+  setColor: (val: AudioFile["color"] | null) => void;
 };
 
 export default function AudioFileMetadataEditor({
-  state,
-  dispatch,
+  title,
+  setTitle,
+  artist,
+  setArtist,
+  album,
+  setAlbum,
+  year,
+  setYear,
+  color,
+  setColor,
 }: AddFileModalProps) {
-  const handleChange = useCallback(
-    (
-      type: Exclude<
-        AudioFileActionHandler["type"],
-        "SET_SUBCLIPS" | "DELETE_SUBCLIP" | "UPDATE_SUBCLIP" | "ADD_SUBCLIP"
-      >,
-      value: string | null
-    ) => {
-      dispatch({ type, payload: value });
-    },
-    [dispatch]
-  );
-
   return (
     <Grid>
       <Grid.Col span={12}>
         <TextInput
           label="Title"
-          value={state.title ?? ""}
-          onChange={(evt) =>
-            handleChange("SET_TITLE", evt.currentTarget.value ?? null)
-          }
+          value={title ?? ""}
+          onChange={(evt) => setTitle(evt.currentTarget.value ?? null)}
           rightSection={
-            state.title && (
-              <RightSection onClick={() => handleChange("SET_TITLE", null)} />
-            )
+            title && <RightSection onClick={() => setTitle(null)} />
           }
         />
       </Grid.Col>
       <Grid.Col span={6}>
         <TextInput
           label="Artist"
-          value={state.artist ?? ""}
-          onChange={(evt) =>
-            handleChange("SET_ARTIST", evt.currentTarget.value ?? null)
-          }
+          value={artist ?? ""}
+          onChange={(evt) => setArtist(evt.currentTarget.value ?? null)}
           rightSection={
-            state.artist && (
-              <RightSection onClick={() => handleChange("SET_ARTIST", null)} />
-            )
+            artist && <RightSection onClick={() => setArtist(null)} />
           }
         />
       </Grid.Col>
       <Grid.Col span={6}>
         <TextInput
           label="Album"
-          value={state.album ?? ""}
-          onChange={(evt) =>
-            handleChange("SET_ALBUM", evt.currentTarget.value ?? null)
-          }
+          value={album ?? ""}
+          onChange={(evt) => setAlbum(evt.currentTarget.value ?? null)}
           rightSection={
-            state.album && (
-              <RightSection onClick={() => handleChange("SET_ALBUM", null)} />
-            )
+            album && <RightSection onClick={() => setAlbum(null)} />
           }
         />
       </Grid.Col>
       <Grid.Col span={6}>
         <TextInput
           label="Year"
-          value={state.year ?? ""}
-          onChange={(evt) =>
-            handleChange("SET_YEAR", evt.currentTarget.value ?? null)
-          }
-          rightSection={
-            state.year && (
-              <RightSection onClick={() => handleChange("SET_YEAR", null)} />
-            )
-          }
+          value={year ?? ""}
+          onChange={(evt) => setYear(evt.currentTarget.value ?? null)}
+          rightSection={year && <RightSection onClick={() => setYear(null)} />}
         />
       </Grid.Col>
       <Grid.Col span={6}>
         <ColorCombobox
-          value={state.color ?? ""}
-          setValue={(value) => handleChange("SET_COLOR", value ?? null)}
+          value={color ?? ""}
+          setValue={(value) => setColor(value ?? null)}
         />
       </Grid.Col>
     </Grid>

@@ -1,10 +1,8 @@
 .grid {
-  // border: 1px solid green;
-  // height: 100%;
-  // width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr;
   // spacing between grid items
   gap: var(--mantine-spacing-sm);
 }
+

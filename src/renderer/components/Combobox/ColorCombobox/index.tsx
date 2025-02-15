@@ -41,12 +41,9 @@ function getFilteredOptions(
     }
   }
 
-  console.log("result", result);
-
   const payload: Record<string, ColorItem[]> = {};
 
   for (const item of result) {
-    console.log("checking item", item);
     if (!payload?.[item.group]) {
       payload[item.group] = [];
     }

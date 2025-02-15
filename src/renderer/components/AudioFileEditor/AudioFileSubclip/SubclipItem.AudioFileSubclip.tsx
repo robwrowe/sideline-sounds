@@ -3,7 +3,6 @@ import { Accordion, Button, Grid, TextInput, Stack } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
 
 import { Subclip } from "../../../../types";
-import { AudioFileAction } from "../../../hooks";
 import { formatSecondsToTime } from "../../../../utils";
 
 import { InOutPointLabel } from "../../InOutPoint";
@@ -13,10 +12,10 @@ import { ColorCombobox } from "../../Combobox";
 
 type SubclipItemProps = {
   item: Subclip;
-  dispatch: React.ActionDispatch<[action: AudioFileAction]>;
+  onChange: (value: Subclip, deleteSubclip?: boolean) => void;
 };
 
-export default function SubclipItem({ item, dispatch }: SubclipItemProps) {
+export default function SubclipItem({ item, onChange }: SubclipItemProps) {
   const { id, name, inPoint, outPoint, color } = item;
   const [opened, { toggle }] = useDisclosure();
 
@@ -32,41 +31,25 @@ export default function SubclipItem({ item, dispatch }: SubclipItemProps) {
 
   const handleChangeName = useCallback(
     (value: string) => {
-      dispatch({
-        type: "UPDATE_SUBCLIP",
-        id,
-        payload: { ...item, name: value },
-      });
+      onChange({ ...item, name: value });
     },
-    [dispatch, id, item]
+    [onChange, item]
   );
 
   const handleChangeColor = useCallback(
     (value: string | null) => {
-      dispatch({
-        type: "UPDATE_SUBCLIP",
-        id,
-        payload: { ...item, color: value ?? null },
-      });
+      onChange({ ...item, color: value ?? null });
     },
-    [dispatch, id, item]
+    [onChange, item]
   );
 
   const handleClearInPoint = useCallback(() => {
-    dispatch({
-      type: "UPDATE_SUBCLIP",
-      id,
-      payload: { ...item, inPoint: null },
-    });
-  }, [dispatch, id, item]);
+    onChange({ ...item, inPoint: null });
+  }, [onChange, item]);
 
   const handleClearOutPoint = useCallback(() => {
-    dispatch({
-      type: "UPDATE_SUBCLIP",
-      id,
-      payload: { ...item, outPoint: null },
-    });
-  }, [dispatch, id, item]);
+    onChange({ ...item, outPoint: null });
+  }, [onChange, item]);
 
   return (
     <>
@@ -119,7 +102,7 @@ export default function SubclipItem({ item, dispatch }: SubclipItemProps) {
       <DeleteSubclipModal
         opened={opened}
         onClose={toggle}
-        onClickDelete={() => dispatch({ type: "DELETE_SUBCLIP", payload: id })}
+        onClickDelete={() => onChange(item, true)}
         name={name}
       />
     </>

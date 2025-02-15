@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import classNames from "classnames";
-import { Box, Group, Image, Progress, Stack, Text } from "@mantine/core";
-import { IconMusic, IconMusicOff } from "@tabler/icons-react";
+import { Box, Image, Progress, Text } from "@mantine/core";
+import { IconMusic } from "@tabler/icons-react";
 import styles from "./SongStatus.module.scss";
 
 import { useAudioEngineContext, useDarkModeClassNames } from "../../hooks";
 import { formatSecondsToTime } from "../../../utils";
 
+// TODO: add color support
 export default function SongStatus() {
   const darkModeStyles = useDarkModeClassNames(styles);
   const { currentMetadata, currentDuration, currentElapsed, currentRemaining } =

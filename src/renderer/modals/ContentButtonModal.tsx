@@ -115,7 +115,7 @@ export default function ContentButtonModal({
         >
           {cancel}
         </Button>
-        <Button onClick={handleSubmit}>{confirm}</Button>
+        {onConfirm && <Button onClick={handleSubmit}>{confirm}</Button>}
       </Group>
     </Stack>
   );

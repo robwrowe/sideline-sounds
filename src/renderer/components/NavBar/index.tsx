@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useDisclosure } from "@mantine/hooks";
 import { Box, Burger, Title, Tooltip, UnstyledButton } from "@mantine/core";
@@ -55,9 +55,15 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
   const pagesData = useAppSelector(({ pages }) => pages.pages);
   const pagesStatus = useAppSelector(({ pages }) => pages.status);
   const activePageID = useAppSelector(({ pages }) => pages.activePageID);
+  const activePage = useMemo(
+    () =>
+      activePageID && pagesData
+        ? pagesData.find((item) => item.id === activePageID)
+        : null,
+    [activePageID, pagesData]
+  );
 
   const [pages, setPages] = useState<PageState[]>([]);
-  const [activePageLabel, setActivePageLabel] = useState("");
 
   // get the latest pages in redux
   const handleFetchPages = useCallback(() => {
@@ -140,8 +146,7 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
 
   // on click handlers
   const handleClickPage = useCallback(
-    (id: string, label: string) => {
-      setActivePageLabel(label);
+    (id: string) => {
       // see if there's a bank previously selected
       const prevSelectedBankID = localStorage.getItem(
         `bank-selection:show:${showID}:page:${id}`
@@ -187,11 +192,11 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
               {/* show user defined pages */}
               {pages.map(({ icon, label, id }) => (
                 <PageButton
-                  key={label}
+                  key={id}
                   label={label}
                   icon={icon}
-                  onClick={() => handleClickPage(id, label)}
-                  isActive={label === activePageLabel || undefined}
+                  onClick={() => handleClickPage(id)}
+                  isActive={id === activePage?.id || undefined}
                 />
               ))}
               {/* add new page */}
@@ -220,7 +225,7 @@ export default function Navbar({ burgerOpened, onBurgerClick }: NavBarProps) {
           </div>
           <div className={styles.main}>
             <Title order={4} className={styles.title}>
-              {activePageLabel}
+              {activePage?.name || "Pick a Page"}
             </Title>
             <div className={styles.linksContainer}>
               {banks.map((item) => (

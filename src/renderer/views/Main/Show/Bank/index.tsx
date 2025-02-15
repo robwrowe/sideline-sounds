@@ -167,7 +167,7 @@ export default function ShowBank() {
       // [ ] Edit hot key
       const contextMenu: ContextMenuItem[] = [
         {
-          label: "Assign Content",
+          label: "Assign Button",
           onClick: () =>
             openContentButtonModal({
               title: "Add Content Button",
@@ -178,7 +178,7 @@ export default function ShowBank() {
             }),
         },
         {
-          label: "Edit Content",
+          label: "Edit Button",
           disabled: !btn,
           onClick: () =>
             openContentButtonModal({
@@ -201,7 +201,7 @@ export default function ShowBank() {
             }),
         },
         {
-          label: "Delete Content",
+          label: "Delete Button",
           onClick: () =>
             openContentButtonDeleteModal({
               title: "Remove Content Button",
@@ -209,6 +209,11 @@ export default function ShowBank() {
                 onConfirm: () => handleClickDelete(i),
               },
             }),
+        },
+        { type: "divider" },
+        {
+          label: "Edit Content",
+          onClick: () => console.log("clicked edit content"),
         },
       ];
 
@@ -233,18 +238,6 @@ export default function ShowBank() {
                 contextMenu={contextMenu}
                 onClick={() => handleClick(file)}
                 color={btn?.color ?? undefined}
-                state={
-                  i === 0
-                    ? SongState.CUED
-                    : i === 4
-                      ? SongState.PLAYING
-                      : i === 8
-                        ? SongState.PLAYED
-                        : i === 12
-                          ? SongState.SUBCLIP_PLAYED
-                          : null
-                }
-                artistHasBeenPlayed={i === 5}
                 size={cardSize}
               />
             );

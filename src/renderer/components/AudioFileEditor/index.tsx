@@ -47,9 +47,20 @@ export default function AudioFileEditor({
   disableOutMarker = false,
 }: SubclipEditorProps) {
   // audio file
-  const { title, artist, album, filePath } = file;
+  const { title, artist, album, filePath, color, subclips } = file;
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [loadingAudio, setLoadingAudio] = useState(false);
+  const cardColor = useMemo(() => {
+    if (activeSubclip) {
+      const item = subclips.find((clip) => clip.id === activeSubclip);
+
+      if (item?.color) {
+        return item.color;
+      }
+    }
+
+    return color;
+  }, [activeSubclip, color, subclips]);
 
   // waveform metadata
   const [playheadPosition, setPlayheadPosition] = useState(0);
@@ -199,6 +210,7 @@ export default function AudioFileEditor({
         {/* song info */}
         <SongCard
           title={title}
+          size="sm"
           artist={
             artist && album
               ? `${artist} | ${album}`
@@ -215,6 +227,7 @@ export default function AudioFileEditor({
                 ? formatSecondsToTime(duration)
                 : undefined
           }
+          color={cardColor ?? undefined}
         />
         {/* waveform */}
         <Waveform

@@ -96,6 +96,7 @@ export type SongCardProps = {
   detailsSize?: MantineFontSize;
 };
 
+// TODO: if displaying a subclip, have the name be in the title
 // TODO: add style for "active"
 // TODO: add style for "previously played"
 // TODO: add style for "artist previously played"
