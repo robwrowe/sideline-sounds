@@ -1,14 +1,14 @@
 import React, { useCallback } from "react";
 import { useColorScheme } from "@mantine/hooks";
-import { ActionIcon, ColorInput, Grid, TextInput } from "@mantine/core";
+import { ActionIcon, Grid, TextInput } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 
-import { SWATCHES } from "../../../constants";
 import {
   AudioFileActionHandler,
   AudioFileAction,
   AudioFileState,
 } from "../../hooks";
+import { ColorCombobox } from "../Combobox";
 
 function RightSection({ onClick }: { onClick: () => void }) {
   const colorScheme = useColorScheme();
@@ -106,19 +106,9 @@ export default function AudioFileMetadataEditor({
         />
       </Grid.Col>
       <Grid.Col span={6}>
-        <ColorInput
-          label="Color"
+        <ColorCombobox
           value={state.color ?? ""}
-          onChange={(value) => handleChange("SET_COLOR", value ?? null)}
-          rightSection={
-            state.color && (
-              <RightSection onClick={() => handleChange("SET_COLOR", null)} />
-            )
-          }
-          swatches={SWATCHES}
-          withPicker={false}
-          withEyeDropper={false}
-          closeOnColorSwatchClick={true}
+          setValue={(value) => handleChange("SET_COLOR", value ?? null)}
         />
       </Grid.Col>
     </Grid>

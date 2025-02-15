@@ -1,6 +1,6 @@
 import React from "react";
 import { useDisclosure } from "@mantine/hooks";
-import { ActionIcon, Menu, Title } from "@mantine/core";
+import { ActionIcon, Menu } from "@mantine/core";
 import { IconAdjustmentsCog } from "@tabler/icons-react";
 import styles from "./index.module.scss";
 
@@ -15,7 +15,7 @@ export default function Footer() {
           <Menu.Target>
             <ActionIcon
               className={styles.icon}
-              size="sm"
+              size="xs"
               variant="transparent"
               c="gray"
             >

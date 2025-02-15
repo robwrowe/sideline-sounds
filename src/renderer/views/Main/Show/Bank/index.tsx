@@ -15,6 +15,7 @@ import {
   ButtonActionType,
   ContextMenuItem,
   ShowParams,
+  SongState,
 } from "../../../../../types";
 import {
   formatArtist,
@@ -26,6 +27,7 @@ import { dbContentButtons } from "../../../../repos";
 
 import openContentButtonModal from "./ContentModal";
 import openContentButtonDeleteModal from "./ContentModalDelete";
+import { SongCardSize } from "../../../../components/SongCard";
 
 export default function ShowBank() {
   const { bankID, showID, pageID } = useParams<ShowParams>();
@@ -50,6 +52,8 @@ export default function ShowBank() {
 
   const numOfRows = bank?.numOfRows || 7;
   const numOfCols = bank?.numOfCols || 4;
+  const cardSize: SongCardSize =
+    numOfRows > 8 ? "sm" : numOfRows > 6 ? "md" : "lg";
 
   useEffect(() => {
     if (bankID) {
@@ -174,6 +178,29 @@ export default function ShowBank() {
             }),
         },
         {
+          label: "Edit Content",
+          disabled: !btn,
+          onClick: () =>
+            openContentButtonModal({
+              title: "Edit Content Button",
+              props: {
+                onConfirm: (val) => handleClickAssign(val, i),
+                labels: { confirm: "Save Changes" },
+                defaultValues: {
+                  color: btn?.color,
+                  contentID:
+                    btn?.type === ButtonActionType.FILE && btn?.contentID
+                      ? btn.contentID
+                      : undefined,
+                  subclipID:
+                    btn?.type === ButtonActionType.FILE && btn?.subclipID
+                      ? btn.subclipID
+                      : undefined,
+                },
+              },
+            }),
+        },
+        {
           label: "Delete Content",
           onClick: () =>
             openContentButtonDeleteModal({
@@ -205,6 +232,20 @@ export default function ShowBank() {
                 }
                 contextMenu={contextMenu}
                 onClick={() => handleClick(file)}
+                color={btn?.color ?? undefined}
+                state={
+                  i === 0
+                    ? SongState.CUED
+                    : i === 4
+                      ? SongState.PLAYING
+                      : i === 8
+                        ? SongState.PLAYED
+                        : i === 12
+                          ? SongState.SUBCLIP_PLAYED
+                          : null
+                }
+                artistHasBeenPlayed={i === 5}
+                size={cardSize}
               />
             );
             continue;
@@ -213,7 +254,11 @@ export default function ShowBank() {
       }
 
       result.push(
-        <SongCard key={`song-card-${i}`} contextMenu={contextMenu} />
+        <SongCard
+          key={`song-card-${i}`}
+          contextMenu={contextMenu}
+          size={cardSize}
+        />
       );
     }
 
@@ -221,6 +266,7 @@ export default function ShowBank() {
   }, [
     audioFiles,
     buttons,
+    cardSize,
     handleClick,
     handleClickAssign,
     handleClickDelete,

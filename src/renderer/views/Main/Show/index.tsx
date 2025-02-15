@@ -68,9 +68,10 @@ export default function Show() {
     <AppShell
       layout="alt"
       header={{ height: 88 }}
-      footer={{ height: 32 }}
+      footer={{ height: 24 }}
       navbar={{ width: 300, breakpoint: "md", collapsed: { mobile: !opened } }}
       padding="md"
+      style={{ display: "flex", height: "100vh", width: "100vw" }}
     >
       <AppShell.Header>
         <Group h="100%" px="xs">
@@ -82,11 +83,13 @@ export default function Show() {
           <NavBar burgerOpened={opened} onBurgerClick={toggle} />
         </Group>
       </AppShell.Navbar>
-      <AppShell.Main>
-        <Routes>
-          <Route path="page/:pageID/*" element={<ShowPages />} />
-          {/* TODO: add placeholder if no page selected */}
-        </Routes>
+      <AppShell.Main style={{ display: "flex", flexGrow: 1 }}>
+        <div style={{ flexGrow: 1, height: "100%", width: "100%" }}>
+          <Routes>
+            <Route path="page/:pageID/*" element={<ShowPages />} />
+            {/* TODO: add placeholder if no page selected */}
+          </Routes>
+        </div>
       </AppShell.Main>
       <AppShell.Footer p="0">
         <Footer />

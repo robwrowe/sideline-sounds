@@ -10,6 +10,7 @@ export default function ContextMenuButton({
   onClick,
   Icon,
   hasIconPlaceholder = true,
+  disabled,
 }: ContextMenuButton) {
   const { colorScheme } = useMantineColorScheme();
 
@@ -28,6 +29,7 @@ export default function ContextMenuButton({
           <Box w={14} />
         ) : undefined
       }
+      disabled={disabled}
     >
       <Text className={styles.text} size="sm">
         {label}

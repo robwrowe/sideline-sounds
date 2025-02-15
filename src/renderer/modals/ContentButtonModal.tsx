@@ -1,21 +1,18 @@
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Button,
-  CloseButton,
-  ColorInput,
-  Group,
-  InputWrapper,
-  Stack,
-} from "@mantine/core";
+import { Button, Group, InputWrapper, Stack } from "@mantine/core";
 import { ContextModalProps } from "@mantine/modals";
 
 import {
   AudioFilesCombobox,
   AppFloatingIndicator,
   SubclipCombobox,
+  ColorCombobox,
 } from "../components";
-import { ButtonActionType } from "../../types";
-import { SWATCHES } from "../../constants";
+import {
+  ButtonActionType,
+  ContentButton,
+  ContentButtonFile,
+} from "../../types";
 
 const BUTTON_TYPE_OPTIONS = [
   {
@@ -45,6 +42,8 @@ export type ContentButtonModalProps = {
   };
   onCancel?: () => void;
   onConfirm?: (args: ContentButtonModalConfirmArgs) => void;
+  defaultValues?: Pick<Partial<ContentButtonFile>, "contentID" | "subclipID"> &
+    Pick<Partial<ContentButton>, "color">;
 };
 
 // TODO: add ability to preview track
@@ -54,12 +53,17 @@ export default function ContentButtonModal({
   id,
   innerProps = {},
 }: ContextModalProps<ContentButtonModalProps>) {
-  const { labels = {}, onConfirm, onCancel } = innerProps;
+  const { labels = {}, onConfirm, onCancel, defaultValues = {} } = innerProps;
   const { confirm = "Confirm", cancel = "Cancel" } = labels;
+  const {
+    color: defaultColor = null,
+    contentID = null,
+    subclipID = null,
+  } = defaultValues;
 
-  const [valueFile, setValueFile] = useState<string | null>(null);
-  const [valueSubclip, setValueSubclip] = useState<string | null>(null);
-  const [color, setColor] = useState<string | null>(null);
+  const [valueFile, setValueFile] = useState<string | null>(contentID);
+  const [valueSubclip, setValueSubclip] = useState<string | null>(subclipID);
+  const [color, setColor] = useState<string | null>(defaultColor);
 
   const [activeButtonType, setActiveButtonType] = useState(0);
   const activeButtonValue = useMemo(
@@ -98,25 +102,9 @@ export default function ContentButtonModal({
             setValue={setValueSubclip}
             selectedAudioFileID={valueFile}
           />
-          {/* TODO: replace this with a shared/reusable component */}
-          {/* TODO: use name of color, not hex value */}
-          <ColorInput
-            label="Color"
+          <ColorCombobox
             value={color ?? ""}
-            onChange={(value) => setColor(value ?? null)}
-            rightSection={
-              color && (
-                <CloseButton
-                  size="sm"
-                  onMouseDown={(evt: React.MouseEvent) => evt.preventDefault()}
-                  onClick={() => setColor(null)}
-                />
-              )
-            }
-            swatches={SWATCHES}
-            withPicker={false}
-            withEyeDropper={false}
-            closeOnColorSwatchClick={true}
+            setValue={(value) => setColor(value ?? null)}
           />
         </>
       )}

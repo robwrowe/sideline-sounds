@@ -1,25 +1,15 @@
 import React, { useCallback, useMemo } from "react";
-import {
-  Accordion,
-  Button,
-  Grid,
-  TextInput,
-  ColorInput,
-  Stack,
-  ActionIcon,
-  useMantineColorScheme,
-  Modal,
-} from "@mantine/core";
-import { IconTrash, IconX } from "@tabler/icons-react";
+import { Accordion, Button, Grid, TextInput, Stack } from "@mantine/core";
+import { IconTrash } from "@tabler/icons-react";
 
 import { Subclip } from "../../../../types";
 import { AudioFileAction } from "../../../hooks";
-import { SWATCHES } from "../../../../constants";
 import { formatSecondsToTime } from "../../../../utils";
 
 import { InOutPointLabel } from "../../InOutPoint";
 import { useDisclosure } from "@mantine/hooks";
 import DeleteSubclipModal from "./DeleteSubclipModal.AudioFileSubclip";
+import { ColorCombobox } from "../../Combobox";
 
 type SubclipItemProps = {
   item: Subclip;
@@ -28,7 +18,6 @@ type SubclipItemProps = {
 
 export default function SubclipItem({ item, dispatch }: SubclipItemProps) {
   const { id, name, inPoint, outPoint, color } = item;
-  const { colorScheme } = useMantineColorScheme();
   const [opened, { toggle }] = useDisclosure();
 
   const inPointValue = useMemo(
@@ -87,46 +76,28 @@ export default function SubclipItem({ item, dispatch }: SubclipItemProps) {
         <Accordion.Panel>
           <Stack>
             <Grid>
-              <Grid.Col span={9}>
+              <Grid.Col span={8}>
                 <TextInput
                   label="Name"
                   value={name ?? ""}
                   onChange={(evt) => handleChangeName(evt.target.value)}
                 />
               </Grid.Col>
-              <Grid.Col span={3}>
-                <ColorInput
-                  label="Color"
+              <Grid.Col span={4}>
+                <ColorCombobox
                   value={color ?? ""}
-                  onChange={handleChangeColor}
-                  swatches={SWATCHES}
-                  withPicker={false}
-                  withEyeDropper={false}
-                  closeOnColorSwatchClick={true}
-                  rightSection={
-                    color && (
-                      <ActionIcon
-                        size="input-sm"
-                        variant="transparent"
-                        color={colorScheme === "light" ? "black" : "gray"}
-                        onClick={() => handleChangeColor(null)}
-                        tabIndex={-1}
-                      >
-                        <IconX size={16} />
-                      </ActionIcon>
-                    )
-                  }
+                  setValue={handleChangeColor}
                 />
               </Grid.Col>
-              <Grid.Col span={3}>
+              <Grid.Col span={4}>
                 <InOutPointLabel
                   label="In Point"
                   value={inPointValue}
                   onClickClear={handleClearInPoint}
                 />
               </Grid.Col>
-              <Grid.Col span={6} />
-              <Grid.Col span={3}>
+              <Grid.Col span={4} />
+              <Grid.Col span={4}>
                 <InOutPointLabel
                   label="Out Point"
                   value={outPointValue}

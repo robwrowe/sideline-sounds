@@ -1,12 +1,32 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import classNames from "classnames";
-import { IconMusic } from "@tabler/icons-react";
-import { Box, Card, Image, Text, ImageProps } from "@mantine/core";
+import {
+  IconCircleCheckFilled,
+  IconCircleDashedCheck,
+  IconMusic,
+  IconPlayerPlayFilled,
+  IconPlayerSkipForwardFilled,
+  IconProgressCheck,
+} from "@tabler/icons-react";
+import {
+  Box,
+  Card,
+  Image,
+  Text,
+  ImageProps,
+  useMantineTheme,
+  MantineFontSize,
+  Tooltip,
+  rgba,
+} from "@mantine/core";
 import styles from "./index.module.scss";
 
-import { ContextMenuItem } from "../../../types";
+import { ContextMenuItem, SongState } from "../../../types";
+import { useSongCardColorResolver } from "../../hooks";
 
 import ContextMenu, { ContextMenuProps } from "../ContextMenu";
+
+export type SongCardSize = "sm" | "md" | "lg" | undefined;
 
 export type SongCardProps = {
   /**
@@ -44,6 +64,36 @@ export type SongCardProps = {
    * Options to present if the user right-clicks on the card
    */
   contextMenu?: ContextMenuItem[];
+
+  /**
+   * Allows the user to set a custom color.
+   */
+  color?: string;
+
+  /**
+   * Allows the button to be colored based on playback state
+   */
+  state?: SongState | null;
+
+  /**
+   * When true, this artist has been played, but not this track
+   */
+  artistHasBeenPlayed?: boolean;
+
+  /**
+   * The size of the card
+   */
+  size?: SongCardSize;
+
+  /**
+   * The size of the font for the title
+   */
+  titleSize?: MantineFontSize;
+
+  /**
+   * The size of the font for the details (e.g. artist, duration)
+   */
+  detailsSize?: MantineFontSize;
 };
 
 // TODO: add style for "active"
@@ -57,7 +107,14 @@ export default function SongCard({
   onClick,
   onDoubleClick,
   contextMenu,
+  color,
+  state,
+  artistHasBeenPlayed,
+  size,
+  titleSize = size ?? "sm",
+  detailsSize = "xs",
 }: SongCardProps) {
+  const theme = useMantineTheme();
   const [menu, setMenu] = useState<Pick<ContextMenuProps, "x" | "y"> | null>(
     null
   );
@@ -113,6 +170,60 @@ export default function SongCard({
     setLastInteraction(null);
   }, []);
 
+  // extract the color if provided
+  const { style, setIsHovered, parsedColor, resolvedColors } =
+    useSongCardColorResolver({
+      color,
+      state,
+    });
+
+  const handleSetHover = useCallback(
+    (value: boolean) => {
+      if (title) {
+        setIsHovered(value);
+      } else {
+        setIsHovered(false);
+      }
+    },
+    [setIsHovered, title]
+  );
+
+  // determine the height of the card
+  const cardHeight = useMemo(() => {
+    const borderSize =
+      (state && state !== SongState.SUBCLIP_PLAYED ? 1 : 4) * theme.scale;
+
+    switch (size) {
+      case "lg":
+        return 176 - borderSize;
+
+      case "md":
+        return 128 - borderSize;
+
+      case "sm":
+        return 96 - borderSize;
+
+      default:
+        return undefined;
+    }
+  }, [size, state, theme.scale]);
+
+  const iconSize = useMemo(() => {
+    switch (size) {
+      case "lg":
+        return 24;
+
+      case "md":
+        return 20;
+
+      case "sm":
+        return 16;
+
+      default:
+        return undefined;
+    }
+  }, [size]);
+
   return (
     <>
       <Card
@@ -126,31 +237,130 @@ export default function SongCard({
         //
         onContextMenu={handleContextMenu}
         onClick={handleClick}
+        onMouseEnter={() => handleSetHover(true)}
+        onMouseLeave={() => handleSetHover(false)}
         ref={menuRef}
+        style={style}
+        h={cardHeight}
       >
         <div className={styles.container}>
-          <div className={styles.imgContainer}>
-            {image ? (
-              <Image
-                src={image}
-                alt={`${title} album cover`}
-                radius="sm"
-                h={80}
-                w={80}
-              />
-            ) : (
-              <Box className={styles.imagePlaceholder} h={80} w={80}>
-                <IconMusic size={40} color="gray" />
-              </Box>
-            )}
-          </div>
+          {image && (
+            <div className={styles.imgContainer}>
+              {image ? (
+                <Image
+                  src={image}
+                  alt={`${title} album cover`}
+                  radius="sm"
+                  h={80}
+                  w={80}
+                />
+              ) : (
+                <Box className={styles.imagePlaceholder} h={80} w={80}>
+                  <IconMusic size={40} color="gray" />
+                </Box>
+              )}
+            </div>
+          )}
           <div className={styles.infoContainer}>
-            <Text fz="0.8rem" fw="bold">
+            <Text
+              style={{
+                color: style?.color,
+                fontWeight: style?.fontWeight,
+                fontStyle: style?.fontStyle,
+              }}
+              fz={titleSize}
+              fw="bold"
+            >
               {title}
             </Text>
-            {artist && <Text fz="0.8rem">{artist}</Text>}
-            {duration && <Text fz="0.8rem">{duration}</Text>}
+            {artist && (
+              <Text
+                style={{
+                  color: style?.color,
+                  fontWeight: style?.fontWeight,
+                  fontStyle: style?.fontStyle,
+                }}
+                fz={detailsSize}
+              >
+                {artist}
+              </Text>
+            )}
+            {duration && (
+              <Text
+                style={{
+                  color: style?.color,
+                  fontWeight: style?.fontWeight,
+                  fontStyle: style?.fontStyle,
+                }}
+                fz={detailsSize}
+              >
+                {duration}
+              </Text>
+            )}
           </div>
+          {(state || artistHasBeenPlayed) && (
+            <div className={styles.iconWrapper}>
+              {artistHasBeenPlayed && (
+                <Tooltip
+                  openDelay={200}
+                  label={
+                    artist
+                      ? `A track by ${artist} has been played, but not this track`
+                      : "A track by this artist has been played, but not this track"
+                  }
+                >
+                  <IconCircleDashedCheck
+                    size={iconSize}
+                    color={parsedColor.value}
+                  />
+                </Tooltip>
+              )}
+              {state === SongState.CUED && (
+                <Tooltip
+                  openDelay={200}
+                  label={`"${title}" is cued to play next`}
+                >
+                  <IconPlayerSkipForwardFilled
+                    size={iconSize}
+                    color={parsedColor.value}
+                  />
+                </Tooltip>
+              )}
+              {state === SongState.PLAYING && (
+                <Tooltip
+                  openDelay={200}
+                  label={`"${title}" is currently playing`}
+                >
+                  <IconPlayerPlayFilled
+                    size={iconSize}
+                    color={parsedColor.value}
+                  />
+                </Tooltip>
+              )}
+              {state === SongState.PLAYED && (
+                <Tooltip
+                  openDelay={200}
+                  label={`"${title}" has been previously played`}
+                >
+                  <IconCircleCheckFilled
+                    size={iconSize}
+                    color={parsedColor.value}
+                  />
+                </Tooltip>
+              )}
+              {state === SongState.SUBCLIP_PLAYED && (
+                <Tooltip
+                  openDelay={200}
+                  label={`A related subclip has been played, but not this specific one`}
+                >
+                  <IconProgressCheck
+                    size={iconSize}
+                    color={rgba(resolvedColors.color, 0.5)}
+                  />
+                </Tooltip>
+              )}
+            </div>
+          )}
         </div>
       </Card>
       {menu && contextMenu && (

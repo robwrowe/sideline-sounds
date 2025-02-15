@@ -53,7 +53,7 @@ export default function Library() {
       // prompt the user for a file
       const file = await window.electron.dialog.showOpenDialog({
         title: "Import Audio File",
-        buttonLabel: "import",
+        buttonLabel: "Import",
         filters: [
           {
             name: "Audio",

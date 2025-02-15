@@ -1,3 +1,25 @@
+export enum SongState {
+  /**
+   * This file will be the next one to play
+   */
+  CUED = "cued",
+
+  /**
+   * This file is actively being played
+   */
+  PLAYING = "playing",
+
+  /**
+   * This file has been played before
+   */
+  PLAYED = "played",
+
+  /**
+   * A subclip of this track has been played
+   */
+  SUBCLIP_PLAYED = "subclip_played",
+}
+
 export enum ButtonActionType {
   /**
    * The button will play a clip or sub-clip
@@ -15,7 +37,7 @@ export enum ButtonActionType {
   LOOP = "loop",
 }
 
-type ContentButtonFile = {
+export type ContentButtonFile = {
   /**
    * The type of button this is
    */
@@ -32,7 +54,7 @@ type ContentButtonFile = {
   subclipID: string | null;
 };
 
-type ContentButtonPlaylist = {
+export type ContentButtonPlaylist = {
   /**
    * The type of button this is
    */
@@ -44,7 +66,7 @@ type ContentButtonPlaylist = {
   playlistID: string;
 };
 
-type ContentButtonLoop = {
+export type ContentButtonLoop = {
   /**
    * The type of button this is
    */

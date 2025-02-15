@@ -3,6 +3,7 @@ import useAppSelector from "./useAppSelector";
 import useAudioEngineContext from "./useAudioEngineContext";
 import useAudioFileReducer from "./useAudioFileReducer";
 import useDarkModeClassNames from "./useDarkModeClassNames.hook";
+import useSongCardColorResolver from "./useSongCardColorResolver";
 
 export * from "./useAudioFileReducer";
 
@@ -12,4 +13,5 @@ export {
   useAudioEngineContext,
   useAudioFileReducer,
   useDarkModeClassNames,
+  useSongCardColorResolver,
 };

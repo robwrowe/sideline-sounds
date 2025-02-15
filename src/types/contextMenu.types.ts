@@ -30,6 +30,11 @@ export type ContextMenuButton = {
    * Default is `true`.
    */
   hasIconPlaceholder?: boolean;
+
+  /**
+   * When true, gray out the option
+   */
+  disabled?: boolean;
 };
 
 export type ContextMenuDivider = {
