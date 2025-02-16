@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { AppShell, Burger, Group, Title, UnstyledButton } from "@mantine/core";
 import { modals } from "@mantine/modals";
@@ -19,6 +19,9 @@ type LinksObject = {
   label: string;
   onClick: () => void;
 };
+
+const HEADER_HEIGHT = 60;
+const FOOTER_HEIGHT = 32;
 
 // TODO: check if file still exists on disk
 
@@ -146,8 +149,8 @@ export default function Library() {
 
   return (
     <AppShell
-      header={{ height: 60 }}
-      footer={{ height: 32 }}
+      header={{ height: HEADER_HEIGHT }}
+      footer={{ height: FOOTER_HEIGHT }}
       navbar={{
         width: 300,
         breakpoint: "sm",
@@ -192,7 +195,13 @@ export default function Library() {
         ))}
       </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+        }}
+      >
         <AudioFilesTable data={audioFiles} status={status} error={error} />
       </AppShell.Main>
 

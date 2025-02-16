@@ -22,18 +22,14 @@ const createLibraryWindow = (): void => {
         autoplayPolicy: "no-user-gesture-required",
       },
       show: !app.isPackaged,
-      title: `${app.name} - Content Library`,
     });
 
     // and load the index.html of the app.
     libraryWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-    // Open the DevTools.
-    if (!app.isPackaged) {
-      libraryWindow.webContents.openDevTools();
-    }
-
     libraryWindow.on("ready-to-show", () => {
+      libraryWindow?.setTitle(`${app.name} - Content Library`);
+
       if (app.isPackaged) {
         libraryWindow?.show();
       }

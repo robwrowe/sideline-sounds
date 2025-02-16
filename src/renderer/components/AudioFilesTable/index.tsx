@@ -16,6 +16,7 @@ import {
   Text,
   TextInput,
   useComputedColorScheme,
+  Pagination,
 } from "@mantine/core";
 import styles from "./index.module.scss";
 
@@ -83,6 +84,7 @@ export type AudioFilesTableProps = Partial<BaseInitialStateThunk> & {
   data: AudioData[];
   hideActions?: boolean;
   hideCheckbox?: boolean;
+  itemsPerPage?: number;
 };
 
 export default function AudioFilesTable({
@@ -91,6 +93,7 @@ export default function AudioFilesTable({
   error,
   hideActions = false,
   hideCheckbox = false,
+  itemsPerPage = 20,
 }: AudioFilesTableProps) {
   const colorScheme = useComputedColorScheme();
   const { audioEngine } = useAudioEngineContext();
@@ -100,6 +103,7 @@ export default function AudioFilesTable({
   const [sortBy, setSortBy] = useState<SortKeys | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
   const lastEscapePress = useRef<number | null>(null);
+  const [activePage, setActivePage] = useState(1);
 
   useEffect(() => {
     setSortedData(data);
@@ -110,6 +114,9 @@ export default function AudioFilesTable({
     setReverseSortDirection(reversed);
     setSortBy(field);
     setSortedData(sortData(data, { sortBy: field, reversed, search }));
+
+    // reset to first page on new search
+    setActivePage(1);
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,6 +125,9 @@ export default function AudioFilesTable({
     setSortedData(
       sortData(data, { sortBy, reversed: reverseSortDirection, search: value })
     );
+
+    // reset to first page on new search
+    setActivePage(1);
   };
 
   const handleSearchKeyDown = useCallback(
@@ -164,7 +174,14 @@ export default function AudioFilesTable({
     [audioEngine]
   );
 
-  const rows = sortedData.map((row) => (
+  // pagination logic
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
+  const paginatedData = sortedData.slice(
+    (activePage - 1) * itemsPerPage,
+    activePage * itemsPerPage
+  );
+
+  const rows = paginatedData.map((row) => (
     <Table.Tr key={row.id}>
       {!hideCheckbox && (
         <Table.Td>
@@ -210,7 +227,8 @@ export default function AudioFilesTable({
   ));
 
   return (
-    <ScrollArea>
+    <Flex direction="column" style={{ height: "100%" }}>
+      {/* Header */}
       <TextInput
         placeholder="Search by any field"
         mb="md"
@@ -219,67 +237,80 @@ export default function AudioFilesTable({
         onChange={handleSearchChange}
         onKeyDown={handleSearchKeyDown}
       />
-      <Table
-        horizontalSpacing="md"
-        verticalSpacing="xs"
-        miw={700}
-        layout="fixed"
-      >
-        <Table.Tbody>
-          <Table.Tr>
-            {!hideCheckbox && (
-              <Table.Th w={40}>
-                <Checkbox />
-              </Table.Th>
-            )}
-            <TableTh
-              sorted={sortBy === "title"}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting("title")}
-            >
-              Title
-            </TableTh>
-            <TableTh
-              sorted={sortBy === "artist"}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting("artist")}
-            >
-              Artist
-            </TableTh>
-            <TableTh
-              sorted={sortBy === "album"}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting("album")}
-            >
-              Album
-            </TableTh>
-            <Table.Th w={hideActions ? 96 : 176}>Duration</Table.Th>
-          </Table.Tr>
-        </Table.Tbody>
-        <Table.Tbody>
-          {rows.length > 0 ? (
-            rows
-          ) : (
+
+      {/* Scrollable Content Area */}
+      <ScrollArea w="100%" style={{ flexGrow: 1 }}>
+        <Table
+          horizontalSpacing="md"
+          verticalSpacing="xs"
+          miw={700}
+          layout="fixed"
+        >
+          <Table.Tbody>
             <Table.Tr>
-              <Table.Td colSpan={5}>
-                {status === ThunkStatus.SUCCEEDED ? (
-                  <Text fw={500} ta="center">
-                    Nothing found
-                  </Text>
-                ) : status === ThunkStatus.FAILED ? (
-                  <Text fw={500} ta="center">
-                    {error ? error : "An error occurred when fetching table"}
-                  </Text>
-                ) : (
-                  <Flex justify="center" align="center">
-                    <Loader size="xl" type="bars" />
-                  </Flex>
-                )}
-              </Table.Td>
+              {!hideCheckbox && (
+                <Table.Th w={40}>
+                  <Checkbox />
+                </Table.Th>
+              )}
+              <TableTh
+                sorted={sortBy === "title"}
+                reversed={reverseSortDirection}
+                onSort={() => setSorting("title")}
+              >
+                Title
+              </TableTh>
+              <TableTh
+                sorted={sortBy === "artist"}
+                reversed={reverseSortDirection}
+                onSort={() => setSorting("artist")}
+              >
+                Artist
+              </TableTh>
+              <TableTh
+                sorted={sortBy === "album"}
+                reversed={reverseSortDirection}
+                onSort={() => setSorting("album")}
+              >
+                Album
+              </TableTh>
+              <Table.Th w={hideActions ? 96 : 176}>Duration</Table.Th>
             </Table.Tr>
-          )}
-        </Table.Tbody>
-      </Table>
-    </ScrollArea>
+          </Table.Tbody>
+          <Table.Tbody>
+            {rows.length > 0 ? (
+              rows
+            ) : (
+              <Table.Tr>
+                <Table.Td colSpan={5}>
+                  {status === ThunkStatus.SUCCEEDED ? (
+                    <Text fw={500} ta="center">
+                      Nothing found
+                    </Text>
+                  ) : status === ThunkStatus.FAILED ? (
+                    <Text fw={500} ta="center">
+                      {error ? error : "An error occurred when fetching table"}
+                    </Text>
+                  ) : (
+                    <Flex justify="center" align="center">
+                      <Loader size="xl" type="bars" />
+                    </Flex>
+                  )}
+                </Table.Td>
+              </Table.Tr>
+            )}
+          </Table.Tbody>
+        </Table>
+      </ScrollArea>
+      {totalPages > 1 && (
+        <Flex justify="center" mt="md">
+          <Pagination
+            total={totalPages}
+            value={activePage}
+            onChange={setActivePage}
+          />
+        </Flex>
+      )}
+    </Flex>
   );
 }
