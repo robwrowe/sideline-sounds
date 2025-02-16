@@ -22,7 +22,7 @@ app.commandLine.appendSwitch("enable-features", "AudioServiceSandbox");
 app.setAboutPanelOptions({
   applicationName: "Sideline Sounds",
   applicationVersion: app.getVersion(),
-  copyright: `© ${new Date().getFullYear()}. | Licensed under AGPL-3.0`,
+  copyright: `© ${new Date().getFullYear()} | Licensed under AGPL-3.0`,
   credits: "Developed by Rob W. Rowe",
 });
 

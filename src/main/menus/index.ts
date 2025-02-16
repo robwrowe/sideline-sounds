@@ -1,5 +1,5 @@
 import { app, Menu } from "electron";
-import { mainWindow } from "../windows";
+import { mainWindow, createLibraryWindow, libraryWindow } from "../windows";
 
 // Custom menu for macOS
 const menuTemplate: Array<
@@ -18,17 +18,46 @@ const menuTemplate: Array<
     label: "File",
     submenu: [
       {
-        label: "Open",
-        accelerator: "CmdOrCtrl+O",
-        click: () => console.log("Open clicked"),
-      },
-      {
         label: "Toggle Theme",
-        click: () => mainWindow?.webContents.send("theme:toggle"),
+        click: () => {
+          mainWindow?.webContents.send("theme:toggle");
+          libraryWindow?.webContents.send("theme:toggle");
+        },
       },
       { label: "Close", role: "close" },
     ],
   },
+  {
+    label: "Library",
+    submenu: [
+      {
+        label: "Open Library",
+        click: () => createLibraryWindow(),
+      },
+      {
+        label: "Open Library Dev Tools",
+        click: () => libraryWindow?.webContents.openDevTools(),
+      },
+      {
+        label: "Reload Library Window",
+        click: () => libraryWindow?.reload(),
+      },
+    ],
+  },
+  {
+    label: "Testing",
+    submenu: [
+      {
+        label: "Navigate to Test Show",
+        click: () =>
+          mainWindow?.webContents.send(
+            "navigate",
+            "/main/show/419717fb-f85f-49fd-9bbf-ea69d43d3d55"
+          ),
+      },
+    ],
+  },
+  //
   {
     label: "Edit",
     submenu: [

@@ -41,28 +41,70 @@ export default function App() {
     console.log("Current route:", `"${location.pathname}"`);
   }, [location.pathname]);
 
+  // listen to events from other renderer processes
+  useEffect(() => {
+    window.broadcast.onEvent((channel, ...args) => {
+      if (channel === "fetch") {
+        const type = args?.[0];
+
+        // check if there's a specific one to update
+        if (type) {
+          switch (type) {
+            case "audioFiles":
+              dispatch(fetchAudioFiles());
+              break;
+
+            case "banks":
+              dispatch(fetchBanks());
+              break;
+
+            case "outputDevices":
+              dispatch(fetchOutputDevices());
+              break;
+
+            case "pages":
+              dispatch(fetchPages());
+              break;
+
+            case "shows":
+              dispatch(fetchShows());
+              break;
+
+            case "contentButtons":
+              dispatch(fetchContentButtons());
+              break;
+
+            default:
+              window.log.error(
+                "Unknown fetch event from other renderer process",
+                type
+              );
+
+              console.error(
+                "Unknown fetch event from other renderer process",
+                type
+              );
+          }
+        } else {
+          // otherwise, fetch them all
+          dispatch(fetchAudioFiles());
+          dispatch(fetchBanks());
+          dispatch(fetchOutputDevices());
+          dispatch(fetchPages());
+          dispatch(fetchShows());
+          dispatch(fetchContentButtons());
+        }
+      }
+    });
+  }, [dispatch]);
+
   // TEMP: fetch all data when component mounts
   useEffect(() => {
     dispatch(fetchAudioFiles());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchBanks());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchOutputDevices());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchPages());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchShows());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchContentButtons());
   }, [dispatch]);
 

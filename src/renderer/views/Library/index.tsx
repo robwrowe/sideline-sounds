@@ -53,6 +53,9 @@ export default function Library() {
         // update redux
         dispatch(fetchAudioFiles());
 
+        // update other renderer processes
+        window.broadcast.sendEvent("fetch", "audioFiles");
+
         // if a context modal ID is provided, close the modal
         if (contextModalID) {
           modals.close(contextModalID);

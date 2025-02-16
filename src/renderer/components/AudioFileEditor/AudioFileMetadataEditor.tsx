@@ -1,6 +1,6 @@
 import React from "react";
 import { useColorScheme } from "@mantine/hooks";
-import { ActionIcon, Grid, TextInput } from "@mantine/core";
+import { ActionIcon, CloseButton, Grid, TextInput } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 
 import { ColorCombobox } from "../Combobox";
@@ -8,17 +8,15 @@ import { AudioFile } from "../../../types";
 
 function RightSection({ onClick }: { onClick: () => void }) {
   const colorScheme = useColorScheme();
-  return (
-    <ActionIcon
-      size="input-sm"
-      variant="transparent"
-      color={colorScheme === "light" ? "black" : "gray"}
-      onClick={onClick}
-      tabIndex={-1}
-    >
-      <IconX size={16} />
-    </ActionIcon>
-  );
+  return <CloseButton size="sm" onClick={onClick} />;
+  // <ActionIcon
+  //   size="input-sm"
+  //   variant="transparent"
+  //   color={colorScheme === "light" ? "black" : "gray"}
+  //   tabIndex={-1}
+  // >
+  //   <IconX size={16} />
+  // </ActionIcon>;
 }
 
 export type AddFileModalProps = {

@@ -38,3 +38,17 @@ contextBridge.exposeInMainWorld("log", {
   debug: (...args: unknown[]) => ipcRenderer.invoke("log:debug", ...args),
   trace: (...args: unknown[]) => ipcRenderer.invoke("log:trace", ...args),
 });
+
+contextBridge.exposeInMainWorld("broadcast", {
+  sendEvent: (channel: string, ...args: unknown[]) => {
+    console.log("received sendEvent", channel, ...args);
+    ipcRenderer.send("broadcast-event", channel, ...args);
+  },
+
+  onEvent: (callback: (channel: string, ...args: unknown[]) => void) => {
+    ipcRenderer.on("event-from-other-renderer", (_, channel, ...args) => {
+      console.log("received event from other renderer", channel, ...args);
+      callback(channel, ...args);
+    });
+  },
+});

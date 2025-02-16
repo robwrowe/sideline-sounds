@@ -59,6 +59,13 @@ declare global {
       debug: (...args: unknown[]) => void;
       trace: (...args: unknown[]) => void;
     };
+
+    broadcast: {
+      sendEvent: (channel: string, ...args: unknown[]) => void;
+      onEvent: (
+        callback: (channel: string, ...args: unknown[]) => void
+      ) => void;
+    };
   }
 
   interface HTMLAudioElement {
