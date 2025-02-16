@@ -7,13 +7,13 @@ import styles from "./index.module.scss";
 
 import { AudioFilesTable } from "../../components";
 import { SUPPORTED_AUDIO_FILE_TYPES } from "../../../constants";
-import { AudioFileState, useAppDispatch, useAppSelector } from "../../hooks";
-import { getFileName } from "../../../utils";
 import { fetchAudioFiles } from "../../features";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { dbAudioFiles } from "../../repos";
+import { AudioFile, AudioFileState } from "../../../types";
+import { getFileName } from "../../../utils";
 
 import openAudioFileModal from "./AudioFileModal";
-import { AudioFile } from "../../../types";
-import { dbAudioFiles } from "../../repos";
 
 type LinksObject = {
   label: string;

@@ -136,3 +136,9 @@ export type Playlist = {
    */
   subclipIDs: string[];
 };
+
+export type AudioFileState = Omit<AudioFile, "id" | "title" | "filePath"> & {
+  title: AudioFile["title"] | null;
+  filePath: AudioFile["filePath"] | null;
+  id: AudioFile["id"] | null;
+};
