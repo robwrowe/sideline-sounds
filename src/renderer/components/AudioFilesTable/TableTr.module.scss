@@ -1,0 +1,13 @@
+.durationActions {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actionContainer {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: calc(8px * var(--mantine-scale));
+}

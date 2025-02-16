@@ -20,12 +20,14 @@ export default function SubclipItem({ item, onChange }: SubclipItemProps) {
   const [opened, { toggle }] = useDisclosure();
 
   const inPointValue = useMemo(
-    () => (inPoint !== null ? formatSecondsToTime(inPoint, 2) : ""),
+    () =>
+      inPoint !== null ? formatSecondsToTime(inPoint, { decimals: 2 }) : "",
     [inPoint]
   );
 
   const outPointValue = useMemo(
-    () => (outPoint !== null ? formatSecondsToTime(outPoint, 2) : ""),
+    () =>
+      outPoint !== null ? formatSecondsToTime(outPoint, { decimals: 2 }) : "",
     [outPoint]
   );
 

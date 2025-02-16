@@ -1,12 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { IconSearch } from "@tabler/icons-react";
 import {
-  IconPencil,
-  IconPlayerPlay,
-  IconSearch,
-  IconTrash,
-} from "@tabler/icons-react";
-import {
-  ActionIcon,
   Checkbox,
   Flex,
   keys,
@@ -18,25 +12,17 @@ import {
   useComputedColorScheme,
   Pagination,
 } from "@mantine/core";
-import styles from "./index.module.scss";
 
 import { AudioFile, BaseInitialStateThunk, ThunkStatus } from "../../../types";
-import {
-  formatSecondsToTime,
-  getAudioMimeType,
-  getFileName,
-} from "../../../utils";
+import { getAudioMimeType, getFileName } from "../../../utils";
 
 import TableTh from "./TableTh";
+import TableTr from "./TableTr";
 import { useAudioEngineContext } from "../../hooks";
 
-type AudioData = Pick<
-  AudioFile,
-  "id" | "title" | "artist" | "album" | "duration" | "filePath"
->;
 type SortKeys = keyof Pick<AudioFile, "title" | "artist" | "album">;
 
-function filterData(data: AudioData[], search: string) {
+function filterData(data: AudioFile[], search: string) {
   const query = search.toLowerCase().trim();
 
   return data.filter((item) =>
@@ -53,7 +39,7 @@ function filterData(data: AudioData[], search: string) {
 }
 
 function sortData(
-  data: AudioData[],
+  data: AudioFile[],
   payload: { sortBy: SortKeys | null; reversed: boolean; search: string }
 ) {
   const { sortBy } = payload;
@@ -81,7 +67,7 @@ function sortData(
 }
 
 export type AudioFilesTableProps = Partial<BaseInitialStateThunk> & {
-  data: AudioData[];
+  data: AudioFile[];
   hideActions?: boolean;
   hideCheckbox?: boolean;
   itemsPerPage?: number;
@@ -95,7 +81,6 @@ export default function AudioFilesTable({
   hideCheckbox = false,
   itemsPerPage = 20,
 }: AudioFilesTableProps) {
-  const colorScheme = useComputedColorScheme();
   const { audioEngine } = useAudioEngineContext();
 
   const [search, setSearch] = useState("");
@@ -182,48 +167,13 @@ export default function AudioFilesTable({
   );
 
   const rows = paginatedData.map((row) => (
-    <Table.Tr key={row.id}>
-      {!hideCheckbox && (
-        <Table.Td>
-          <Checkbox />
-        </Table.Td>
-      )}
-      <Table.Td>{row.title}</Table.Td>
-      <Table.Td>{row.artist}</Table.Td>
-      <Table.Td>{row.album}</Table.Td>
-      <Table.Td w={hideActions ? 96 : 176}>
-        <div className={styles.durationActions}>
-          {row.duration !== null ? formatSecondsToTime(row.duration) : "-:--"}
-          {!hideActions && (
-            <div className={styles.actionContainer}>
-              <ActionIcon
-                size="sm"
-                variant="transparent"
-                color={colorScheme === "light" ? "black" : "gray"}
-                onClick={() => handleClickPlay(row.filePath)}
-                disabled={!row.filePath}
-              >
-                <IconPlayerPlay size={16} />
-              </ActionIcon>
-              <ActionIcon
-                size="sm"
-                variant="transparent"
-                color={colorScheme === "light" ? "black" : "gray"}
-              >
-                <IconPencil size={16} />
-              </ActionIcon>
-              <ActionIcon
-                size="sm"
-                variant="transparent"
-                color={colorScheme === "light" ? "black" : "gray"}
-              >
-                <IconTrash size={16} />
-              </ActionIcon>
-            </div>
-          )}
-        </div>
-      </Table.Td>
-    </Table.Tr>
+    <TableTr
+      key={row.id}
+      row={row}
+      hideActions={hideActions}
+      hideCheckbox={hideCheckbox}
+      onClickPlay={handleClickPlay}
+    />
   ));
 
   return (
@@ -245,6 +195,7 @@ export default function AudioFilesTable({
           verticalSpacing="xs"
           miw={700}
           layout="fixed"
+          tabularNums
         >
           <Table.Tbody>
             <Table.Tr>

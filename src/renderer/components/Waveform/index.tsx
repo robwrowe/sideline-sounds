@@ -214,8 +214,8 @@ export default function Waveform({
     const end = outPoint || duration;
     return playheadPosition !== null
       ? showTimeRemaining && end !== null
-        ? `- ${formatSecondsToTime(end - playheadPosition, 2)}`
-        : formatSecondsToTime(playheadPosition, 2)
+        ? `- ${formatSecondsToTime(end - playheadPosition, { decimals: 2 })}`
+        : formatSecondsToTime(playheadPosition, { decimals: 2 })
       : null;
   }, [duration, outPoint, playheadPosition, showTimeRemaining]);
 

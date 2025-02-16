@@ -2,8 +2,8 @@ import React, { useCallback } from "react";
 import { Button, Group, Stack, Text } from "@mantine/core";
 import { ContextModalProps } from "@mantine/modals";
 
-export type ContentButtonDeleteModalProps = {
-  buttonName?: string;
+export type DeleteModalProps = {
+  text: string;
   labels?: {
     confirm?: string;
     cancel?: string;
@@ -12,12 +12,12 @@ export type ContentButtonDeleteModalProps = {
   onConfirm?: () => void;
 };
 
-export default function ContentButtonDeleteModal({
+export default function DeleteModal({
   context,
   id,
-  innerProps = {},
-}: ContextModalProps<ContentButtonDeleteModalProps>) {
-  const { labels = {}, onConfirm, onCancel, buttonName } = innerProps;
+  innerProps,
+}: ContextModalProps<DeleteModalProps>) {
+  const { labels = {}, onConfirm, onCancel, text } = innerProps;
   const { confirm = "Delete", cancel = "Cancel" } = labels;
 
   const handleSubmit = useCallback(() => {
@@ -29,10 +29,7 @@ export default function ContentButtonDeleteModal({
 
   return (
     <Stack w="100%">
-      <Text>
-        Are you sure you want to delete{" "}
-        {buttonName ? buttonName : "this button"}?
-      </Text>
+      <Text>{text}</Text>
       <Group style={{ alignSelf: "flex-end" }}>
         <Button
           variant="default"

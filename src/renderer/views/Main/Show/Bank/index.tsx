@@ -15,7 +15,6 @@ import {
   ButtonActionType,
   ContextMenuItem,
   ShowParams,
-  SongState,
 } from "../../../../../types";
 import {
   formatArtist,
@@ -26,7 +25,7 @@ import {
 import { dbContentButtons } from "../../../../repos";
 
 import openContentButtonModal from "./ContentModal";
-import openContentButtonDeleteModal from "./ContentModalDelete";
+import openContentDeleteModal from "./ContentModalDelete";
 import { SongCardSize } from "../../../../components/SongCard";
 
 export default function ShowBank() {
@@ -203,11 +202,12 @@ export default function ShowBank() {
         {
           label: "Delete Button",
           onClick: () =>
-            openContentButtonDeleteModal({
+            openContentDeleteModal({
               title: "Remove Content Button",
               props: {
                 onConfirm: () => handleClickDelete(i),
               },
+              // TODO: add button name
             }),
         },
         { type: "divider" },
