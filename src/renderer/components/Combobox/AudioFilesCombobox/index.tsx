@@ -137,7 +137,10 @@ export default function AudioFilesCombobox({
               <CloseButton
                 size="sm"
                 onMouseDown={(evt: React.MouseEvent) => evt.preventDefault()}
-                onClick={() => setValue(null)}
+                onClick={() => {
+                  setValue(null);
+                  setSearch("");
+                }}
                 aria-label="Clear value"
               />
             ) : (

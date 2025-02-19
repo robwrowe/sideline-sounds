@@ -2,8 +2,7 @@ import React, { useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router";
 import { useMantineColorScheme } from "@mantine/core";
 
-import { Library, Main } from "./views";
-import { AudioFileEditor } from "./components";
+import { LibraryView, MainView, OutputView } from "./views";
 import { useAppDispatch } from "./hooks";
 
 import {
@@ -112,27 +111,10 @@ export default function App() {
     <Routes>
       {/* TODO: add fallback route to select page */}
       {/* use this for inspo: https://ui.mantine.dev/category/features/ */}
-      <Route
-        path="/"
-        element={
-          <AudioFileEditor
-            file={{
-              id: "341ce6dd-bb92-4a05-aff3-2bcf8e469e54",
-              title: "Vamp",
-              artist: "ESPN",
-              album: "College Football",
-              year: null,
-              filePath:
-                "/Users/robwrowe/Documents/test-audio/Event Theme Disc 01/04 Vamp.wav",
-              color: null,
-              duration: 51.42666666666667,
-              subclips: [],
-            }}
-          />
-        }
-      />
-      <Route path="/main/*" element={<Main />} />
-      <Route path="/library/*" element={<Library />} />
+      <Route path="/" element={<p>No route found</p>} />
+      <Route path="/main/*" element={<MainView />} />
+      <Route path="/library/*" element={<LibraryView />} />
+      <Route path="/output/*" element={<OutputView />} />
     </Routes>
   );
 }

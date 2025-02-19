@@ -1,0 +1,23 @@
+.control {
+  display: block !important;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md) !important;
+  border-radius: var(--mantine-radius-md) !important;
+  font-weight: 500 !important;
+
+  &.active {
+    background-color: var(--mantine-primary-color-light) !important;
+    color: var(--mantine-primary-color-light-color) !important;
+    &:hover {
+      background-color: var(--mantine-primary-color-light-hover) !important;
+    }
+  }
+
+  &:not(.active) {
+    &:hover {
+      background-color: light-dark(
+        var(--mantine-color-gray-0),
+        var(--mantine-color-dark-6)
+      ) !important;
+    }
+  }
+}

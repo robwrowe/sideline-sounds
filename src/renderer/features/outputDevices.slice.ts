@@ -32,6 +32,7 @@ export const fetchOutputDevices = createAsyncThunk<OutputDevice[]>(
       const audioOutputs: OutputDevice[] = deviceList
         .filter((dvc) => dvc.kind === "audiooutput")
         .map((dvc) => ({
+          ...dvc,
           deviceId: dvc.deviceId,
           kind: dvc.kind,
           label: dvc.label || "Unknown Device",

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { AppShell, Burger, Group, Title, UnstyledButton } from "@mantine/core";
 import { modals } from "@mantine/modals";
+import { IconVinyl } from "@tabler/icons-react";
 import { v4 as uuid } from "uuid";
 import styles from "./index.module.scss";
 
@@ -12,7 +13,6 @@ import { useAppDispatch, useAppSelector } from "../../hooks";
 import { dbAudioFiles } from "../../repos";
 import { AudioFile, AudioFileState } from "../../../types";
 import { getFileName } from "../../../utils";
-
 import { openAudioFileModal } from "../../modals";
 
 type LinksObject = {
@@ -25,7 +25,7 @@ const FOOTER_HEIGHT = 32;
 
 // TODO: check if file still exists on disk
 
-export default function Library() {
+export default function LibraryView() {
   const dispatch = useAppDispatch();
   const audioFiles = useAppSelector(({ audioFiles }) => audioFiles.audioFiles);
   const status = useAppSelector(({ audioFiles }) => audioFiles.status);
@@ -170,7 +170,10 @@ export default function Library() {
             size="sm"
           />
           <Group justify="space-between" style={{ flex: 1 }}>
-            <Title order={2}>Content Library</Title>
+            <Group justify="flex-start" align="center" gap="xs">
+              <IconVinyl size={30} />
+              <Title order={2}>Content Library</Title>
+            </Group>
             <Group ml="xl" gap={0} visibleFrom="sm">
               {LINKS.map((item) => (
                 <UnstyledButton

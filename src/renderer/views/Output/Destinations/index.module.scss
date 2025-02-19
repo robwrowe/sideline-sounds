@@ -1,0 +1,7 @@
+.volumeGroup {
+  padding-top: calc(0.25rem * var(--mantine-scale));
+}
+
+.volumeSlider {
+  width: calc(100% - 48px - calc(var(--mantine-spacing-sm) * 2));
+}

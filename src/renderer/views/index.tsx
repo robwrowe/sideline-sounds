@@ -1,4 +1,5 @@
-import Library from "./Library";
-import Main from "./Main";
+import LibraryView from "./Library";
+import MainView from "./Main";
+import OutputView from "./Output";
 
-export { Library, Main };
+export { LibraryView, MainView, OutputView };

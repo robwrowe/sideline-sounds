@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router";
 import LoadShow from "./LoadShow";
 import Show from "./Show";
 
-export default function Main() {
+export default function MainView() {
   return (
     <Routes>
       <Route path="" element={<LoadShow />} />
