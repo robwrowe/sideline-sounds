@@ -6,6 +6,7 @@ export const stores: InitDBStore[] = [
   { storeName: "shows" },
   { storeName: "pages" },
   { storeName: "banks" },
+  // TODO: if a piece of content was deleted, purge it from the buttons too
   { storeName: "contentButtons", keyPath: ["bankID", "buttonNumber"] },
   { storeName: "audioFiles" },
 ];

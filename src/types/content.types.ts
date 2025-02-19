@@ -5,6 +5,9 @@ import { IAudioMetadata } from "music-metadata";
 
 export type AudioFileMetadata = IAudioMetadata & { cover: string | null };
 
+// TODO: add ability to set volume for file
+// TODO: add ability to set panning for file
+// TODO: add ability to set EQ bands
 export type AudioFile = {
   /**
    * Unique identifier of the content

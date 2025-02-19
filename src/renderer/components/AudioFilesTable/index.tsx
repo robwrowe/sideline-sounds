@@ -9,7 +9,6 @@ import {
   Table,
   Text,
   TextInput,
-  useComputedColorScheme,
   Pagination,
 } from "@mantine/core";
 
@@ -19,6 +18,10 @@ import { getAudioMimeType, getFileName } from "../../../utils";
 import TableTh from "./TableTh";
 import TableTr from "./TableTr";
 import { useAudioEngineContext } from "../../hooks";
+import { dbAudioFiles } from "../../repos";
+import openAudioFileDeleteModal from "./AudioFileDeleteModal";
+import { modals } from "@mantine/modals";
+import { openAudioFileModal } from "../../modals";
 
 type SortKeys = keyof Pick<AudioFile, "title" | "artist" | "album">;
 
@@ -71,6 +74,7 @@ export type AudioFilesTableProps = Partial<BaseInitialStateThunk> & {
   hideActions?: boolean;
   hideCheckbox?: boolean;
   itemsPerPage?: number;
+  fetchData?: () => Promise<void>;
 };
 
 export default function AudioFilesTable({
@@ -80,6 +84,7 @@ export default function AudioFilesTable({
   hideActions = false,
   hideCheckbox = false,
   itemsPerPage = 20,
+  fetchData,
 }: AudioFilesTableProps) {
   const { audioEngine } = useAudioEngineContext();
 
@@ -159,6 +164,64 @@ export default function AudioFilesTable({
     [audioEngine]
   );
 
+  const handleClickEditSubmit = useCallback(
+    async (item: AudioFile) => {
+      try {
+        await dbAudioFiles.updateItem(item);
+
+        // update redux
+        if (fetchData) {
+          fetchData();
+        }
+
+        // update other renderer processes
+        window.broadcast.sendEvent("fetch", "audioFiles");
+
+        // close modal
+        modals.close(`edit-audio-file-${item.id}`);
+      } catch (err) {
+        alert(`An error occurred when attempting to edit audio file.`);
+        console.error(
+          "Error occurred when attempting to edit audio file",
+          "id",
+          item.id,
+          "Error",
+          err
+        );
+      }
+    },
+    [fetchData]
+  );
+
+  const handleClickDeleteConfirm = useCallback(
+    async (id: string) => {
+      try {
+        await dbAudioFiles.deleteItem(id);
+
+        // update redux
+        if (fetchData) {
+          fetchData();
+        }
+
+        // update other renderer processes
+        window.broadcast.sendEvent("fetch", "audioFiles");
+
+        // close modal
+        modals.close(`delete-audio-file-${id}`);
+      } catch (err) {
+        alert(`An error occurred when attempting to delete audio file.`);
+        console.error(
+          "Error occurred when attempting to delete audio file",
+          "id",
+          id,
+          "Error",
+          err
+        );
+      }
+    },
+    [fetchData]
+  );
+
   // pagination logic
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
   const paginatedData = sortedData.slice(
@@ -172,7 +235,26 @@ export default function AudioFilesTable({
       row={row}
       hideActions={hideActions}
       hideCheckbox={hideCheckbox}
-      onClickPlay={handleClickPlay}
+      onClickPlay={() => handleClickPlay(row.filePath)}
+      onClickEdit={() =>
+        openAudioFileModal(row.filePath, {
+          title: "Edit Audio File",
+          id: `edit-audio-file-${row.id}`,
+          props: {
+            defaultValues: row,
+            onConfirm: (item) => handleClickEditSubmit(item),
+            labels: { confirm: "Save Changes" },
+            confirmButtonProps: { leftSection: undefined },
+          },
+        })
+      }
+      onClickDelete={() =>
+        openAudioFileDeleteModal({
+          id: row.id,
+          fileName: row.title,
+          props: { onConfirm: () => handleClickDeleteConfirm(row.id) },
+        })
+      }
     />
   ));
 

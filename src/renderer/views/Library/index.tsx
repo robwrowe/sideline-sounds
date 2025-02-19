@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { AppShell, Burger, Group, Title, UnstyledButton } from "@mantine/core";
 import { modals } from "@mantine/modals";
@@ -13,7 +13,7 @@ import { dbAudioFiles } from "../../repos";
 import { AudioFile, AudioFileState } from "../../../types";
 import { getFileName } from "../../../utils";
 
-import openAudioFileModal from "./AudioFileModal";
+import { openAudioFileModal } from "../../modals";
 
 type LinksObject = {
   label: string;
@@ -32,6 +32,10 @@ export default function Library() {
   const error = useAppSelector(({ audioFiles }) => audioFiles.error);
 
   const [menuOpened, { toggle: toggleMenu }] = useDisclosure();
+
+  const fetchData = useCallback(async () => {
+    dispatch(fetchAudioFiles());
+  }, [dispatch]);
 
   // when a file is imported, update the data
   const handleSubmit = useCallback(
@@ -122,10 +126,9 @@ export default function Library() {
       };
 
       // update the reducer
-      openAudioFileModal({
+      openAudioFileModal(filePath, {
         title: "Import Audio File",
         props: {
-          filePath,
           defaultValues: fileInitialState,
           onConfirm: handleSubmit,
         },
@@ -202,7 +205,12 @@ export default function Library() {
           height: "100vh",
         }}
       >
-        <AudioFilesTable data={audioFiles} status={status} error={error} />
+        <AudioFilesTable
+          data={audioFiles}
+          status={status}
+          error={error}
+          fetchData={fetchData}
+        />
       </AppShell.Main>
 
       <AppShell.Footer p="0"></AppShell.Footer>

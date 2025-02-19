@@ -3,6 +3,8 @@ import { Modal, Button, ModalProps } from "@mantine/core";
 import styles from "./ExitShowModal.module.scss";
 import { useNavigate } from "react-router";
 
+import { MODAL_OVERLAY_PROPS } from "../../../../constants";
+
 export type ExitShowModalProps = Pick<ModalProps, "opened" | "onClose">;
 
 export default function ExitShowModal({ opened, onClose }: ExitShowModalProps) {
@@ -14,10 +16,7 @@ export default function ExitShowModal({ opened, onClose }: ExitShowModalProps) {
       onClose={onClose}
       centered
       withCloseButton={false}
-      overlayProps={{
-        backgroundOpacity: 0.7,
-        blur: 4,
-      }}
+      overlayProps={MODAL_OVERLAY_PROPS}
     >
       <div className={styles.container}>
         <p className={styles.subtitle}>

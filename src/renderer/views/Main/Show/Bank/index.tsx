@@ -9,7 +9,10 @@ import {
   useAppSelector,
   useAudioEngineContext,
 } from "../../../../hooks";
-import { ContentButtonModalConfirmArgs } from "../../../../modals";
+import {
+  openContentButtonModal,
+  ContentButtonModalConfirmArgs,
+} from "../../../../modals";
 import {
   AudioFile,
   ButtonActionType,
@@ -24,7 +27,6 @@ import {
 } from "../../../../../utils";
 import { dbContentButtons } from "../../../../repos";
 
-import openContentButtonModal from "./ContentModal";
 import openContentDeleteModal from "./ContentModalDelete";
 import { SongCardSize } from "../../../../components/SongCard";
 
@@ -203,7 +205,6 @@ export default function ShowBank() {
           label: "Delete Button",
           onClick: () =>
             openContentDeleteModal({
-              title: "Remove Content Button",
               props: {
                 onConfirm: () => handleClickDelete(i),
               },

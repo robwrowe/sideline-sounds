@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Button, Group, InputWrapper, Stack } from "@mantine/core";
-import { ContextModalProps } from "@mantine/modals";
+import { ContextModalProps, modals } from "@mantine/modals";
 
 import {
   AudioFilesCombobox,
@@ -120,3 +120,22 @@ export default function ContentButtonModal({
     </Stack>
   );
 }
+
+type OpenContentButtonModalOpts = {
+  title?: string;
+  props?: ContentButtonModalProps;
+};
+
+export const openContentButtonModal = (
+  opts: OpenContentButtonModalOpts = {}
+) => {
+  const title = opts?.title || "Content Button Properties";
+
+  return modals.openContextModal({
+    modal: "contentButton",
+    title,
+    innerProps: {
+      ...opts?.props,
+    },
+  });
+};

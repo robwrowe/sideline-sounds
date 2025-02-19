@@ -18,16 +18,20 @@ import { useSongCardColorResolver } from "../../hooks";
 
 export type AudioFileTableTrProps = {
   row: AudioFile;
-  onClickPlay?: (filePath: string) => void;
+  onClickPlay?: () => void;
+  onClickDelete?: () => void;
+  onClickEdit?: () => void;
   hideActions?: boolean;
   hideCheckbox?: boolean;
 };
 
 export default function AudioFileTableTr({
   row,
+  onClickPlay,
+  onClickDelete,
+  onClickEdit,
   hideActions = false,
   hideCheckbox = false,
-  onClickPlay,
 }: AudioFileTableTrProps) {
   const colorScheme = useComputedColorScheme();
   const actionIconColor = useMemo(
@@ -66,26 +70,32 @@ export default function AudioFileTableTr({
                   size="sm"
                   variant="transparent"
                   color={row.color ? parsedColor.value : actionIconColor}
-                  onClick={() => onClickPlay(row.filePath)}
+                  onClick={onClickPlay}
                   disabled={!row.filePath}
                 >
                   <IconPlayerPlayFilled size={16} />
                 </ActionIcon>
               )}
-              <ActionIcon
-                size="sm"
-                variant="transparent"
-                color={row.color ? parsedColor.value : actionIconColor}
-              >
-                <IconPencil size={16} />
-              </ActionIcon>
-              <ActionIcon
-                size="sm"
-                variant="transparent"
-                color={row.color ? parsedColor.value : actionIconColor}
-              >
-                <IconTrashFilled size={16} />
-              </ActionIcon>
+              {onClickEdit && (
+                <ActionIcon
+                  size="sm"
+                  variant="transparent"
+                  color={row.color ? parsedColor.value : actionIconColor}
+                  onClick={onClickEdit}
+                >
+                  <IconPencil size={16} />
+                </ActionIcon>
+              )}
+              {onClickDelete && (
+                <ActionIcon
+                  size="sm"
+                  variant="transparent"
+                  color={row.color ? parsedColor.value : actionIconColor}
+                  onClick={onClickDelete}
+                >
+                  <IconTrashFilled size={16} />
+                </ActionIcon>
+              )}
             </div>
           )}
         </div>

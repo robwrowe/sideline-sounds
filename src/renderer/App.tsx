@@ -110,6 +110,8 @@ export default function App() {
 
   return (
     <Routes>
+      {/* TODO: add fallback route to select page */}
+      {/* use this for inspo: https://ui.mantine.dev/category/features/ */}
       <Route
         path="/"
         element={

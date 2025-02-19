@@ -16,7 +16,7 @@ import {
   AudioFileMetadataEditor,
   AudioFileSubclip,
 } from "../../components";
-import { ContextModalProps } from "@mantine/modals";
+import { modals, ContextModalProps } from "@mantine/modals";
 
 export type AudioFileState = Omit<AudioFile, "id" | "title" | "filePath"> & {
   title: AudioFile["title"] | null;
@@ -245,3 +245,24 @@ export default function AudioFileModal({
     </AudioFileEditor>
   );
 }
+
+type AudioFileModalOpts = {
+  props?: Omit<AudioFileModalProps, "filePath">;
+  title?: string;
+  id?: string;
+};
+
+export const openAudioFileModal = (
+  filePath: string,
+  opts: AudioFileModalOpts
+) => {
+  const title = opts?.title || "Audio File Editor";
+
+  return modals.openContextModal({
+    modal: "audioFile",
+    title,
+    id: opts?.id,
+    innerProps: { filePath, ...opts?.props },
+    size: "60rem",
+  });
+};

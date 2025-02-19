@@ -1,5 +1,4 @@
-import { modals } from "@mantine/modals";
-import { DeleteModalProps } from "../../../../modals";
+import { openDeleteModal, DeleteModalProps } from "../../../../modals";
 
 type OpenContentButtonDeleteModalOpts = {
   title?: string;
@@ -12,20 +11,15 @@ const openContentDeleteModal = (
 ) => {
   const title = opts?.title || "Remove Content Button";
   const text = `Are you sure you want to delete ${opts?.buttonName ?? "this button"}?`;
-
-  return modals.openContextModal({
-    modal: "deleteModal",
-    title,
-    centered: true,
-    overlayProps: {
-      backgroundOpacity: 0.55,
-      blur: 3,
-    },
-    innerProps: {
+  return openDeleteModal(
+    {
       text,
-      ...opts?.props,
+      ...opts.props,
     },
-  });
+    {
+      title,
+    }
+  );
 };
 
 export default openContentDeleteModal;

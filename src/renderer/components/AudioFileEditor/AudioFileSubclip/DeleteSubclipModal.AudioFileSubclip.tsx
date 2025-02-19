@@ -3,6 +3,8 @@ import { Modal, Button, ModalProps } from "@mantine/core";
 import styles from "./DeleteSubclipModal.AudioFileSubclip.module.scss";
 import { IconTrash } from "@tabler/icons-react";
 
+import { MODAL_OVERLAY_PROPS } from "../../../../constants";
+
 export type DeleteSubclipModalProps = Pick<ModalProps, "opened" | "onClose"> & {
   name: string;
   onClickDelete: () => void;
@@ -20,10 +22,7 @@ export default function DeleteSubclipModal({
       onClose={onClose}
       centered
       withCloseButton={false}
-      overlayProps={{
-        backgroundOpacity: 0.7,
-        blur: 4,
-      }}
+      overlayProps={MODAL_OVERLAY_PROPS}
     >
       <div className={styles.container}>
         <p

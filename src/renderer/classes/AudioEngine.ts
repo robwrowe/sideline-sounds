@@ -2,6 +2,12 @@ import { SongCardProps } from "../components/SongCard";
 
 type AudioFileMetadata = Pick<SongCardProps, "artist" | "title" | "image">;
 
+/**
+ * TODO: add sound effect to test chime
+ * use this sfx: https://pixabay.com/sound-effects/chime-and-chomp-84419/
+ * under this license: https://pixabay.com/service/license-summary/
+ */
+
 export default class AudioEngine {
   private _audioContext: AudioContext | null = null;
   private _audioContextCreationTime: number | null = null;

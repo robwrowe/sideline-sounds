@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { Button, Group, Stack, Text } from "@mantine/core";
-import { ContextModalProps } from "@mantine/modals";
+import { ContextModalProps, modals } from "@mantine/modals";
+import { MODAL_OVERLAY_PROPS } from "../../constants";
 
 export type DeleteModalProps = {
   text: string;
@@ -44,3 +45,23 @@ export default function DeleteModal({
     </Stack>
   );
 }
+
+export type OpenDeleteModalOpts = {
+  title?: string;
+  id?: string;
+};
+
+export const openDeleteModal = (
+  props: DeleteModalProps,
+  opts: OpenDeleteModalOpts = {}
+) => {
+  return modals.openContextModal({
+    modal: "deleteModal",
+    centered: true,
+    overlayProps: MODAL_OVERLAY_PROPS,
+    innerProps: {
+      ...props,
+    },
+    ...opts,
+  });
+};
