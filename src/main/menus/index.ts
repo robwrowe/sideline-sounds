@@ -1,5 +1,11 @@
 import { app, Menu } from "electron";
-import { mainWindow, createLibraryWindow, libraryWindow } from "../windows";
+import {
+  mainWindow,
+  createLibraryWindow,
+  libraryWindow,
+  outputWindow,
+  createOutputWindow,
+} from "../windows";
 
 // Custom menu for macOS
 const menuTemplate: Array<
@@ -41,6 +47,23 @@ const menuTemplate: Array<
       {
         label: "Reload Library Window",
         click: () => libraryWindow?.reload(),
+      },
+    ],
+  },
+  {
+    label: "Output",
+    submenu: [
+      {
+        label: "Open Output",
+        click: () => createOutputWindow(true),
+      },
+      {
+        label: "Open Output Dev Tools",
+        click: () => outputWindow?.webContents.openDevTools(),
+      },
+      {
+        label: "Reload Output Window",
+        click: () => outputWindow?.reload(),
       },
     ],
   },
