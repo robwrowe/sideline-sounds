@@ -17,7 +17,7 @@ import { useAppDispatch } from "../../hooks";
 import { fetchOutputDevices } from "../../features";
 
 import DestinationsView from "./Destinations";
-import AudioEngineProvider from "../../context/AudioEngineV2";
+import { AudioEngineProvider } from "../../context";
 
 const PATHS: { text: string; route: string }[] = [
   // {

@@ -12,15 +12,12 @@ import { IconBellSchool, IconVolume, IconVolume3 } from "@tabler/icons-react";
 import styles from "./index.module.scss";
 
 import { Output } from "../../../types";
-import { useAppSelector } from "../../hooks";
+import { useAppSelector, useAudioEngineContext } from "../../hooks";
 import {
   AppFloatingIndicator,
   SearchableSelect,
   LogarithmicSlider,
 } from "../../components";
-
-// TEMP
-import useAudioEngineContext from "../../hooks/useAudioEngineContextV2";
 
 const WAVEFORM_TYPES = ["Sine", "Square", "Sawtooth", "Triangle"];
 

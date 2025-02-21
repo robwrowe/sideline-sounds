@@ -13,12 +13,11 @@ export type HeaderProps = {
 };
 
 export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
-  const { audioEngine, isPlaying, hasMedia, crossfadeActive } =
-    useAudioEngineContext();
+  const { audioEngine } = useAudioEngineContext();
 
   const handleClickBackwards = useCallback(() => {
     try {
-      audioEngine.reRack();
+      // audioEngine.reRack();
     } catch (err) {
       console.error("Error restarting file", err);
     }
@@ -27,7 +26,7 @@ export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
   // start playing the song in the context
   const handleClickPlay = useCallback(async () => {
     try {
-      audioEngine.resume();
+      // audioEngine.resume();
     } catch (err) {
       console.error("Error resuming file", err);
     }
@@ -35,7 +34,7 @@ export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
 
   const handleClickPause = useCallback(async () => {
     try {
-      audioEngine.pause();
+      // audioEngine.pause();
     } catch (err) {
       console.error("Error pausing file", err);
     }
@@ -43,7 +42,7 @@ export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
 
   const handleClickStop = useCallback(async () => {
     try {
-      audioEngine.stop();
+      // audioEngine.stop();
     } catch (err) {
       console.error("Error pausing file", err);
     }
@@ -60,9 +59,9 @@ export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
       <div className={styles.parent}>
         {/* Audio Controls */}
         <AudioControls
-          isPlaying={isPlaying}
-          hasMedia={hasMedia}
-          crossfadeActive={crossfadeActive}
+          // isPlaying={isPlaying}
+          // hasMedia={hasMedia}
+          // crossfadeActive={crossfadeActive}
           onClickBackwards={handleClickBackwards}
           onClickPlay={handleClickPlay}
           onClickPause={handleClickPause}
