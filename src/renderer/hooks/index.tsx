@@ -2,6 +2,7 @@ import useAppDispatch from "./useAppDispatch";
 import useAppSelector from "./useAppSelector";
 import useAudioEngineContext from "./useAudioEngineContext";
 import useDarkModeClassNames from "./useDarkModeClassNames.hook";
+import useMainProcessStore from "./useMainProcessStore";
 import useSongCardColorResolver from "./useSongCardColorResolver";
 
 export {
@@ -9,5 +10,6 @@ export {
   useAppSelector,
   useAudioEngineContext,
   useDarkModeClassNames,
+  useMainProcessStore,
   useSongCardColorResolver,
 };

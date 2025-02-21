@@ -15,6 +15,9 @@ import { AudioFile, AudioFileState } from "../../../types";
 import { getFileName } from "../../../utils";
 import { openAudioFileModal } from "../../modals";
 
+// TEMP
+import { AudioEngineProvider } from "../../context";
+
 type LinksObject = {
   label: string;
   onClick: () => void;
@@ -110,7 +113,7 @@ export default function LibraryView() {
       const filePath = file.filePaths[0];
 
       // get the metadata for this file
-      const metadata = await window.electron.audio.metadata(filePath);
+      const metadata = await window.audio.metadata(filePath);
 
       // build out the initial value
       const fileInitialState: AudioFileState = {
@@ -208,12 +211,14 @@ export default function LibraryView() {
           height: "100vh",
         }}
       >
-        <AudioFilesTable
-          data={audioFiles}
-          status={status}
-          error={error}
-          fetchData={fetchData}
-        />
+        <AudioEngineProvider>
+          <AudioFilesTable
+            data={audioFiles}
+            status={status}
+            error={error}
+            fetchData={fetchData}
+          />
+        </AudioEngineProvider>
       </AppShell.Main>
 
       <AppShell.Footer p="0"></AppShell.Footer>

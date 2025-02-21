@@ -13,11 +13,9 @@ import {
 } from "@mantine/core";
 
 import { AudioFile, BaseInitialStateThunk, ThunkStatus } from "../../../types";
-import { getAudioMimeType, getFileName } from "../../../utils";
 
 import TableTh from "./TableTh";
 import TableTr from "./TableTr";
-import { useAudioEngineContext } from "../../hooks";
 import { dbAudioFiles } from "../../repos";
 import openAudioFileDeleteModal from "./AudioFileDeleteModal";
 import { modals } from "@mantine/modals";
@@ -86,8 +84,6 @@ export default function AudioFilesTable({
   itemsPerPage = 20,
   fetchData,
 }: AudioFilesTableProps) {
-  const { audioEngine } = useAudioEngineContext();
-
   const [search, setSearch] = useState("");
   const [sortedData, setSortedData] = useState(data);
   const [sortBy, setSortBy] = useState<SortKeys | null>(null);
@@ -144,25 +140,9 @@ export default function AudioFilesTable({
 
   // TODO: allow user to pause/stop audio file
   // allow user to play back audio file
-  const handleClickPlay = useCallback(
-    async (filePath: string) => {
-      // extract the file name from the path
-      const fileName = getFileName(filePath) || "No Name Found";
-
-      const fileBuffer = await window.electron.audio.fileBuffer(filePath);
-
-      const blob = new Blob([fileBuffer]);
-
-      const file = new File([blob], fileName, {
-        type: getAudioMimeType(filePath),
-      });
-
-      const audioBuffer = await audioEngine.loadAudio(file);
-
-      audioEngine.play(audioBuffer);
-    },
-    [audioEngine]
-  );
+  const handleClickPlay = useCallback(async (filePath: string) => {
+    window.audio.sendAudioEngine("play", filePath);
+  }, []);
 
   const handleClickEditSubmit = useCallback(
     async (item: AudioFile) => {

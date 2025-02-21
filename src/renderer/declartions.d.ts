@@ -1,5 +1,8 @@
+import { Action } from "@reduxjs/toolkit";
 import { AudioFileMetadata, DialogOpenOpts } from "../types";
 import { modals } from "./modals";
+import { RootState } from "../main/store";
+import { AudioEngineActions } from "./features";
 
 declare module "*.scss";
 
@@ -44,11 +47,6 @@ declare global {
           opts: DialogOpenOpts
         ) => Promise<Electron.OpenDialogReturnValue>;
       };
-
-      audio: {
-        fileBuffer: (filePath: string) => Promise<ArrayBuffer>;
-        metadata: (filePath: string) => Promise<AudioFileMetadata>;
-      };
     };
 
     log: {
@@ -65,6 +63,20 @@ declare global {
       onEvent: (
         callback: (channel: string, ...args: unknown[]) => void
       ) => void;
+    };
+
+    audio: {
+      fileBuffer: (filePath: string) => Promise<ArrayBuffer>;
+      metadata: (filePath: string) => Promise<AudioFileMetadata>;
+
+      sendAudioEngine: (channel: string, ...args: unknown[]) => void;
+      onAudioEngine: (
+        callback: (channel: string, ...args: unknown[]) => void
+      ) => void;
+
+      sendAction: (action: AudioEngineActions) => void;
+      onStateUpdate: (callback: (state: RootState) => void) => void;
+      removeStateListener: () => void;
     };
   }
 

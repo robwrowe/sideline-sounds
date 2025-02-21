@@ -4,11 +4,7 @@ import styles from "./index.module.scss";
 
 import { SongCard } from "../../../../components";
 import { fetchContentButtons, setActiveBankID } from "../../../../features";
-import {
-  useAppDispatch,
-  useAppSelector,
-  useAudioEngineContext,
-} from "../../../../hooks";
+import { useAppDispatch, useAppSelector } from "../../../../hooks";
 import {
   openContentButtonModal,
   ContentButtonModalConfirmArgs,
@@ -19,12 +15,7 @@ import {
   ContextMenuItem,
   ShowParams,
 } from "../../../../../types";
-import {
-  formatArtist,
-  formatSecondsToTime,
-  getAudioMimeType,
-  getFileName,
-} from "../../../../../utils";
+import { formatArtist, formatSecondsToTime } from "../../../../../utils";
 import { dbContentButtons } from "../../../../repos";
 
 import openContentDeleteModal from "./ContentModalDelete";
@@ -49,7 +40,6 @@ export default function ShowBank() {
 
   const audioFiles = useAppSelector(({ audioFiles }) => audioFiles.audioFiles);
   const [cards, setCards] = useState<React.JSX.Element[]>([]);
-  const { audioEngine } = useAudioEngineContext();
 
   const numOfRows = bank?.numOfRows || 7;
   const numOfCols = bank?.numOfCols || 4;
@@ -127,29 +117,10 @@ export default function ShowBank() {
   );
 
   // play audio on first click
-  const handleClick = useCallback(
-    async (obj: AudioFile) => {
-      const { filePath, title, artist, album } = obj;
-      // extract the file name from the path
-      const fileName = getFileName(filePath) || "No Name Found";
-
-      const fileBuffer = await window.electron.audio.fileBuffer(filePath);
-
-      const blob = new Blob([fileBuffer]);
-
-      const file = new File([blob], fileName, {
-        type: getAudioMimeType(filePath),
-      });
-
-      const audioBuffer = await audioEngine.loadAudio(file);
-
-      audioEngine.play(audioBuffer, {
-        title,
-        artist: formatArtist({ artist, album }),
-      });
-    },
-    [audioEngine]
-  );
+  const handleClick = useCallback(async (obj: AudioFile) => {
+    const { filePath } = obj;
+    window.audio.sendAudioEngine("play", filePath);
+  }, []);
 
   // build out the song cards
   useEffect(() => {

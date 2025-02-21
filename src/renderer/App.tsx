@@ -3,7 +3,7 @@ import { Route, Routes, useNavigate, useLocation } from "react-router";
 import { useMantineColorScheme } from "@mantine/core";
 
 import { LibraryView, MainView, OutputView } from "./views";
-import { useAppDispatch } from "./hooks";
+import { useAppDispatch, useMainProcessStore } from "./hooks";
 
 import {
   fetchAudioFiles,
@@ -19,6 +19,9 @@ export default function App() {
   const location = useLocation();
   const { toggleColorScheme } = useMantineColorScheme();
   const dispatch = useAppDispatch();
+
+  // sync local store state with process updates
+  useMainProcessStore();
 
   useEffect(() => {
     if (window.electron) {

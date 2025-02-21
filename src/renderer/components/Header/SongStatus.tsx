@@ -1,25 +1,56 @@
-import React from "react";
+import React, { useEffect } from "react";
 import classNames from "classnames";
 import { Box, Image, Progress, Text } from "@mantine/core";
 import { IconMusic } from "@tabler/icons-react";
 import styles from "./SongStatus.module.scss";
 
-import { useAudioEngineContext, useDarkModeClassNames } from "../../hooks";
+import { useAppSelector, useDarkModeClassNames } from "../../hooks";
 import { formatSecondsToTime } from "../../../utils";
+import { Output } from "../../../types";
 
 // TODO: add color support
 export default function SongStatus() {
   const darkModeStyles = useDarkModeClassNames(styles);
-  const { currentMetadata, currentDuration, currentElapsed, currentRemaining } =
-    useAudioEngineContext();
+
+  const currentDuration = useAppSelector(
+    ({ audioEngine }) => audioEngine[Output.PGM_A].current.duration
+  );
+
+  const currentElapsed = useAppSelector(
+    ({ audioEngine }) => audioEngine[Output.PGM_A].current.elapsed
+  );
+
+  const currentRemaining = useAppSelector(
+    ({ audioEngine }) => audioEngine[Output.PGM_A].current.remaining
+  );
+
+  const currentMetadata = useAppSelector(
+    ({ audioEngine }) => audioEngine[Output.PGM_A].current.metadata
+  );
+
+  useEffect(() => {
+    console.log("song status", "currentDuration", currentDuration);
+  }, [currentDuration]);
+
+  useEffect(() => {
+    console.log("song status", "currentElapsed", currentElapsed);
+  }, [currentElapsed]);
+
+  useEffect(() => {
+    console.log("song status", "currentRemaining", currentRemaining);
+  }, [currentRemaining]);
+
+  useEffect(() => {
+    console.log("song status", "currentMetadata", currentMetadata);
+  }, [currentMetadata]);
 
   return (
     <div className={classNames(styles.parent, darkModeStyles)}>
       <Box p="2px">
-        {currentMetadata?.image ? (
+        {currentMetadata?.audioFile?.album ? (
           <Image
-            src={currentMetadata.image}
-            alt={`${currentMetadata?.title || "Current Song"} album cover`}
+            src={currentMetadata?.audioFile?.album}
+            alt={`${currentMetadata?.audioFile?.title || "Current Song"} album cover`}
             h={64}
             radius="xs"
           />
@@ -33,9 +64,9 @@ export default function SongStatus() {
         <div className={styles.songInfoContainer}>
           <div className={styles.songMetaData}>
             <Text fz="0.75rem" fw="bold">
-              {currentMetadata?.title || ""}
+              {currentMetadata?.audioFile?.title || ""}
             </Text>
-            <Text fz="0.75rem">{currentMetadata?.artist || ""}</Text>
+            <Text fz="0.75rem">{currentMetadata?.audioFile?.artist || ""}</Text>
           </div>
           <div className={styles.songProgressContainer}>
             <div className={styles.songTime}>

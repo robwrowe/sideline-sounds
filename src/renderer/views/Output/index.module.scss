@@ -21,3 +21,11 @@
     }
   }
 }
+
+.scroll {
+  max-height: calc(
+    100vh - calc(
+        var(--app-shell-header-offset, 0rem) + var(--app-shell-padding)
+      ) - calc(var(--mantine-spacing-md) * 2)
+  );
+}

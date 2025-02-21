@@ -1,3 +1,4 @@
+export * from "./audioEngine.types";
 export * from "./constants.types";
 export * from "./content.types";
 export * from "./contentButtons.types";

@@ -141,7 +141,7 @@ export default function AudioFileEditor({
         setLoadingAudio(true);
 
         // get the file as a buffer
-        const fileBuffer = await window.electron.audio.fileBuffer(filePath);
+        const fileBuffer = await window.audio.fileBuffer(filePath);
 
         if (fileBuffer) {
           // convert to a blob
