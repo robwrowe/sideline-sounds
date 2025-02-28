@@ -30,10 +30,19 @@ export type PlaybackSourceState = {
   metadata: AudioEnginePlayMetadata | null;
 };
 
+export type PlaybackSourceOscillator = {
+  isRunning: boolean;
+  frequency: number;
+  waveform: OscillatorType | null;
+  detune: number;
+};
+
 export type PlaybackChannelStatus = {
   current: PlaybackSourceState;
   next: PlaybackSourceState;
   cued: Pick<PlaybackSourceState, "metadata">;
+
+  oscillator: PlaybackSourceOscillator;
 
   crossfadeDuration: number;
   crossfadeActive: boolean;

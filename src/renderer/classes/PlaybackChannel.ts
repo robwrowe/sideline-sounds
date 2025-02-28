@@ -370,6 +370,113 @@ export default class PlaybackChannel {
   }
 
   /**
+   * Oscillator-specific properties
+   */
+  private _oscillator: OscillatorNode | null = null;
+  private _oscillatorWaveform: OscillatorType = "sine"; // Default waveform
+  private _oscillatorFrequency = 440; // Default frequency (A4 note)
+  private _oscillatorDetune = 0; // Default detune (cents)
+  private _oscillatorRunning = false;
+
+  get oscillator() {
+    return this._oscillator;
+  }
+
+  private set oscillator(value) {
+    this._oscillator = value;
+  }
+
+  get oscillatorWaveform() {
+    return this._oscillatorWaveform;
+  }
+
+  set oscillatorWaveform(value) {
+    this._oscillatorWaveform = value;
+
+    // if the oscillator is running, update it
+    if (this.oscillator && this.oscillatorRunning) {
+      this.oscillator.type = value;
+    }
+
+    this.handleRAFUpdateCallback();
+  }
+
+  get oscillatorFrequency() {
+    return this._oscillatorFrequency;
+  }
+
+  set oscillatorFrequency(value) {
+    if (value < 0) throw new Error("Frequency must be positive");
+
+    this._oscillatorFrequency = value;
+
+    // if the oscillator is running, update it
+    if (this.oscillator && this.oscillatorRunning) {
+      this.oscillator.frequency.setValueAtTime(
+        value,
+        this.audioContext.currentTime
+      );
+    }
+
+    this.handleRAFUpdateCallback();
+  }
+
+  get oscillatorDetune() {
+    return this._oscillatorDetune;
+  }
+
+  set oscillatorDetune(value) {
+    this._oscillatorDetune = value;
+
+    // if the oscillator is running, update it
+    if (this.oscillator && this.oscillatorRunning) {
+      this.oscillator.detune.setValueAtTime(
+        value,
+        this.audioContext.currentTime
+      );
+    }
+
+    this.handleRAFUpdateCallback();
+  }
+
+  get oscillatorRunning() {
+    return this._oscillatorRunning;
+  }
+
+  private set oscillatorRunning(value) {
+    this._oscillatorRunning = value;
+    this.handleRAFUpdateCallback();
+  }
+
+  public startOscillator() {
+    if (this.oscillator || this.oscillatorRunning) return; // already running
+    if (this.crossfadeActive) return; // abort, crossfade running
+
+    // stop any current playing files
+    this.stop();
+
+    // create and start the oscillator
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.type = this.oscillatorWaveform;
+    oscillator.frequency.setValueAtTime(this.oscillatorFrequency, 0);
+    oscillator.detune.setValueAtTime(this.oscillatorDetune, 0);
+    oscillator.connect(this.currentGain);
+
+    this.oscillator = oscillator;
+    this.oscillator.start();
+    this.oscillatorRunning = true;
+    this.currentStartTime = this.audioContext.currentTime;
+    this.currentElapsed = null;
+    this.currentDuration = null; // Oscillator has no fixed duration
+  }
+
+  public stopOscillator() {
+    this.oscillator?.stop();
+    this.oscillator = null;
+    this.oscillatorRunning = false;
+  }
+
+  /**
    * Methods
    */
 
@@ -398,6 +505,12 @@ export default class PlaybackChannel {
       isPlaying: this.isPlaying,
       volume: this.volume,
       deviceId: this.deviceId,
+      oscillator: {
+        isRunning: this.oscillatorRunning,
+        waveform: this.oscillatorWaveform,
+        frequency: this.oscillatorFrequency,
+        detune: this.oscillatorDetune,
+      },
     };
   }
 
@@ -626,6 +739,9 @@ export default class PlaybackChannel {
    * @param metadata Metadata for the file
    */
   public play(buffer: AudioBuffer, metadata?: AudioEnginePlayMetadata) {
+    // if oscillator is running, do not allow it to play
+    if (this.oscillatorRunning) return;
+
     const crossfadeDuration = this.crossfadeDuration;
 
     // if there's a source already playing, and there's a crossfade duration,

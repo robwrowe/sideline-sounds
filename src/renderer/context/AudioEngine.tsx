@@ -22,6 +22,12 @@ type AudioEngineContextType = {
     filePath: string,
     delay?: number
   ) => Promise<void>;
+
+  setOscillatorWaveform: (output: Output, waveform: OscillatorType) => void;
+  setOscillatorFrequency: (output: Output, frequency: number) => void;
+  setOscillatorDetune: (output: Output, detune: number) => void;
+  startOscillator: (output: Output) => void;
+  stopOscillator: (output: Output) => void;
 };
 
 export const AudioEngineContext = createContext<null | AudioEngineContextType>(
@@ -156,6 +162,56 @@ export default function AudioEngineProvider({
   );
 
   /**
+   * Allows the user to change the oscillator waveform type
+   */
+  const setOscillatorWaveform = useCallback(
+    (output: Output, waveform: OscillatorType) => {
+      audioEngine.setOscillatorWaveform(output, waveform);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Allows the user to change the oscillator frequency
+   */
+  const setOscillatorFrequency = useCallback(
+    (output: Output, frequency: number) => {
+      audioEngine.setOscillatorFrequency(output, frequency);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Allows the user to change the oscillator detune
+   */
+  const setOscillatorDetune = useCallback(
+    (output: Output, detune: number) => {
+      audioEngine.setOscillatorDetune(output, detune);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Start the oscillator
+   */
+  const startOscillator = useCallback(
+    (output: Output) => {
+      audioEngine.startOscillator(output);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Stop the oscillator
+   */
+  const stopOscillator = useCallback(
+    (output: Output) => {
+      audioEngine.stopOscillator(output);
+    },
+    [audioEngine]
+  );
+
+  /**
    * Stops all sound and plays the test file without crossfade
    */
   const testOutput = useCallback(
@@ -212,7 +268,17 @@ export default function AudioEngineProvider({
 
   return (
     <AudioEngineContext.Provider
-      value={{ audioEngine, setVolume, setDevice, testOutput }}
+      value={{
+        audioEngine,
+        setVolume,
+        setDevice,
+        testOutput,
+        setOscillatorWaveform,
+        setOscillatorFrequency,
+        setOscillatorDetune,
+        startOscillator,
+        stopOscillator,
+      }}
     >
       {children}
     </AudioEngineContext.Provider>

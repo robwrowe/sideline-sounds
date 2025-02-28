@@ -23,6 +23,12 @@ const initialState: State = {
     isPlaying: null,
     volume: null,
     deviceId: null,
+    oscillator: {
+      isRunning: false,
+      waveform: null,
+      frequency: 440,
+      detune: 0,
+    },
   },
   [Output.PGM_B]: {
     current: {
@@ -43,6 +49,12 @@ const initialState: State = {
     isPlaying: null,
     volume: null,
     deviceId: null,
+    oscillator: {
+      isRunning: false,
+      waveform: null,
+      frequency: 440,
+      detune: 0,
+    },
   },
   [Output.PFL]: {
     current: {
@@ -63,6 +75,12 @@ const initialState: State = {
     isPlaying: null,
     volume: null,
     deviceId: null,
+    oscillator: {
+      isRunning: false,
+      waveform: null,
+      frequency: 440,
+      detune: 0,
+    },
   },
 };
 

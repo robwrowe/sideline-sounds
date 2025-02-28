@@ -18,8 +18,14 @@ import {
   SearchableSelect,
   LogarithmicSlider,
 } from "../../components";
+import { toTitleCase } from "../../../utils";
 
-const WAVEFORM_TYPES = ["Sine", "Square", "Sawtooth", "Triangle"];
+const WAVEFORM_TYPES: OscillatorType[] = [
+  "sine",
+  "square",
+  "sawtooth",
+  "triangle",
+];
 
 export type DestinationConfigProps = {
   output: Output;
@@ -28,7 +34,16 @@ export type DestinationConfigProps = {
 // TODO: set values for device and volume based on local storage on mount
 
 export default function DestinationConfig({ output }: DestinationConfigProps) {
-  const { testOutput, setVolume, setDevice } = useAudioEngineContext();
+  const {
+    testOutput,
+    setVolume,
+    setDevice,
+    setOscillatorDetune,
+    setOscillatorFrequency,
+    setOscillatorWaveform,
+    startOscillator,
+    stopOscillator,
+  } = useAudioEngineContext();
 
   const availableDevices = useAppSelector(
     ({ outputDevices }) => outputDevices.available
@@ -38,6 +53,18 @@ export default function DestinationConfig({ output }: DestinationConfigProps) {
   );
   const volume = useAppSelector(
     ({ audioEngine }) => audioEngine[output].volume
+  );
+  const oscillatorDetune = useAppSelector(
+    ({ audioEngine }) => audioEngine[output].oscillator.detune
+  );
+  const oscillatorFrequency = useAppSelector(
+    ({ audioEngine }) => audioEngine[output].oscillator.frequency
+  );
+  const oscillatorWaveform = useAppSelector(
+    ({ audioEngine }) => audioEngine[output].oscillator.waveform
+  );
+  const oscillatorIsRunning = useAppSelector(
+    ({ audioEngine }) => audioEngine[output].oscillator.isRunning
   );
 
   const isDisabled = useMemo(
@@ -64,10 +91,22 @@ export default function DestinationConfig({ output }: DestinationConfigProps) {
   /**
    * Oscillator state
    */
-  const [frequency, setFrequency] = useState(440);
   const [frequencyPreset, setFrequencyPreset] = useState<string | null>(null);
-  const [detune, setDetune] = useState(0);
-  const [activeType, setActiveType] = useState(0);
+  const activeType = useMemo(
+    () => WAVEFORM_TYPES.findIndex((item) => item === oscillatorWaveform),
+    [oscillatorWaveform]
+  );
+
+  const handleSetWaveform = useCallback(
+    (idx: number) => {
+      const val = WAVEFORM_TYPES[idx];
+
+      if (val) {
+        setOscillatorWaveform(output, val);
+      }
+    },
+    [output, setOscillatorWaveform]
+  );
 
   return (
     <Stack gap="sm">
@@ -124,18 +163,18 @@ export default function DestinationConfig({ output }: DestinationConfigProps) {
             <Stack>
               <Input.Wrapper label="Waveform Type">
                 <AppFloatingIndicator
-                  data={WAVEFORM_TYPES}
+                  data={WAVEFORM_TYPES.map((item) => toTitleCase(item))}
                   active={activeType}
-                  setActive={setActiveType}
+                  setActive={handleSetWaveform}
                 />
               </Input.Wrapper>
 
               <Input.Wrapper label="Frequency">
                 <Stack gap="xs">
                   <LogarithmicSlider
-                    value={frequency}
+                    value={oscillatorFrequency}
                     setValue={(value) => {
-                      setFrequency(value);
+                      setOscillatorFrequency(output, value);
                       setFrequencyPreset(null);
                     }}
                     min={20} // 20 Hz
@@ -208,7 +247,7 @@ export default function DestinationConfig({ output }: DestinationConfigProps) {
                     value={frequencyPreset}
                     setValue={(value: string | null) => {
                       if (value) {
-                        setFrequency(Number(value));
+                        setOscillatorFrequency(output, Number(value));
                       }
 
                       setFrequencyPreset(value);
@@ -223,38 +262,56 @@ export default function DestinationConfig({ output }: DestinationConfigProps) {
                 <Button.Group>
                   <Button
                     variant="default"
-                    onClick={() => setDetune((prev) => (prev += -12))}
+                    onClick={() =>
+                      setOscillatorDetune(output, oscillatorDetune + -12)
+                    }
                   >
                     -12 ¢
                   </Button>
                   <Button
                     variant="default"
-                    onClick={() => setDetune((prev) => (prev += -1))}
+                    onClick={() =>
+                      setOscillatorDetune(output, oscillatorDetune + -1)
+                    }
                   >
                     -1 ¢
                   </Button>
                   <NumberInput
-                    value={detune}
-                    onChange={(val) => setDetune(Number(val))}
+                    value={oscillatorDetune}
+                    onChange={(val) => setOscillatorDetune(output, Number(val))}
                     fw="bold"
                     w="6rem"
                   />
                   <Button
                     variant="default"
-                    onClick={() => setDetune((prev) => (prev += 1))}
+                    onClick={() =>
+                      setOscillatorDetune(output, oscillatorDetune + 1)
+                    }
                   >
                     +1 ¢
                   </Button>
                   <Button
                     variant="default"
-                    onClick={() => setDetune((prev) => (prev += 12))}
+                    onClick={() =>
+                      setOscillatorDetune(output, oscillatorDetune + 12)
+                    }
                   >
                     +12 ¢
                   </Button>
                 </Button.Group>
               </Input.Wrapper>
 
-              <Button variant="default">Start Oscillator</Button>
+              <Button
+                variant="default"
+                onClick={() => {
+                  if (oscillatorIsRunning) {
+                    stopOscillator(output);
+                  } else {
+                    // TODO: if there's an audio file playing, warn the user
+                    startOscillator(output);
+                  }
+                }}
+              >{`${oscillatorIsRunning ? "Stop" : "Start"} Oscillator`}</Button>
             </Stack>
           </Accordion.Panel>
         </Accordion.Item>

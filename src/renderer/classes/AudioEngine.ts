@@ -153,6 +153,53 @@ export default class AudioEngine {
   }
 
   /**
+   * Adjust the waveform for the oscillator
+   */
+  public setOscillatorWaveform(output: Output, waveform: OscillatorType) {
+    const channel = this.channels[output];
+
+    if (channel) {
+      channel.oscillatorWaveform = waveform;
+    }
+  }
+
+  /**
+   * Adjust the frequency for the oscillator
+   */
+  public setOscillatorFrequency(output: Output, frequency: number) {
+    const channel = this.channels[output];
+
+    if (channel) {
+      channel.oscillatorFrequency = frequency;
+    }
+  }
+
+  /**
+   * Adjust the detune for the oscillator
+   */
+  public setOscillatorDetune(output: Output, detune: number) {
+    const channel = this.channels[output];
+
+    if (channel) {
+      channel.oscillatorDetune = detune;
+    }
+  }
+
+  /**
+   * Start the oscillator
+   */
+  public startOscillator(output: Output) {
+    this.channels[output]?.startOscillator();
+  }
+
+  /**
+   * Stop the oscillator
+   */
+  public stopOscillator(output: Output) {
+    this.channels[output]?.stopOscillator();
+  }
+
+  /**
    * Get the current crossfade duration for program outputs
    */
   public getCrossfadeDurationPgm() {
