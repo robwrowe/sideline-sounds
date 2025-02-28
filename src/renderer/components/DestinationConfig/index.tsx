@@ -25,6 +25,8 @@ export type DestinationConfigProps = {
   output: Output;
 };
 
+// TODO: set values for device and volume based on local storage on mount
+
 export default function DestinationConfig({ output }: DestinationConfigProps) {
   const { testOutput, setVolume, setDevice } = useAudioEngineContext();
 

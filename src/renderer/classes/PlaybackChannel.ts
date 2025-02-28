@@ -489,10 +489,14 @@ export default class PlaybackChannel {
       this.isPlaying = false;
 
       // update timing information
-      if (this.currentDuration !== null) {
-        this.currentElapsed = this.currentDuration;
-        this.currentRemaining = 0;
-      }
+      this.currentBuffer = null;
+      this.currentDuration = null;
+      this.currentElapsed = null;
+      this.currentMetadata = null;
+      this.currentRemaining = null;
+      this.currentSource = null;
+      this.currentSource = null;
+      this.currentStartTime = null;
 
       // stop RAF updates
       this.stopRAFUpdate();
@@ -561,10 +565,13 @@ export default class PlaybackChannel {
       this.nextGain.gain.setValueAtTime(0, currentTime);
       this.nextGain.gain.linearRampToValueAtTime(1, crossFadeTime);
 
+      // remove previous listener
+      if (this.currentSource) {
+        this.currentSource.onended = null;
+      }
+
       // ensure the outgoing source stops
       this.currentSource?.stop(crossFadeTime + 0.1);
-
-      this.startRAFUpdate();
 
       // cleanup after the crossfade
       cleanupTimeout = setTimeout(() => {
@@ -576,17 +583,21 @@ export default class PlaybackChannel {
 
           // state
           this.currentBuffer = this.nextBuffer;
-          this.currentMetadata = this.nextMetadata;
           this.currentDuration = this.nextDuration;
-          this.currentStartTime = this.nextStartTime;
           this.currentElapsed = this.nextElapsed;
+          this.currentMetadata = this.nextMetadata;
+          this.currentRemaining = this.nextRemaining;
+          this.currentSource = this.nextSource;
+          this.currentStartTime = this.nextStartTime;
 
           // reset next
           this.nextBuffer = null;
-          this.nextMetadata = null;
           this.nextDuration = null;
-          this.nextStartTime = null;
           this.nextElapsed = null;
+          this.nextMetadata = null;
+          this.nextRemaining = null;
+          this.nextSource = null;
+          this.nextStartTime = null;
         } catch (err) {
           alert("Error cleaning up crossfade");
           console.error("Error cleaning up crossfade", err);

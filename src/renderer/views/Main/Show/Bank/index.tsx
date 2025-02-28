@@ -10,6 +10,7 @@ import {
   ContentButtonModalConfirmArgs,
 } from "../../../../modals";
 import {
+  AudioEnginePlayMetadata,
   AudioFile,
   ButtonActionType,
   ContextMenuItem,
@@ -117,10 +118,19 @@ export default function ShowBank() {
   );
 
   // play audio on first click
-  const handleClick = useCallback(async (obj: AudioFile) => {
-    const { filePath } = obj;
-    window.audio.sendAudioEngine("play", filePath);
-  }, []);
+  const handleClick = useCallback(
+    async (
+      obj: AudioFile,
+      opts?: Omit<AudioEnginePlayMetadata, "audioFile">
+    ) => {
+      const { filePath } = obj;
+      window.audio.sendAudioEngine("play", filePath, {
+        audioFile: obj,
+        ...opts,
+      });
+    },
+    []
+  );
 
   // build out the song cards
   useEffect(() => {
@@ -194,6 +204,10 @@ export default function ShowBank() {
           const file = audioFiles.find((item) => item.id === btn.contentID);
 
           if (file) {
+            const subclip = btn.subclipID
+              ? file.subclips.find((item) => item.id === btn.subclipID)
+              : null;
+
             result.push(
               <SongCard
                 key={`song-card-${i}`}
@@ -208,8 +222,13 @@ export default function ShowBank() {
                     : undefined
                 }
                 contextMenu={contextMenu}
-                onClick={() => handleClick(file)}
-                color={btn?.color ?? undefined}
+                onClick={() =>
+                  handleClick(file, {
+                    button: btn,
+                    subclipID: btn.subclipID ?? undefined,
+                  })
+                }
+                color={btn?.color ?? subclip?.color ?? file?.color ?? undefined}
                 size={cardSize}
               />
             );

@@ -15,9 +15,6 @@ import { AudioFile, AudioFileState } from "../../../types";
 import { getFileName } from "../../../utils";
 import { openAudioFileModal } from "../../modals";
 
-// TEMP
-import { AudioEngineProvider } from "../../context";
-
 type LinksObject = {
   label: string;
   onClick: () => void;
@@ -30,6 +27,7 @@ const FOOTER_HEIGHT = 32;
 
 export default function LibraryView() {
   const dispatch = useAppDispatch();
+  const audioEngineState = useAppSelector(({ audioEngine }) => audioEngine);
   const audioFiles = useAppSelector(({ audioFiles }) => audioFiles.audioFiles);
   const status = useAppSelector(({ audioFiles }) => audioFiles.status);
   const error = useAppSelector(({ audioFiles }) => audioFiles.error);
@@ -211,14 +209,13 @@ export default function LibraryView() {
           height: "100vh",
         }}
       >
-        <AudioEngineProvider>
-          <AudioFilesTable
-            data={audioFiles}
-            status={status}
-            error={error}
-            fetchData={fetchData}
-          />
-        </AudioEngineProvider>
+        <AudioFilesTable
+          state={audioEngineState}
+          data={audioFiles}
+          status={status}
+          error={error}
+          fetchData={fetchData}
+        />
       </AppShell.Main>
 
       <AppShell.Footer p="0"></AppShell.Footer>

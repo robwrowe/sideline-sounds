@@ -1,13 +1,9 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from "electron";
-import { DialogOpenOpts, AudioEnginePlayPgmOpts } from "./types";
+import { DialogOpenOpts } from "./types";
 import { Action } from "@reduxjs/toolkit";
 import { StoreState } from "./main/store";
-
-type AudioEnginePlayOpts = Omit<AudioEnginePlayPgmOpts, "bufferB"> & {
-  filePathB?: string;
-};
 
 contextBridge.exposeInMainWorld("electron", {
   ipcRenderer: {

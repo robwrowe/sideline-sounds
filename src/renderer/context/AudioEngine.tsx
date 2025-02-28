@@ -6,7 +6,11 @@ import React, {
   useCallback,
 } from "react";
 import AudioEngine from "../classes/AudioEngine";
-import { Output, PlaybackChannelStatus } from "../../types";
+import {
+  AudioEnginePlayMetadata,
+  Output,
+  PlaybackChannelStatus,
+} from "../../types";
 import { getAudioMimeType, getFileName } from "../../utils";
 
 type AudioEngineContextType = {
@@ -76,10 +80,6 @@ export default function AudioEngineProvider({
   useEffect(() => {
     fetchAndSetState();
   }, [fetchAndSetState]);
-
-  /**
-   * When the state changes, update other renderer processes
-   */
 
   /**
    * When the state changes, update it in redux
@@ -169,10 +169,10 @@ export default function AudioEngineProvider({
 
   // TODO: add support for button metadata
   const play = useCallback(
-    async (filePath: string) => {
+    async (filePath: string, metadata?: AudioEnginePlayMetadata) => {
       const audioBuffer = await getAudioBuffer(filePath);
 
-      audioEngine.play(audioBuffer);
+      audioEngine.play(audioBuffer, metadata);
     },
     [audioEngine, getAudioBuffer]
   );
@@ -182,14 +182,33 @@ export default function AudioEngineProvider({
     window.audio.onAudioEngine((channel, ...args) => {
       switch (channel) {
         case "play":
-          play(args[0] as string);
+          play(
+            args[0] as string,
+            (args[1] as AudioEnginePlayMetadata) ?? undefined
+          );
+          break;
+
+        case "stop":
+          audioEngine.stop();
+          break;
+
+        case "pause":
+          audioEngine.pause();
+          break;
+
+        case "resume":
+          audioEngine.resume();
+          break;
+
+        case "reRack":
+          audioEngine.reRack((args[0] as number) ?? undefined);
           break;
 
         default:
           console.warn("Received unhandled audio engine event.");
       }
     });
-  }, [play]);
+  }, [audioEngine, play]);
 
   return (
     <AudioEngineContext.Provider

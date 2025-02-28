@@ -245,6 +245,38 @@ export default class AudioEngine {
     }
   }
 
+  /**
+   * Stop the audio playing on program
+   */
+  public stop() {
+    this.channels[Output.PGM_A]?.stop();
+    this.channels[Output.PGM_B]?.stop();
+  }
+
+  /**
+   * Pause the audio currently playing on program
+   */
+  public pause() {
+    this.channels[Output.PGM_A]?.pause();
+    this.channels[Output.PGM_B]?.pause();
+  }
+
+  /**
+   * Resume the audio currently paused on program
+   */
+  public resume() {
+    this.channels[Output.PGM_A]?.resume();
+    this.channels[Output.PGM_B]?.resume();
+  }
+
+  /**
+   * Set the current time in the audio file, regardless if it's playing
+   */
+  public reRack(startPoint?: number) {
+    this.channels[Output.PGM_A]?.reRack(startPoint);
+    this.channels[Output.PGM_B]?.reRack(startPoint);
+  }
+
   /*
   // play the file in pre-fade listen
   public preFadeListen(
