@@ -1,0 +1,58 @@
+// DestinationNode.scss
+.destinationNode {
+  border: 2px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 300px;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+
+  h3 {
+    margin: 0 0 12px;
+    font-size: 1.2rem;
+    color: #222;
+  }
+
+  .deviceInfo {
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    color: #555;
+
+    span {
+      font-weight: bold;
+    }
+  }
+
+  .volumeControl {
+    margin-bottom: 12px;
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+
+      &::-webkit-slider-thumb {
+        background: #007bff;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .playbackStatus {
+    font-size: 0.9rem;
+    color: #444;
+
+    span {
+      display: block;
+      &:first-child {
+        font-weight: bold;
+      }
+    }
+  }
+}

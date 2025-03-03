@@ -38,10 +38,18 @@ export default class PlaybackChannel {
     this.currentGain = this.audioContext.createGain();
     this.nextGain = this.audioContext.createGain();
 
+    // initialize current destination to default
+    this.destination = this.audioContext.destination;
+
     // connect gains to the destination
     this.currentGain.connect(this.masterGain);
     this.nextGain.connect(this.masterGain);
-    this.masterGain.connect(this.audioContext.destination);
+
+    // setup visualizer
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.fftSize = 2048; // Set FFT size for analysis
+    this.analyser.connect(this.audioContext.destination);
+    this.masterGain.connect(this.analyser);
   }
 
   private get audioContext() {
@@ -71,6 +79,8 @@ export default class PlaybackChannel {
    * If none is provided, will use the default
    */
   private _deviceId: string | null = null;
+  private _destination: AudioNode | null = null;
+  private _audioElement: HTMLAudioElement | null = null;
 
   get deviceId() {
     return this._deviceId;
@@ -78,6 +88,26 @@ export default class PlaybackChannel {
 
   set deviceId(value) {
     this._deviceId = value;
+  }
+
+  get destination() {
+    if (this._destination === null) {
+      throw new Error("Destination not configured");
+    }
+
+    return this._destination;
+  }
+
+  private set destination(value) {
+    this._destination = value;
+  }
+
+  get audioElement() {
+    return this._audioElement;
+  }
+
+  private set audioElement(value) {
+    this._audioElement = value;
   }
 
   /**
@@ -197,6 +227,21 @@ export default class PlaybackChannel {
 
   private set nextGain(value) {
     this._nextGain = value;
+  }
+
+  /**
+   * Output visualization
+   */
+  private _analyser: AnalyserNode | null = null;
+
+  get analyser() {
+    if (this._analyser === null) throw new Error("Analyser not initialized");
+
+    return this._analyser;
+  }
+
+  private set analyser(value) {
+    this._analyser = value;
   }
 
   /**
@@ -906,47 +951,56 @@ export default class PlaybackChannel {
       // disconnect the master gain node
       this.masterGain.disconnect();
 
-      // stop all audio files
-      this.stop();
-
-      // disconnect the master gain node
+      // Disconnect existing connections to reset the graph
       this.masterGain.disconnect();
+      this.analyser.disconnect();
 
-      // create a new MediaStreamAudioDestinationNode
+      // Cleanup existing audio element
+      if (this.audioElement) {
+        this.audioElement.pause();
+        this.audioElement.srcObject = null;
+        this.audioElement = null;
+      }
+
+      if (!newDeviceId && !this.allowNull) {
+        alert("This output cannot be set to default. It will be disabled.");
+        return;
+      }
+
+      if (!newDeviceId) {
+        alert(
+          "This destination will use the default destination for the operating system"
+        );
+      }
+
+      // create a new destination node for the specific device
       const destinationNode = this.audioContext.createMediaStreamDestination();
 
-      // connect the master gain to the new destination node
-      this.masterGain.connect(destinationNode);
-
-      // create an HTMLAudioElement and attach the destination stream
+      // create and configure an audio element to route audio to the new device
       const audioElement = new Audio();
       audioElement.srcObject = destinationNode.stream;
 
-      // set the sink ID (output device)
       if (newDeviceId) {
         await audioElement.setSinkId(newDeviceId);
-      } else {
-        if (this.allowNull) {
-          alert(
-            "This destination will use the default destination for the operating system."
-          );
-        } else {
-          alert("This output cannot be set to default. It will be disabled.");
-        }
       }
 
-      if (newDeviceId || this.allowNull) {
-        // start the audio element to route the audio
-        await audioElement.play();
-      }
+      await audioElement.play();
 
-      // update the device ID
+      // store the audio element reference
+      this.audioElement = audioElement;
+
+      const newDestination = destinationNode;
+
+      // reconnect the audio graph: masterGain → analyser → newDestination
+      // connect the master gain to the new analyser
+      this.masterGain.connect(this.analyser);
+      this.analyser.connect(newDestination);
+
+      // connect the master gain to the new destination node
+      this.destination = newDestination;
+
+      // update device id
       this.deviceId = newDeviceId;
-
-      console.log(
-        `Output device successfully changed to device ID "${newDeviceId}".`,
-        audioElement.readyState
-      );
 
       // update metadata
       this.handleRAFUpdateCallback();
@@ -954,5 +1008,23 @@ export default class PlaybackChannel {
       alert("Unable to change output destination");
       console.error("Unable to change output destination", err);
     }
+  }
+
+  /**
+   * Get frequency data (e.g., for spectrum visualization)
+   */
+  public getFrequencyData(): Uint8Array {
+    const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+    this.analyser.getByteFrequencyData(dataArray);
+    return dataArray;
+  }
+
+  /**
+   * get time-domain data (e.g., for volume or waveform)
+   */
+  public getTimeDomainData(): Uint8Array {
+    const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+    this.analyser.getByteTimeDomainData(dataArray);
+    return dataArray;
   }
 }

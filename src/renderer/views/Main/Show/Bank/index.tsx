@@ -15,6 +15,7 @@ import {
   ButtonActionType,
   ContextMenuItem,
   ShowParams,
+  SongState,
 } from "../../../../../types";
 import { formatArtist, formatSecondsToTime } from "../../../../../utils";
 import { dbContentButtons } from "../../../../repos";
@@ -27,6 +28,15 @@ export default function ShowBank() {
   const dispatch = useAppDispatch();
 
   const allBanks = useAppSelector(({ banks }) => banks.banks);
+
+  const currentPlayingButton = useAppSelector(
+    ({ audioEngine }) => audioEngine.pgmA.current.metadata?.button
+  );
+
+  const nextPlayingButton = useAppSelector(
+    ({ audioEngine }) => audioEngine.pgmA.next.metadata?.button
+  );
+
   const bank = useMemo(
     () => allBanks.find((item) => item.id === bankID),
     [allBanks, bankID]
@@ -208,6 +218,14 @@ export default function ShowBank() {
               ? file.subclips.find((item) => item.id === btn.subclipID)
               : null;
 
+            const state: SongState | null =
+              (btn.bankID === currentPlayingButton?.bankID &&
+                btn.buttonNumber === currentPlayingButton?.buttonNumber) ||
+              (btn.bankID === nextPlayingButton?.bankID &&
+                btn.buttonNumber === nextPlayingButton?.buttonNumber)
+                ? SongState.PLAYING
+                : null;
+
             result.push(
               <SongCard
                 key={`song-card-${i}`}
@@ -230,6 +248,7 @@ export default function ShowBank() {
                 }
                 color={btn?.color ?? subclip?.color ?? file?.color ?? undefined}
                 size={cardSize}
+                state={state}
               />
             );
             continue;
@@ -251,9 +270,13 @@ export default function ShowBank() {
     audioFiles,
     buttons,
     cardSize,
+    currentPlayingButton?.bankID,
+    currentPlayingButton?.buttonNumber,
     handleClick,
     handleClickAssign,
     handleClickDelete,
+    nextPlayingButton?.bankID,
+    nextPlayingButton?.buttonNumber,
     numOfCols,
     numOfRows,
   ]);

@@ -271,6 +271,37 @@ export default class AudioEngine {
   }
 
   /**
+   * returns current sample rate (useful for frequency calculations)
+   */
+  public get sampleRate(): number {
+    return this.audioContext.sampleRate;
+  }
+
+  /**
+   * get frequency data (e.g. for spectrum visualization) for a
+   * specific output destination
+   */
+  public getFrequencyData(output: Output) {
+    const channel = this.channels[output];
+
+    if (channel) {
+      return channel.getFrequencyData();
+    }
+  }
+
+  /**
+   * get time domain data (e.g. for volume or waveform) for a
+   * specific output destination
+   */
+  public getTimeDomainData(output: Output) {
+    const channel = this.channels[output];
+
+    if (channel) {
+      return channel.getTimeDomainData();
+    }
+  }
+
+  /**
    * Take the audio buffer and send it out the main output
    * @param bufferA Buffer to play
    * @param opts Optional properties & metadata for the file
