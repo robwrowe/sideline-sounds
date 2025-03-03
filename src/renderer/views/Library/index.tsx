@@ -27,6 +27,7 @@ const FOOTER_HEIGHT = 32;
 
 export default function LibraryView() {
   const dispatch = useAppDispatch();
+  const audioEngineState = useAppSelector(({ audioEngine }) => audioEngine);
   const audioFiles = useAppSelector(({ audioFiles }) => audioFiles.audioFiles);
   const status = useAppSelector(({ audioFiles }) => audioFiles.status);
   const error = useAppSelector(({ audioFiles }) => audioFiles.error);
@@ -110,7 +111,7 @@ export default function LibraryView() {
       const filePath = file.filePaths[0];
 
       // get the metadata for this file
-      const metadata = await window.electron.audio.metadata(filePath);
+      const metadata = await window.audio.metadata(filePath);
 
       // build out the initial value
       const fileInitialState: AudioFileState = {
@@ -209,6 +210,7 @@ export default function LibraryView() {
         }}
       >
         <AudioFilesTable
+          state={audioEngineState}
           data={audioFiles}
           status={status}
           error={error}

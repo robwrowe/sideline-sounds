@@ -4,27 +4,20 @@ import styles from "./index.module.scss";
 
 import { SongCard } from "../../../../components";
 import { fetchContentButtons, setActiveBankID } from "../../../../features";
-import {
-  useAppDispatch,
-  useAppSelector,
-  useAudioEngineContext,
-} from "../../../../hooks";
+import { useAppDispatch, useAppSelector } from "../../../../hooks";
 import {
   openContentButtonModal,
   ContentButtonModalConfirmArgs,
 } from "../../../../modals";
 import {
+  AudioEnginePlayMetadata,
   AudioFile,
   ButtonActionType,
   ContextMenuItem,
   ShowParams,
+  SongState,
 } from "../../../../../types";
-import {
-  formatArtist,
-  formatSecondsToTime,
-  getAudioMimeType,
-  getFileName,
-} from "../../../../../utils";
+import { formatArtist, formatSecondsToTime } from "../../../../../utils";
 import { dbContentButtons } from "../../../../repos";
 
 import openContentDeleteModal from "./ContentModalDelete";
@@ -35,6 +28,15 @@ export default function ShowBank() {
   const dispatch = useAppDispatch();
 
   const allBanks = useAppSelector(({ banks }) => banks.banks);
+
+  const currentPlayingButton = useAppSelector(
+    ({ audioEngine }) => audioEngine.pgmA.current.metadata?.button
+  );
+
+  const nextPlayingButton = useAppSelector(
+    ({ audioEngine }) => audioEngine.pgmA.next.metadata?.button
+  );
+
   const bank = useMemo(
     () => allBanks.find((item) => item.id === bankID),
     [allBanks, bankID]
@@ -49,7 +51,6 @@ export default function ShowBank() {
 
   const audioFiles = useAppSelector(({ audioFiles }) => audioFiles.audioFiles);
   const [cards, setCards] = useState<React.JSX.Element[]>([]);
-  const { audioEngine } = useAudioEngineContext();
 
   const numOfRows = bank?.numOfRows || 7;
   const numOfCols = bank?.numOfCols || 4;
@@ -128,27 +129,17 @@ export default function ShowBank() {
 
   // play audio on first click
   const handleClick = useCallback(
-    async (obj: AudioFile) => {
-      const { filePath, title, artist, album } = obj;
-      // extract the file name from the path
-      const fileName = getFileName(filePath) || "No Name Found";
-
-      const fileBuffer = await window.electron.audio.fileBuffer(filePath);
-
-      const blob = new Blob([fileBuffer]);
-
-      const file = new File([blob], fileName, {
-        type: getAudioMimeType(filePath),
-      });
-
-      const audioBuffer = await audioEngine.loadAudio(file);
-
-      audioEngine.play(audioBuffer, {
-        title,
-        artist: formatArtist({ artist, album }),
+    async (
+      obj: AudioFile,
+      opts?: Omit<AudioEnginePlayMetadata, "audioFile">
+    ) => {
+      const { filePath } = obj;
+      window.audio.sendAudioEngine("play", filePath, {
+        audioFile: obj,
+        ...opts,
       });
     },
-    [audioEngine]
+    []
   );
 
   // build out the song cards
@@ -223,6 +214,18 @@ export default function ShowBank() {
           const file = audioFiles.find((item) => item.id === btn.contentID);
 
           if (file) {
+            const subclip = btn.subclipID
+              ? file.subclips.find((item) => item.id === btn.subclipID)
+              : null;
+
+            const state: SongState | null =
+              (btn.bankID === currentPlayingButton?.bankID &&
+                btn.buttonNumber === currentPlayingButton?.buttonNumber) ||
+              (btn.bankID === nextPlayingButton?.bankID &&
+                btn.buttonNumber === nextPlayingButton?.buttonNumber)
+                ? SongState.PLAYING
+                : null;
+
             result.push(
               <SongCard
                 key={`song-card-${i}`}
@@ -237,9 +240,15 @@ export default function ShowBank() {
                     : undefined
                 }
                 contextMenu={contextMenu}
-                onClick={() => handleClick(file)}
-                color={btn?.color ?? undefined}
+                onClick={() =>
+                  handleClick(file, {
+                    button: btn,
+                    subclipID: btn.subclipID ?? undefined,
+                  })
+                }
+                color={btn?.color ?? subclip?.color ?? file?.color ?? undefined}
                 size={cardSize}
+                state={state}
               />
             );
             continue;
@@ -261,9 +270,13 @@ export default function ShowBank() {
     audioFiles,
     buttons,
     cardSize,
+    currentPlayingButton?.bankID,
+    currentPlayingButton?.buttonNumber,
     handleClick,
     handleClickAssign,
     handleClickDelete,
+    nextPlayingButton?.bankID,
+    nextPlayingButton?.buttonNumber,
     numOfCols,
     numOfRows,
   ]);

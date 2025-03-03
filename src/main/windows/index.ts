@@ -8,11 +8,16 @@ import {
 
 import createMainWindow from "./mainWindow";
 import createLibraryWindow from "./libraryWindow";
+import createOutputWindow, {
+  outputWindow,
+  setOutputWindow,
+} from "./outputWindow";
 
 export * from "./mainWindow";
 export * from "./libraryWindow";
+export * from "./outputWindow";
 
-export { createMainWindow, createLibraryWindow };
+export { createMainWindow, createLibraryWindow, createOutputWindow };
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -23,6 +28,7 @@ if (require("electron-squirrel-startup")) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
+  createOutputWindow();
   createMainWindow();
 
   // Modify HTTP headers to set CSP dynamically
@@ -50,7 +56,25 @@ app.on("ready", () => {
 app.on("activate", () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
+  if (
+    BrowserWindow.getAllWindows().filter((win) => win.isVisible).length === 0
+  ) {
     createMainWindow();
+  }
+});
+
+app.on("before-quit", () => {
+  if (outputWindow) {
+    console.info("Destroying output window via before-quit");
+    outputWindow.destroy();
+    setOutputWindow(null);
+  }
+});
+
+app.on("will-quit", () => {
+  if (outputWindow) {
+    console.info("Destroying output window via will-quit");
+    outputWindow.destroy();
+    setOutputWindow(null);
   }
 });

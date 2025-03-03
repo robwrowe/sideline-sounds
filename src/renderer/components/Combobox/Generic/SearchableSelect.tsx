@@ -3,6 +3,7 @@ import {
   CloseButton,
   Combobox,
   ComboboxItem,
+  Input,
   InputBase,
   ScrollArea,
   useCombobox,
@@ -17,6 +18,7 @@ export type SearchableSelectProps = {
   placeholder?: string;
   label?: string;
   emptyText?: string;
+  searchPlaceholder?: string;
 };
 
 export default function SearchableSelect({
@@ -26,9 +28,19 @@ export default function SearchableSelect({
   placeholder,
   label,
   emptyText = "Nothing found",
+  searchPlaceholder = "",
 }: SearchableSelectProps) {
   const combobox = useCombobox({
-    onDropdownClose: () => combobox.resetSelectedOption(),
+    onDropdownClose: () => {
+      combobox.resetSelectedOption();
+      combobox.focusTarget();
+
+      setSearch("");
+    },
+
+    onDropdownOpen: () => {
+      combobox.focusSearchInput();
+    },
   });
 
   const [search, setSearch] = useState("");
@@ -68,38 +80,44 @@ export default function SearchableSelect({
       withinPortal
       onOptionSubmit={(val) => {
         setValue(val);
-        setSearch(val);
         combobox.closeDropdown();
       }}
     >
       <Combobox.Target>
         <InputBase
-          placeholder={placeholder}
           label={label}
-          value={selectedItem?.label || ""}
-          onClick={() => combobox.openDropdown()}
-          onFocus={() => combobox.openDropdown()}
-          onBlur={() => {
-            combobox.closeDropdown();
-            setSearch(value || "");
-          }}
-          rightSectionPointerEvents={value ? "all" : "none"}
+          component="button"
+          pointer
+          onClick={() => combobox.toggleDropdown()}
           rightSection={
             value ? (
               <CloseButton
-                onClick={() => {
-                  setValue(null);
-                  setSearch("");
-                }}
+                size="sm"
+                onMouseDown={(evt: React.MouseEvent) => evt.preventDefault()}
+                onClick={() => setValue(null)}
+                aria-label="Clear value"
               />
             ) : (
               <Combobox.Chevron />
             )
           }
-        />
+        >
+          {selectedItem ? (
+            selectedItem?.label || selectedItem?.value
+          ) : (
+            <Input.Placeholder>{placeholder}</Input.Placeholder>
+          )}
+        </InputBase>
       </Combobox.Target>
 
       <Combobox.Dropdown>
+        <Combobox.Search
+          value={search}
+          onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+            setSearch(evt.currentTarget.value)
+          }
+          placeholder={searchPlaceholder}
+        />
         <Combobox.Options>
           {filteredData.length > 0 ? (
             <ScrollArea.Autosize mah={300}>

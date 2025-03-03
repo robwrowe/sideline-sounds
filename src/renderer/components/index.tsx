@@ -2,6 +2,7 @@ import AppFloatingIndicator from "./AppFloatingIndicator";
 import AudioControls from "./AudioControls";
 import AudioFileEditor from "./AudioFileEditor";
 import AudioFilesTable from "./AudioFilesTable";
+import DestinationConfig from "./DestinationConfig";
 import Footer from "./Footer";
 import Header from "./Header";
 import InOutPoint from "./InOutPoint";
@@ -20,6 +21,7 @@ export {
   AudioControls,
   AudioFileEditor,
   AudioFilesTable,
+  DestinationConfig,
   Footer,
   Header,
   InOutPoint,

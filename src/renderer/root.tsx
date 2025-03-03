@@ -5,7 +5,6 @@ import { createTheme, MantineProvider } from "@mantine/core";
 import { store } from "./store";
 import { Provider } from "react-redux";
 import App from "./App";
-import { AudioEngineProvider } from "./context";
 
 import initDB, { stores } from "./repos";
 import AppModalsProvider from "./modals";
@@ -89,9 +88,7 @@ root.render(
     <MemoryRouter>
       <MantineProvider theme={theme} defaultColorScheme="dark">
         <AppModalsProvider>
-          <AudioEngineProvider>
-            <App />
-          </AudioEngineProvider>
+          <App />
         </AppModalsProvider>
       </MantineProvider>
     </MemoryRouter>

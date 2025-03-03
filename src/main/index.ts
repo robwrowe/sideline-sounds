@@ -43,3 +43,6 @@ import "./handlers";
 
 // build out custom menu
 import "./menus";
+
+// create a central store for state across renderer
+import "./store";

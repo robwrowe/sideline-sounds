@@ -2,6 +2,8 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from "electron";
 import { DialogOpenOpts } from "./types";
+import { Action } from "@reduxjs/toolkit";
+import { StoreState } from "./main/store";
 
 contextBridge.exposeInMainWorld("electron", {
   ipcRenderer: {
@@ -17,16 +19,11 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.on("theme:toggle", () => callback());
   },
 
+  // TODO: add extra reducers
+
   dialog: {
     showOpenDialog: (opts: DialogOpenOpts = {}) =>
       ipcRenderer.invoke("dialog:showOpenDialog", opts),
-  },
-
-  audio: {
-    fileBuffer: (filePath: string) =>
-      ipcRenderer.invoke("audio:fileBuffer", filePath),
-    metadata: (filePath: string) =>
-      ipcRenderer.invoke("audio:metadata", filePath),
   },
 });
 
@@ -51,4 +48,35 @@ contextBridge.exposeInMainWorld("broadcast", {
       callback(channel, ...args);
     });
   },
+});
+
+contextBridge.exposeInMainWorld("audio", {
+  fileBuffer: (filePath: string) =>
+    ipcRenderer.invoke("audio:fileBuffer", filePath),
+
+  metadata: (filePath: string) =>
+    ipcRenderer.invoke("audio:metadata", filePath),
+
+  sendAudioEngine: (channel: string, ...args: unknown[]) => {
+    console.log(`sending "broadcast:audio:engine"`, channel, ...args);
+    ipcRenderer.send("broadcast:audio:engine", channel, ...args);
+  },
+
+  onAudioEngine: (callback: (channel: string, ...args: unknown[]) => void) => {
+    ipcRenderer.on("audio:engine", (_, channel, ...args) => {
+      console.log(
+        `received event "audio:engine" from other renderer`,
+        channel,
+        ...args
+      );
+
+      callback(channel, ...args);
+    });
+  },
+
+  sendAction: (action: Action) => ipcRenderer.send("redux:action", action),
+  onStateUpdate: (callback: (state: StoreState) => void) =>
+    ipcRenderer.on("redux:state:update", (_, state) => callback(state)),
+  removeStateListener: () =>
+    ipcRenderer.removeAllListeners("redux:state:update"),
 });

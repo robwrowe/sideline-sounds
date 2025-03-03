@@ -1,25 +1,64 @@
 import React from "react";
 import classNames from "classnames";
-import { Box, Image, Progress, Text } from "@mantine/core";
-import { IconMusic } from "@tabler/icons-react";
+import { Box, Progress, Text } from "@mantine/core";
 import styles from "./SongStatus.module.scss";
 
-import { useAudioEngineContext, useDarkModeClassNames } from "../../hooks";
+import {
+  useAppSelector,
+  useDarkModeClassNames,
+  useSongCardColorResolver,
+} from "../../hooks";
 import { formatSecondsToTime } from "../../../utils";
+import { Output } from "../../../types";
 
-// TODO: add color support
 export default function SongStatus() {
   const darkModeStyles = useDarkModeClassNames(styles);
-  const { currentMetadata, currentDuration, currentElapsed, currentRemaining } =
-    useAudioEngineContext();
+
+  const currentDuration = useAppSelector(
+    ({ audioEngine }) => audioEngine[Output.PGM_A].current.duration
+  );
+
+  const currentElapsed = useAppSelector(
+    ({ audioEngine }) => audioEngine[Output.PGM_A].current.elapsed
+  );
+
+  const currentRemaining = useAppSelector(
+    ({ audioEngine }) => audioEngine[Output.PGM_A].current.remaining
+  );
+
+  const currentMetadata = useAppSelector(
+    ({ audioEngine }) => audioEngine[Output.PGM_A].current.metadata
+  );
+
+  const subclip = currentMetadata?.subclipID
+    ? currentMetadata?.audioFile?.subclips?.find(
+        (item) => item.id === currentMetadata.subclipID
+      )
+    : null;
+
+  const color =
+    currentMetadata?.button?.color ??
+    subclip?.color ??
+    currentMetadata?.audioFile?.color ??
+    undefined;
+
+  const { style } = useSongCardColorResolver({
+    color,
+  });
+
+  const progressColor = color ?? "accent";
+  const { resolvedColors } = useSongCardColorResolver({
+    color: progressColor,
+  });
 
   return (
-    <div className={classNames(styles.parent, darkModeStyles)}>
+    <div className={classNames(styles.parent, darkModeStyles)} style={style}>
       <Box p="2px">
-        {currentMetadata?.image ? (
+        {/* TODO: Add support for album cover */}
+        {/* {currentMetadata?.audioFile?.album ? (
           <Image
-            src={currentMetadata.image}
-            alt={`${currentMetadata?.title || "Current Song"} album cover`}
+            src={currentMetadata?.audioFile?.album}
+            alt={`${currentMetadata?.audioFile?.title || "Current Song"} album cover`}
             h={64}
             radius="xs"
           />
@@ -27,15 +66,15 @@ export default function SongStatus() {
           <Box className={styles.imagePlaceholder} h={64} w={64}>
             <IconMusic size={32} color="gray" />
           </Box>
-        )}
+        )} */}
       </Box>
       <Box w={300} h={68}>
         <div className={styles.songInfoContainer}>
           <div className={styles.songMetaData}>
             <Text fz="0.75rem" fw="bold">
-              {currentMetadata?.title || ""}
+              {currentMetadata?.audioFile?.title || ""}
             </Text>
-            <Text fz="0.75rem">{currentMetadata?.artist || ""}</Text>
+            <Text fz="0.75rem">{currentMetadata?.audioFile?.artist || ""}</Text>
           </div>
           <div className={styles.songProgressContainer}>
             <div className={styles.songTime}>
@@ -56,7 +95,9 @@ export default function SongStatus() {
                   ? (currentElapsed / (currentDuration || 1)) * 100
                   : 0
               }
-              color="accent"
+              color={
+                progressColor === "accent" ? "accent" : resolvedColors?.color
+              }
               p="0"
               m="0"
             />

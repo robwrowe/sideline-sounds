@@ -3,33 +3,31 @@ import React, {
   ReactNode,
   useEffect,
   useMemo,
-  useState,
+  useCallback,
 } from "react";
-import { AudioEngine } from "../classes";
-
-// TODO: when a file is finished playing, do not perform a cross-fade (can prob also not cross-fade if it's paused)
-// TODO: add option to fade out when stopping
+import AudioEngine from "../classes/AudioEngine";
+import {
+  AudioEnginePlayMetadata,
+  Output,
+  PlaybackChannelStatus,
+} from "../../types";
+import { getAudioMimeType, getFileName } from "../../utils";
 
 type AudioEngineContextType = {
   audioEngine: AudioEngine;
-  hasMedia: boolean;
-  isPlaying: boolean;
-  volume: number;
+  setVolume: (output: Output, volume: number) => void;
+  setDevice: (output: Output, newDeviceId: string | null) => Promise<void>;
+  testOutput: (
+    output: Output,
+    filePath: string,
+    delay?: number
+  ) => Promise<void>;
 
-  crossfadeDuration: AudioEngine["crossfadeDuration"];
-  crossfadeActive: AudioEngine["crossfadeActive"];
-
-  currentMetadata: AudioEngine["currentMetadata"];
-  currentStartTime: AudioEngine["currentStartTime"];
-  currentDuration: AudioEngine["currentDuration"];
-  currentElapsed: AudioEngine["currentElapsed"];
-  currentRemaining: AudioEngine["currentRemaining"];
-
-  nextMetadata: AudioEngine["nextMetadata"];
-  nextStartTime: AudioEngine["nextStartTime"];
-  nextDuration: AudioEngine["nextDuration"];
-  nextElapsed: AudioEngine["nextElapsed"];
-  nextRemaining: AudioEngine["nextRemaining"];
+  setOscillatorWaveform: (output: Output, waveform: OscillatorType) => void;
+  setOscillatorFrequency: (output: Output, frequency: number) => void;
+  setOscillatorDetune: (output: Output, detune: number) => void;
+  startOscillator: (output: Output) => void;
+  stopOscillator: (output: Output) => void;
 };
 
 export const AudioEngineContext = createContext<null | AudioEngineContextType>(
@@ -43,125 +41,243 @@ export default function AudioEngineProvider({
 }) {
   const audioEngine = useMemo(() => new AudioEngine(), []);
 
-  const [currentMetadata, setCurrentMetadata] = useState<
-    AudioEngine["currentMetadata"]
-  >(audioEngine.currentMetadata);
-  const [currentStartTime, setCurrentStartTime] = useState<
-    AudioEngine["currentStartTime"]
-  >(audioEngine.currentStartTime);
-  const [currentDuration, setCurrentDuration] = useState<
-    AudioEngine["currentDuration"]
-  >(audioEngine.currentDuration);
-  const [currentElapsed, setCurrentElapsed] = useState<
-    AudioEngine["currentElapsed"]
-  >(audioEngine.currentElapsed);
-  const [currentRemaining, setCurrentRemaining] = useState<
-    AudioEngine["currentRemaining"]
-  >(audioEngine.currentRemaining);
+  /**
+   * When this is initialized, set the redux state
+   */
+  const fetchAndSetPgmA = useCallback(() => {
+    const statePgmA = audioEngine.getStatus(Output.PGM_A);
 
-  const [nextMetadata, setNextMetadata] = useState<AudioEngine["nextMetadata"]>(
-    audioEngine.nextMetadata
-  );
-  const [nextStartTime, setNextStartTime] = useState<
-    AudioEngine["nextStartTime"]
-  >(audioEngine.nextStartTime);
-  const [nextDuration, setNextDuration] = useState<AudioEngine["nextDuration"]>(
-    audioEngine.nextDuration
-  );
-  const [nextElapsed, setNextElapsed] = useState<AudioEngine["nextElapsed"]>(
-    audioEngine.nextElapsed
-  );
-  const [nextRemaining, setNextRemaining] = useState<
-    AudioEngine["nextRemaining"]
-  >(audioEngine.nextRemaining);
+    if (statePgmA) {
+      window.audio.sendAction({
+        type: "audioEngine/setOutput",
+        payload: { output: Output.PGM_A, value: statePgmA },
+      });
+    }
+  }, [audioEngine]);
 
-  const [isPlaying, setIsPlaying] = useState<boolean>(audioEngine.isPlaying);
-  const [hasMedia, setHasMedia] = useState<boolean>(audioEngine.hasMedia);
-  const [volume, setVolume] = useState<number>(audioEngine.volume);
-  const [crossfadeDuration, setCrossfadeDuration] = useState<number>(
-    audioEngine.crossfadeDuration
-  );
-  const [crossfadeActive, setCrossfadeActive] = useState<boolean>(
-    audioEngine.crossfadeActive
+  const fetchAndSetPgmB = useCallback(() => {
+    const statePgmB = audioEngine.getStatus(Output.PGM_B);
+
+    if (statePgmB) {
+      window.audio.sendAction({
+        type: "audioEngine/setOutput",
+        payload: { output: Output.PGM_B, value: statePgmB },
+      });
+    }
+  }, [audioEngine]);
+
+  const fetchAndSetPfl = useCallback(() => {
+    const statePfl = audioEngine.getStatus(Output.PFL);
+
+    if (statePfl) {
+      window.audio.sendAction({
+        type: "audioEngine/setOutput",
+        payload: { output: Output.PFL, value: statePfl },
+      });
+    }
+  }, [audioEngine]);
+
+  const fetchAndSetState = useCallback(() => {
+    fetchAndSetPgmA();
+    fetchAndSetPgmB();
+    fetchAndSetPfl();
+  }, [fetchAndSetPfl, fetchAndSetPgmA, fetchAndSetPgmB]);
+
+  useEffect(() => {
+    fetchAndSetState();
+  }, [fetchAndSetState]);
+
+  /**
+   * When the state changes, update it in redux
+   */
+  const handleChangeUpdate = useCallback(
+    (output: Output, value: PlaybackChannelStatus) => {
+      window.audio.sendAction({
+        type: "audioEngine/setOutput",
+        payload: { output, value },
+      });
+    },
+    []
   );
 
   useEffect(() => {
-    // subscribe to metadata changes (or manually when data updates in AudioEngine)
-    const updateMetadata = () => {
-      setCurrentMetadata(audioEngine.currentMetadata);
-      setCurrentStartTime(audioEngine.currentStartTime);
-      setCurrentDuration(audioEngine.currentDuration);
-
-      setNextMetadata(audioEngine.nextMetadata);
-      setNextStartTime(audioEngine.nextStartTime);
-      setNextDuration(audioEngine.nextDuration);
-    };
-
-    // optionally, listen to certain events or updates
-    audioEngine.onMetadataChange = updateMetadata;
+    audioEngine.setOnChangeUpdate(Output.PGM_A, (payload) =>
+      handleChangeUpdate(Output.PGM_A, payload)
+    );
+    audioEngine.setOnChangeUpdate(Output.PGM_B, (payload) =>
+      handleChangeUpdate(Output.PGM_B, payload)
+    );
+    audioEngine.setOnChangeUpdate(Output.PFL, (payload) =>
+      handleChangeUpdate(Output.PFL, payload)
+    );
 
     return () => {
-      // cleanup listeners
-      audioEngine.onMetadataChange = null;
+      audioEngine.setOnChangeUpdate(Output.PGM_A, null);
+      audioEngine.setOnChangeUpdate(Output.PGM_B, null);
+      audioEngine.setOnChangeUpdate(Output.PFL, null);
     };
-  }, [audioEngine]);
+  }, [audioEngine, handleChangeUpdate]);
 
+  /**
+   * Takes a file path and readies it for playback
+   */
+  const getAudioBuffer = useCallback(
+    async (filePath: string) => {
+      // extract the file name from the path
+      const fileName = getFileName(filePath) || "No Name Found";
+
+      const fileBuffer = await window.audio.fileBuffer(filePath);
+
+      const blob = new Blob([fileBuffer]);
+
+      const file = new File([blob], fileName, {
+        type: getAudioMimeType(filePath),
+      });
+
+      const audioBuffer = await audioEngine.loadAudio(file);
+
+      return audioBuffer;
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Allows the user to set the volume for the destination
+   */
+  const setVolume = useCallback(
+    (output: Output, volume: number) => {
+      audioEngine.setVolume(output, volume);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Allows the user to change the destination output
+   */
+  const setDevice = useCallback(
+    async (output: Output, newDeviceId: string | null) => {
+      await audioEngine.setDevice(output, newDeviceId);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Allows the user to change the oscillator waveform type
+   */
+  const setOscillatorWaveform = useCallback(
+    (output: Output, waveform: OscillatorType) => {
+      audioEngine.setOscillatorWaveform(output, waveform);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Allows the user to change the oscillator frequency
+   */
+  const setOscillatorFrequency = useCallback(
+    (output: Output, frequency: number) => {
+      audioEngine.setOscillatorFrequency(output, frequency);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Allows the user to change the oscillator detune
+   */
+  const setOscillatorDetune = useCallback(
+    (output: Output, detune: number) => {
+      audioEngine.setOscillatorDetune(output, detune);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Start the oscillator
+   */
+  const startOscillator = useCallback(
+    (output: Output) => {
+      audioEngine.startOscillator(output);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Stop the oscillator
+   */
+  const stopOscillator = useCallback(
+    (output: Output) => {
+      audioEngine.stopOscillator(output);
+    },
+    [audioEngine]
+  );
+
+  /**
+   * Stops all sound and plays the test file without crossfade
+   */
+  const testOutput = useCallback(
+    async (output: Output, filePath: string, delay?: number) => {
+      const audioBuffer = await getAudioBuffer(filePath);
+
+      audioEngine.testOutput(output, audioBuffer, delay);
+    },
+    [audioEngine, getAudioBuffer]
+  );
+
+  // TODO: add support for button metadata
+  const play = useCallback(
+    async (filePath: string, metadata?: AudioEnginePlayMetadata) => {
+      const audioBuffer = await getAudioBuffer(filePath);
+
+      audioEngine.play(audioBuffer, metadata);
+    },
+    [audioEngine, getAudioBuffer]
+  );
+
+  // listen for play events from other processes
   useEffect(() => {
-    // subscribe to updates in RAF
-    const updateRAF = () => {
-      setCurrentElapsed(audioEngine.currentElapsed);
-      setCurrentRemaining(audioEngine.currentRemaining);
+    window.audio.onAudioEngine((channel, ...args) => {
+      switch (channel) {
+        case "play":
+          play(
+            args[0] as string,
+            (args[1] as AudioEnginePlayMetadata) ?? undefined
+          );
+          break;
 
-      setNextElapsed(audioEngine.nextElapsed);
-      setNextRemaining(audioEngine.nextRemaining);
+        case "stop":
+          audioEngine.stop();
+          break;
 
-      setIsPlaying(audioEngine.isPlaying);
-      setHasMedia(audioEngine.hasMedia);
-      setCrossfadeDuration(audioEngine.crossfadeDuration);
-      setCrossfadeActive(audioEngine.crossfadeActive);
-    };
+        case "pause":
+          audioEngine.pause();
+          break;
 
-    audioEngine.onRAFUpdate = updateRAF;
+        case "resume":
+          audioEngine.resume();
+          break;
 
-    return () => {
-      audioEngine.onRAFUpdate = null;
-    };
-  }, [audioEngine]);
+        case "reRack":
+          audioEngine.reRack((args[0] as number) ?? undefined);
+          break;
 
-  useEffect(() => {
-    const updateVolume = () => {
-      setVolume(audioEngine.volume);
-    };
-
-    audioEngine.onVolumeUpdate = updateVolume;
-
-    return () => {
-      audioEngine.onVolumeUpdate = null;
-    };
-  }, [audioEngine]);
+        default:
+          console.warn("Received unhandled audio engine event.");
+      }
+    });
+  }, [audioEngine, play]);
 
   return (
     <AudioEngineContext.Provider
       value={{
         audioEngine,
-        isPlaying,
-        hasMedia,
-        volume,
-
-        crossfadeDuration,
-        crossfadeActive,
-
-        currentMetadata,
-        currentStartTime,
-        currentDuration,
-        currentElapsed,
-        currentRemaining,
-
-        nextMetadata,
-        nextStartTime,
-        nextDuration,
-        nextElapsed,
-        nextRemaining,
+        setVolume,
+        setDevice,
+        testOutput,
+        setOscillatorWaveform,
+        setOscillatorFrequency,
+        setOscillatorDetune,
+        startOscillator,
+        stopOscillator,
       }}
     >
       {children}

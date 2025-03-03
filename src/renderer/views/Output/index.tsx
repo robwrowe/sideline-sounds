@@ -1,7 +1,14 @@
 import React, { useCallback, useEffect } from "react";
 import classNames from "classnames";
 import { Route, Routes, useNavigate, useLocation } from "react-router";
-import { AppShell, Burger, Group, Title, UnstyledButton } from "@mantine/core";
+import {
+  AppShell,
+  Burger,
+  Group,
+  ScrollArea,
+  Title,
+  UnstyledButton,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconVinyl } from "@tabler/icons-react";
 import styles from "./index.module.scss";
@@ -10,12 +17,13 @@ import { useAppDispatch } from "../../hooks";
 import { fetchOutputDevices } from "../../features";
 
 import DestinationsView from "./Destinations";
+import { AudioEngineProvider } from "../../context";
 
 const PATHS: { text: string; route: string }[] = [
-  {
-    text: "Destinations",
-    route: "/output/dest",
-  },
+  // {
+  //   text: "Destinations",
+  //   route: "/output/dest",
+  // },
 ];
 
 export default function OutputView() {
@@ -64,18 +72,26 @@ export default function OutputView() {
       navbar={{
         width: 300,
         breakpoint: "sm",
-        collapsed: { desktop: true, mobile: !opened },
+        collapsed: { desktop: true, mobile: true },
       }}
       padding="md"
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          {PATHS.length && (
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              hiddenFrom="sm"
+              size="sm"
+            />
+          )}
           <Group justify="space-between" style={{ flex: 1 }}>
             <Group justify="flex-start" align="center" gap="xs">
               <IconVinyl size={30} />
               <Title order={2}>Output Manager</Title>
             </Group>
+
             <Group ml="xl" gap={0} visibleFrom="sm">
               {navButtons}
             </Group>
@@ -88,10 +104,13 @@ export default function OutputView() {
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <Routes>
-          <Route path="/dest/*" element={<DestinationsView />} />
-          <Route path="/*" element={<p>Hello, World!</p>} />
-        </Routes>
+        <ScrollArea.Autosize className={styles.scroll}>
+          <AudioEngineProvider>
+            <Routes>
+              <Route path="/*" element={<DestinationsView />} />
+            </Routes>
+          </AudioEngineProvider>
+        </ScrollArea.Autosize>
       </AppShell.Main>
     </AppShell>
   );

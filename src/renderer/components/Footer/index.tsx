@@ -4,10 +4,8 @@ import { ActionIcon, Menu } from "@mantine/core";
 import { IconAdjustmentsCog } from "@tabler/icons-react";
 import styles from "./index.module.scss";
 
-import OutputDevices from "../OutputDevices";
-
 export default function Footer() {
-  const [showAdjustments, { toggle }] = useDisclosure(false);
+  const [, { toggle }] = useDisclosure(false);
   return (
     <>
       <div className={styles.parent}>
@@ -30,7 +28,6 @@ export default function Footer() {
           </Menu.Dropdown>
         </Menu>
       </div>
-      <OutputDevices opened={showAdjustments} onClose={toggle} />
     </>
   );
 }

@@ -4,8 +4,8 @@ import styles from "./index.module.scss";
 
 import AudioControls from "../AudioControls";
 import SongStatus from "./SongStatus";
-import VolumeControls from "./VolumeControl";
-import { useAudioEngineContext } from "../../hooks";
+import { useAppSelector } from "../../hooks";
+// import VolumeControls from "./VolumeControl";
 
 export type HeaderProps = {
   burgerOpened: boolean;
@@ -13,41 +13,50 @@ export type HeaderProps = {
 };
 
 export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
-  const { audioEngine, isPlaying, hasMedia, crossfadeActive } =
-    useAudioEngineContext();
+  const isPlaying = useAppSelector(
+    ({ audioEngine }) => audioEngine.pgmA.isPlaying
+  );
+
+  const currentRemaining = useAppSelector(
+    ({ audioEngine }) => audioEngine.pgmA.current.remaining
+  );
+
+  const crossfadeActive = useAppSelector(
+    ({ audioEngine }) => audioEngine.pgmA.crossfadeActive
+  );
 
   const handleClickBackwards = useCallback(() => {
     try {
-      audioEngine.reRack();
+      window.audio.sendAudioEngine("reRack");
     } catch (err) {
       console.error("Error restarting file", err);
     }
-  }, [audioEngine]);
+  }, []);
 
   // start playing the song in the context
   const handleClickPlay = useCallback(async () => {
     try {
-      audioEngine.resume();
+      window.audio.sendAudioEngine("resume");
     } catch (err) {
       console.error("Error resuming file", err);
     }
-  }, [audioEngine]);
+  }, []);
 
   const handleClickPause = useCallback(async () => {
     try {
-      audioEngine.pause();
+      window.audio.sendAudioEngine("pause");
     } catch (err) {
       console.error("Error pausing file", err);
     }
-  }, [audioEngine]);
+  }, []);
 
   const handleClickStop = useCallback(async () => {
     try {
-      audioEngine.stop();
+      window.audio.sendAudioEngine("stop");
     } catch (err) {
       console.error("Error pausing file", err);
     }
-  }, [audioEngine]);
+  }, []);
 
   return (
     <>
@@ -60,18 +69,21 @@ export default function Header({ burgerOpened, onBurgerClick }: HeaderProps) {
       <div className={styles.parent}>
         {/* Audio Controls */}
         <AudioControls
-          isPlaying={isPlaying}
-          hasMedia={hasMedia}
-          crossfadeActive={crossfadeActive}
+          isPlaying={isPlaying ?? undefined}
+          hasMedia={currentRemaining && currentRemaining > 0 ? true : false}
+          crossfadeActive={crossfadeActive ?? undefined}
           onClickBackwards={handleClickBackwards}
           onClickPlay={handleClickPlay}
           onClickPause={handleClickPause}
           onClickStop={handleClickStop}
         />
         {/* Audio Status */}
-        <SongStatus />
+        <div style={{ justifySelf: "center" }}>
+          <SongStatus />
+        </div>
         {/* Audio Volume */}
-        <VolumeControls />
+        <div />
+        {/* <VolumeControls /> */}
       </div>
     </>
   );

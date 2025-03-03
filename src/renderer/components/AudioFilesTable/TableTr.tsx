@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import {
   IconPencil,
+  IconPlayerStopFilled,
   IconPlayerPlayFilled,
   IconTrashFilled,
 } from "@tabler/icons-react";
@@ -18,7 +19,9 @@ import { useSongCardColorResolver } from "../../hooks";
 
 export type AudioFileTableTrProps = {
   row: AudioFile;
+  isPlaying?: boolean;
   onClickPlay?: () => void;
+  onClickStop?: () => void;
   onClickDelete?: () => void;
   onClickEdit?: () => void;
   hideActions?: boolean;
@@ -27,7 +30,9 @@ export type AudioFileTableTrProps = {
 
 export default function AudioFileTableTr({
   row,
+  isPlaying = false,
   onClickPlay,
+  onClickStop,
   onClickDelete,
   onClickEdit,
   hideActions = false,
@@ -65,7 +70,7 @@ export default function AudioFileTableTr({
           {row.duration !== null ? formatSecondsToTime(row.duration) : "-:--"}
           {!hideActions && (
             <div className={styles.actionContainer}>
-              {onClickPlay && (
+              {onClickPlay && !isPlaying && (
                 <ActionIcon
                   size="sm"
                   variant="transparent"
@@ -74,6 +79,17 @@ export default function AudioFileTableTr({
                   disabled={!row.filePath}
                 >
                   <IconPlayerPlayFilled size={16} />
+                </ActionIcon>
+              )}
+              {onClickStop && isPlaying && (
+                <ActionIcon
+                  size="sm"
+                  variant="transparent"
+                  color={row.color ? parsedColor.value : actionIconColor}
+                  onClick={onClickStop}
+                  disabled={!row.filePath}
+                >
+                  <IconPlayerStopFilled size={16} />
                 </ActionIcon>
               )}
               {onClickEdit && (

@@ -12,16 +12,20 @@ import {
   Pagination,
 } from "@mantine/core";
 
-import { AudioFile, BaseInitialStateThunk, ThunkStatus } from "../../../types";
-import { getAudioMimeType, getFileName } from "../../../utils";
+import {
+  AudioFile,
+  BaseInitialStateThunk,
+  Output,
+  ThunkStatus,
+} from "../../../types";
 
 import TableTh from "./TableTh";
 import TableTr from "./TableTr";
-import { useAudioEngineContext } from "../../hooks";
 import { dbAudioFiles } from "../../repos";
 import openAudioFileDeleteModal from "./AudioFileDeleteModal";
 import { modals } from "@mantine/modals";
 import { openAudioFileModal } from "../../modals";
+import { RootState } from "../../store";
 
 type SortKeys = keyof Pick<AudioFile, "title" | "artist" | "album">;
 
@@ -75,6 +79,8 @@ export type AudioFilesTableProps = Partial<BaseInitialStateThunk> & {
   hideCheckbox?: boolean;
   itemsPerPage?: number;
   fetchData?: () => Promise<void>;
+  state?: RootState["audioEngine"];
+  output?: Output;
 };
 
 export default function AudioFilesTable({
@@ -85,9 +91,9 @@ export default function AudioFilesTable({
   hideCheckbox = false,
   itemsPerPage = 20,
   fetchData,
+  state,
+  output = Output.PGM_A,
 }: AudioFilesTableProps) {
-  const { audioEngine } = useAudioEngineContext();
-
   const [search, setSearch] = useState("");
   const [sortedData, setSortedData] = useState(data);
   const [sortBy, setSortBy] = useState<SortKeys | null>(null);
@@ -145,24 +151,18 @@ export default function AudioFilesTable({
   // TODO: allow user to pause/stop audio file
   // allow user to play back audio file
   const handleClickPlay = useCallback(
-    async (filePath: string) => {
-      // extract the file name from the path
-      const fileName = getFileName(filePath) || "No Name Found";
-
-      const fileBuffer = await window.electron.audio.fileBuffer(filePath);
-
-      const blob = new Blob([fileBuffer]);
-
-      const file = new File([blob], fileName, {
-        type: getAudioMimeType(filePath),
+    async (filePath: string, audioFile?: AudioFile) => {
+      window.audio.sendAudioEngine("play", filePath, {
+        audioFile,
+        crossfadeDuration: 0,
       });
-
-      const audioBuffer = await audioEngine.loadAudio(file);
-
-      audioEngine.play(audioBuffer);
     },
-    [audioEngine]
+    []
   );
+
+  const handleClickStop = useCallback(() => {
+    window.audio.sendAudioEngine("stop");
+  }, []);
 
   const handleClickEditSubmit = useCallback(
     async (item: AudioFile) => {
@@ -229,34 +229,46 @@ export default function AudioFilesTable({
     activePage * itemsPerPage
   );
 
-  const rows = paginatedData.map((row) => (
-    <TableTr
-      key={row.id}
-      row={row}
-      hideActions={hideActions}
-      hideCheckbox={hideCheckbox}
-      onClickPlay={() => handleClickPlay(row.filePath)}
-      onClickEdit={() =>
-        openAudioFileModal(row.filePath, {
-          title: "Edit Audio File",
-          id: `edit-audio-file-${row.id}`,
-          props: {
-            defaultValues: row,
-            onConfirm: (item) => handleClickEditSubmit(item),
-            labels: { confirm: "Save Changes" },
-            confirmButtonProps: { leftSection: undefined },
-          },
-        })
-      }
-      onClickDelete={() =>
-        openAudioFileDeleteModal({
-          id: row.id,
-          fileName: row.title,
-          props: { onConfirm: () => handleClickDeleteConfirm(row.id) },
-        })
-      }
-    />
-  ));
+  const rows = paginatedData.map((row) => {
+    const audioFileId = state?.[Output.PGM_A]?.current?.metadata?.audioFile?.id;
+    const timeRemaining = state?.[Output.PGM_A]?.current?.remaining;
+
+    return (
+      <TableTr
+        key={row.id}
+        row={row}
+        hideActions={hideActions}
+        hideCheckbox={hideCheckbox}
+        onClickPlay={() => handleClickPlay(row.filePath, row)}
+        onClickStop={handleClickStop}
+        onClickEdit={() =>
+          openAudioFileModal(row.filePath, {
+            title: "Edit Audio File",
+            id: `edit-audio-file-${row.id}`,
+            props: {
+              defaultValues: row,
+              onConfirm: (item) => handleClickEditSubmit(item),
+              labels: { confirm: "Save Changes" },
+              confirmButtonProps: { leftSection: undefined },
+            },
+          })
+        }
+        onClickDelete={() =>
+          openAudioFileDeleteModal({
+            id: row.id,
+            fileName: row.title,
+            props: { onConfirm: () => handleClickDeleteConfirm(row.id) },
+          })
+        }
+        isPlaying={
+          audioFileId === row.id &&
+          timeRemaining !== undefined &&
+          timeRemaining !== null &&
+          timeRemaining > 0
+        }
+      />
+    );
+  });
 
   return (
     <Flex direction="column" style={{ height: "100%" }}>
