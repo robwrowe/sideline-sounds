@@ -9,3 +9,5 @@ See the [LICENSE](./LICENSE) file for details.
 - You **can** use this software for any purpose, including commercially.
 - You **must** release the source code if you modify and distribute it.
 - If you provide this software as a web service, you **must** share the modified source.
+
+This project is a hobby project, and should be used as such.
