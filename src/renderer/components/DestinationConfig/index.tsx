@@ -9,16 +9,17 @@ import { SearchableSelect } from "../../components";
 
 import OscillatorConfig from "./OscillatorConfig";
 
-import FrequencyVisualizer from "../AnalyserVisualizer/FrequencyVisualizer";
-import VolumeMeter from "../AnalyserVisualizer/VolumeMeter";
-import AudioStats from "../AnalyserVisualizer/AudioStats";
+import {
+  AudioStats,
+  FrequencyVisualizer,
+  VolumeMeter,
+} from "../AnalyserVisualizer";
 
 export type DestinationConfigProps = {
   output: Output;
 };
 
 // TODO: set values for device and volume based on local storage on mount
-
 export default function DestinationConfig({ output }: DestinationConfigProps) {
   const { testOutput, setVolume, setDevice } = useAudioEngineContext();
 
@@ -99,7 +100,7 @@ export default function DestinationConfig({ output }: DestinationConfigProps) {
         Play Test Sound
       </Button>
 
-      <Accordion variant="contained" multiple defaultValue={["visualizer"]}>
+      <Accordion variant="contained" multiple defaultValue={["osc"]}>
         <Accordion.Item value="osc">
           <Accordion.Control disabled={isDisabled}>
             Oscillator

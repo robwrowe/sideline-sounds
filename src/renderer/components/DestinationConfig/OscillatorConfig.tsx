@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Button, Input, NumberInput, Stack } from "@mantine/core";
+import { Button, Group, Input, NumberInput, Stack } from "@mantine/core";
+import styles from "./OscillatorConfig.module.scss";
 
 import { Output } from "../../../types";
 import { useAppSelector, useAudioEngineContext } from "../../hooks";
@@ -74,19 +75,30 @@ export default function OscillatorConfig({ output }: OscillatorConfigProps) {
       </Input.Wrapper>
 
       <Input.Wrapper label="Frequency">
-        <Stack gap="xs">
-          <LogarithmicSlider
-            value={oscillatorFrequency}
-            setValue={(value) => {
-              setOscillatorFrequency(output, value);
-              setFrequencyPreset(null);
-            }}
-            min={20} // 20 Hz
-            max={20000} // 20 kHz
-            label={(val) =>
-              val >= 1000 ? `${(val / 1000).toFixed(2)} kHz` : `${val} Hz`
-            }
-          />
+        <Stack gap="xs" w="100%">
+          <Group gap="xs" w="100%">
+            <LogarithmicSlider
+              className={styles.slider}
+              value={oscillatorFrequency}
+              setValue={(value) => {
+                setOscillatorFrequency(output, value);
+                setFrequencyPreset(null);
+              }}
+              min={20} // 20 Hz
+              max={20000} // 20 kHz
+              label={(val) =>
+                val >= 1000 ? `${(val / 1000).toFixed(2)} kHz` : `${val} Hz`
+              }
+            />
+            <NumberInput
+              value={Math.round(oscillatorFrequency)}
+              onChange={(val) => {
+                setOscillatorFrequency(output, Number(val));
+                setFrequencyPreset(null);
+              }}
+              className={styles.numberInput}
+            />
+          </Group>
           <SearchableSelect
             data={[
               {
@@ -195,7 +207,9 @@ export default function OscillatorConfig({ output }: OscillatorConfigProps) {
       </Input.Wrapper>
 
       <Button
-        variant="default"
+        variant={oscillatorIsRunning ? "filled" : "default"}
+        // color={oscillatorIsRunning ? "red" : undefined}
+        color="red"
         onClick={() => {
           if (oscillatorIsRunning) {
             stopOscillator(output);

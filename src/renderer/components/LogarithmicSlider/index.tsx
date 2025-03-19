@@ -7,6 +7,8 @@ export type LogarithmicSliderProps = {
   min: number;
   max: number;
   label?: (value: number) => React.ReactNode;
+  style?: CSSModule;
+  className?: string;
 };
 
 // convert to log scale
@@ -19,6 +21,8 @@ export default function LogarithmicSlider({
   min,
   max,
   label,
+  style,
+  className,
 }: LogarithmicSliderProps) {
   // convert values to log scale
   const logMin = toLog(min);
@@ -53,6 +57,8 @@ export default function LogarithmicSlider({
           ? label(Math.round(fromLog(logMin + (logMax - logMin) * (val / 100))))
           : Math.round(fromLog(logMin + (logMax - logMin) * (val / 100)))
       }
+      style={style}
+      className={className}
     />
   );
 }

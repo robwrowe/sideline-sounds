@@ -61,7 +61,7 @@ export default function FrequencyVisualizer({
 
     // Define key frequencies for tick marks (in Hz)
     const tickFrequencies = [1000, 5000, 10000, 20000]; // Adjust as needed
-    const nyquist = sampleRate / 2; // Max frequency (e.g., 22050 Hz for 44100 sampleRate)
+    const nyquist = sampleRate / 2 > 20000 ? 20000 : sampleRate / 2; // Max frequency (e.g., 22050 Hz for 44100 sampleRate)
 
     const draw = () => {
       try {
