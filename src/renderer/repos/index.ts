@@ -2,6 +2,8 @@ import { AudioFile, Bank, ContentButton, Page, Show } from "../../types";
 import { IndexedDBApp } from "../classes";
 import initDB, { InitDBStore } from "./init.repo";
 
+export * from "./asRunLogs.repo";
+
 export const stores: InitDBStore[] = [
   { storeName: "shows" },
   { storeName: "pages" },
@@ -9,6 +11,7 @@ export const stores: InitDBStore[] = [
   // TODO: if a piece of content was deleted, purge it from the buttons too
   { storeName: "contentButtons", keyPath: ["bankID", "buttonNumber"] },
   { storeName: "audioFiles" },
+  { storeName: "asRunLog" },
 ];
 
 export const dbShows = new IndexedDBApp<Show>("shows");

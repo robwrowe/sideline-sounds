@@ -6,6 +6,7 @@ export type AudioEnginePlayMetadata = {
   audioFile?: AudioFile;
   subclipID?: string;
   button?: ContentButton;
+  asRunLogID?: string;
 };
 
 export type AudioEnginePlayPgmOpts = AudioEnginePlayMetadata & {

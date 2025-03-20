@@ -1,4 +1,6 @@
 import { AudioEnginePlayMetadata, PlaybackChannelStatus } from "../../types";
+import { addToAsRun, dbAsRunLogs, setAsRunEndTime } from "../repos";
+import { v4 as uuid } from "uuid";
 
 type PlaybackChannelOpts = {
   onPlaybackUpdate?: (args: PlaybackChannelStatus) => void;
@@ -643,6 +645,13 @@ export default class PlaybackChannel {
     if (this.isPlaying && !this.crossfadeActive) {
       console.log("Audio playback ended naturally");
 
+      // set out point in log
+      if (this.currentMetadata?.asRunLogID) {
+        setAsRunEndTime(this.currentMetadata.asRunLogID, {
+          outPoint: this.currentElapsed,
+        });
+      }
+
       // update playing state
       this.isPlaying = false;
 
@@ -739,6 +748,13 @@ export default class PlaybackChannel {
           this.currentSource = this.nextSource;
           this.currentGain = this.nextGain;
 
+          // update as run with out point
+          if (this.currentMetadata?.asRunLogID) {
+            setAsRunEndTime(this.currentMetadata?.asRunLogID, {
+              outPoint: this.currentElapsed,
+            });
+          }
+
           // state
           this.currentBuffer = this.nextBuffer;
           this.currentDuration = this.nextDuration;
@@ -789,6 +805,23 @@ export default class PlaybackChannel {
 
     const crossfadeDuration = this.crossfadeDuration;
 
+    // create an as run log entry for this new file
+    if (metadata) {
+      if (metadata?.audioFile?.id) {
+        const asRunLogID = metadata?.asRunLogID ?? uuid();
+
+        // TODO: update with in point
+        // add the entry to the log
+        addToAsRun(metadata.audioFile.id, {
+          id: asRunLogID,
+          subclipID: metadata?.subclipID,
+        });
+
+        // add the ID to the metadata
+        metadata = { ...metadata, asRunLogID };
+      }
+    }
+
     // if there's a source already playing, and there's a crossfade duration,
     // perform a crossfade
     if (this.currentSource && crossfadeDuration > 0) {
@@ -827,6 +860,13 @@ export default class PlaybackChannel {
   public pause() {
     // only perform the pause if a crossfade isn't in progress
     if (!this.crossfadeActive && this.isRunning() && this.currentSource) {
+      // update as run with out point
+      if (this.currentMetadata?.asRunLogID) {
+        setAsRunEndTime(this.currentMetadata?.asRunLogID, {
+          outPoint: this.currentElapsed,
+        });
+      }
+
       // stop updates
       this.stopRAFUpdate();
 
@@ -865,6 +905,20 @@ export default class PlaybackChannel {
       this.currentStartTime =
         this.audioContext.currentTime - this.currentElapsed;
 
+      // create new as run entry
+      if (this.currentMetadata?.audioFile?.id) {
+        const id = uuid();
+
+        // add a new entry, adjusting for in point
+        addToAsRun(this.currentMetadata.audioFile.id, {
+          id,
+          inPoint: this.currentElapsed,
+        });
+
+        // update metadata with new log entry
+        this.currentMetadata = { ...this.currentMetadata, asRunLogID: id };
+      }
+
       // resume updates
       this.startRAFUpdate();
     }
@@ -884,6 +938,13 @@ export default class PlaybackChannel {
       // stop updates
       this.stopRAFUpdate();
 
+      // end the previous log entry
+      if (this.currentMetadata?.asRunLogID) {
+        setAsRunEndTime(this.currentMetadata.asRunLogID, {
+          outPoint: this.currentElapsed,
+        });
+      }
+
       // pause the source
       this.currentSource.stop();
       this.currentSource = null;
@@ -901,6 +962,17 @@ export default class PlaybackChannel {
       this.currentElapsed = startPoint;
       this.isPlaying = true;
 
+      // add new log entry
+      if (this.currentMetadata?.audioFile?.id) {
+        const id = uuid();
+
+        // add entry
+        addToAsRun(this.currentMetadata.audioFile.id, { id });
+
+        // update with new log ID
+        this.currentMetadata = { ...this.currentMetadata, asRunLogID: id };
+      }
+
       // start updates
       this.startRAFUpdate();
     } else if (this.currentBuffer && this.currentElapsed !== null) {
@@ -914,6 +986,13 @@ export default class PlaybackChannel {
    */
   public stop() {
     if (this.currentSource) {
+      // update log
+      if (this.currentMetadata?.asRunLogID) {
+        setAsRunEndTime(this.currentMetadata?.asRunLogID, {
+          outPoint: this.currentElapsed,
+        });
+      }
+
       this.currentSource.onended = null;
       this.currentSource.stop();
       this.currentSource = null;
@@ -926,6 +1005,13 @@ export default class PlaybackChannel {
     }
 
     if (this.nextSource) {
+      // update log
+      if (this.nextMetadata?.asRunLogID) {
+        setAsRunEndTime(this.nextMetadata?.asRunLogID, {
+          outPoint: this.nextElapsed,
+        });
+      }
+
       this.nextSource.onended = null;
       this.nextSource.stop();
       this.nextSource = null;
